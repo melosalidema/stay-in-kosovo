@@ -1,0 +1,409 @@
+{
+  "app": {
+    "name": "Stay in Kosovo",
+    "metaTitle": "Stay in Kosovo - Aplikacion inteligjent për përvoja dhe mobilitet",
+    "metaDescription": "Aplikacion me AI për zbulimin e Kosovës: vende, evente, mobilitet, itinerare, biznese dhe përvoja lokale."
+  },
+  "common": {
+    "language": "Gjuha",
+    "toggleTheme": "Ndrysho temën",
+    "account": "Llogaria",
+    "signIn": "Hyr",
+    "signOut": "Dil",
+    "register": "Regjistrohu",
+    "login": "Hyr",
+    "loading": "Duke u ngarkuar...",
+    "thinking": "Duke menduar...",
+    "review": "Shqyrto",
+    "approve": "Mirato",
+    "refresh": "Rifresko",
+    "viewAll": "Shiko të gjitha",
+    "submit": "Dërgo",
+    "email": "Email",
+    "password": "Fjalëkalimi",
+    "name": "Emri",
+    "role": "Roli",
+    "city": "Qyteti",
+    "category": "Kategoria",
+    "vibe": "Atmosfera",
+    "budget": "Buxheti",
+    "rating": "Vlerësimi",
+    "place": "Vendi",
+    "address": "Adresa",
+    "phone": "Telefoni",
+    "instagram": "Instagram",
+    "description": "Përshkrimi",
+    "transport": "Transporti",
+    "from": "Nga",
+    "to": "Deri",
+    "preference": "Preferenca",
+    "hours": "Orë",
+    "interests": "Interesat",
+    "openNow": "Hapur tani",
+    "walkable": "E arritshme në këmbë",
+    "busNearby": "Autobus afër",
+    "allCategories": "Të gjitha kategoritë",
+    "allVibes": "Të gjitha atmosferat",
+    "currentLanguage": "Gjuha aktuale",
+    "minutesShort": "min",
+    "hoursShort": "orë",
+    "kilometers": "km",
+    "transit": "transit",
+    "mode": "modalitet"
+  },
+  "nav": {
+    "pulse": "Pulsi",
+    "discover": "Zbulo",
+    "itinerary": "Itinerari",
+    "mobility": "Mobiliteti",
+    "business": "Biznesi",
+    "admin": "Admin",
+    "menu": "Hap menynë"
+  },
+  "offline": {
+    "message": "Modaliteti offline është aktiv. Vendet e ruajtura dhe drafti i itinerarit mbeten lokalisht."
+  },
+  "footer": {
+    "description": "Zbulim inteligjent, mobilitet, itinerare dhe mjete për biznese lokale në turizmin dhe jetën urbane të Kosovës.",
+    "aiTitle": "Arkitektura AI",
+    "aiText": "Së pari vlerësim i auditueshëm, pastaj shtresë narrative me OpenAI.",
+    "productionTitle": "Rruga drejt prodhimit",
+    "productionText": "Prisma, RBAC, kufizime trafiku, Docker dhe integrime me variabla mjedisi."
+  },
+  "languageSwitcher": {
+    "label": "Gjuha",
+    "placeholder": "Zgjidh gjuhën"
+  },
+  "hero": {
+    "eyebrow": "Sistem operativ për përvoja në Kosovë i fuqizuar nga AI",
+    "title": "Stay in Kosovo",
+    "description": "Një guidë mobile-first që bashkon pulsin e qytetit, inteligjencën e atmosferës, mobilitetin e zgjuar, ofertën e bizneseve dhe itineraret e gjeneruara në një rrjedhë premium zbulimi.",
+    "exploreNow": "Eksploro tani",
+    "cityPulse": "Pulsi i qytetit",
+    "useLocation": "Përdor vendndodhjen time",
+    "stats": {
+      "signals": "sinjale live",
+      "vibes": "modalitete atmosfere",
+      "layers": "shtresa shërbimi"
+    }
+  },
+  "mapPreview": {
+    "title": "Grafi live i përvojave në Kosovë",
+    "text": "Vendet, eventet, moti dhe sinjalet e mobilitetit përditësojnë listën e renditur."
+  },
+  "weather": {
+    "wind": "Era",
+    "cached": "Përditësimet e motit ruhen për 15 minuta."
+  },
+  "pulseHome": {
+    "badge": "Pulsi i përvojës",
+    "title": "Një shtresë live operative për atë që ia vlen të bëhet më pas.",
+    "openConsole": "Hap panelin e pulsit",
+    "tonightIn": "Sonte në {{city}}",
+    "mobility": "mobilitet {{value}}",
+    "transit": "{{value}}% transit",
+    "mode": "modalitet {{value}}",
+    "note": "Pikët e pulsit ushqejnë rekomandimet, kohëzimin e itinerarit, mesazhet e mobilitetit dhe sinjalet e ofertës për biznese."
+  },
+  "vibesSection": {
+    "eyebrow": "Zbulo atmosferën tënde",
+    "title": "Eksploro sipas ndjesisë, jo vetëm kategorisë.",
+    "description": "Atmosfera e zgjedhur përditëson rekomandimet, filtrat, itinerarin dhe pikëzimin e pulsit.",
+    "active": "Aktive",
+    "explore": "Eksploro {{vibe}}",
+    "openFilters": "Hap filtrat e plotë"
+  },
+  "aiRecommendations": {
+    "badge": "Rekomandime AI",
+    "title": "Të renditura për {{vibe}} tani.",
+    "description": "Motori kombinon atmosferën, distancën, cilësinë, buxhetin, sinjalin hidden-gem, mobilitetin, kontekstin dhe preferencat e mësuara.",
+    "score": "Pikë AI"
+  },
+  "trending": {
+    "badge": "Në trend në Kosovë",
+    "title": "Vende dhe evente popullore.",
+    "eventHeatmap": "Hartë nxehtësie eventesh"
+  },
+  "flow": {
+    "eyebrow": "Rrjedha e plotë e aplikacionit",
+    "title": "Nga hapja e parë te analitika e biznesit.",
+    "steps": {
+      "location": {
+        "title": "Vendndodhja",
+        "text": "Aplikacioni kërkon vendndodhjen dhe kalon te qendra e Prishtinës kur leja refuzohet."
+      },
+      "recommendations": {
+        "title": "Rekomandimet",
+        "text": "Qëllimi i atmosferës dhe filtrave dërgohet te API-ja e pikëzimit për vende të renditura dhe arsye."
+      },
+      "mobility": {
+        "title": "Mobiliteti",
+        "text": "Opsionet e rrugës vlerësojnë kohën, koston, karbonin dhe disponueshmërinë e transportit."
+      },
+      "itinerary": {
+        "title": "Itinerari",
+        "text": "Vendet e renditura bëhen një rrugë me orare, ndalesa, kosto dhe segmente udhëtimi."
+      },
+      "business": {
+        "title": "Sinjali i biznesit",
+        "text": "Ruajtjet, shikimet, check-in, recensionet dhe kërkesat e rrugës përditësojnë analitikën."
+      },
+      "personalization": {
+        "title": "Personalizimi",
+        "text": "Ndërveprimet mund të përmirësojnë rekomandimet përmes vektorëve të preferencave."
+      }
+    }
+  },
+  "discover": {
+    "badge": "Zbulim në kohë reale",
+    "title": "Gjej përvojën e duhur në Kosovë tani.",
+    "description": "Kërko, filtro dhe shfaq në hartë vendet sipas atmosferës, buxhetit, vlerësimit, statusit dhe transportit.",
+    "matching": "{{count}} përvoja që përputhen",
+    "searchPlaceholder": "Kërko kafene, shtigje, muze..."
+  },
+  "mapPanel": {
+    "title": "Hartë live e zbulimit",
+    "subtitle": "Shtresë e gatshme për Mapbox me sinjale rruge dhe nxehtësie.",
+    "useCurrentLocation": "Përdor vendndodhjen aktuale",
+    "alt": "Hartë Mapbox për zbulimin e Kosovës",
+    "eventHeatmap": "Hartë nxehtësie eventesh",
+    "demand": "Kërkesë e simuluar nga ruajtjet, shikimet, check-in dhe nxehtësia e eventeve.",
+    "smartEta": "ETA e zgjuar",
+    "foodHigh": "Ushqim: lartë",
+    "nightRising": "Natë: në rritje",
+    "natureCalm": "Natyrë: qetë"
+  },
+  "placeCard": {
+    "save": "Ruaj vendin",
+    "removeSaved": "Hiq nga të ruajturat",
+    "walk": "Ecje",
+    "bus": "Autobus",
+    "taxi": "Taksi"
+  },
+  "reviews": {
+    "badge": "Sistem përvoje përdoruesi",
+    "title": "Regjistro ndjesinë e një vendi.",
+    "description": "Recensionet bëhen sinjale të strukturuara për atmosferë, turmë, muzikë, popullaritet lokal dhe foto.",
+    "commentLabel": "Si ndihet ky vend",
+    "commentPlaceholder": "Libra, drita të ngrohta, biseda të lehta dhe turmë shumë lokale...",
+    "crowdLevel": "Niveli i turmës",
+    "musicVibe": "Atmosfera muzikore",
+    "atmosphereTags": "Etiketa atmosfere",
+    "submit": "Dërgo recensionin",
+    "success": "Recensioni u dërgua dhe është gati për analitikën e moderimit."
+  },
+  "itinerary": {
+    "badge": "Ndërtues itinerari AI",
+    "title": "Ndërto një ditë të zgjuar në Kosovë.",
+    "description": "Motori rendit vendet, vlerëson mobilitetin, cakton blloqe kohe dhe mban planin brenda buxhetit.",
+    "interestsPlaceholder": "ushqim, kulturë, muzikë",
+    "generate": "Gjenero itinerar",
+    "generatedRoute": "Rrugë e gjeneruar",
+    "stop": "Ndalesa {{order}}",
+    "stay": "{{minutes}} min qëndrim",
+    "travel": "{{minutes}} min udhëtim",
+    "emptyTitle": "Rruga e gjeneruar shfaqet këtu.",
+    "emptyText": "Provo Nightlife për një mbrëmje në Prishtinë, Adventure për Rugovë ose Brezovicë, ose Local Food për një plan me restorante."
+  },
+  "mobility": {
+    "badge": "Mobilitet i zgjuar",
+    "title": "Planifiko mënyrën më të mirë për të lëvizur në Kosovë.",
+    "description": "Krahaso ecjen, taksinë, autobusin, biçikletën dhe makinën sipas kohës, kostos, disponueshmërisë dhe karbonit.",
+    "calculate": "Llogarit rrugët",
+    "routeVisualization": "Vizualizimi përdor pikat e rrugës nga shërbimi dhe mund të lidhet me Mapbox Directions.",
+    "empty": "Zgjidh dy vende dhe llogarit rrugët për të krahasuar opsionet.",
+    "nearby": "Pika transporti afër"
+  },
+  "pulseConsole": {
+    "badge": "Paneli i pulsit",
+    "title": "Monitoro kërkesën, presionin e mobilitetit dhe boshllëqet e ofertës sipas qytetit.",
+    "liveMap": "Harta live e {{city}}",
+    "mapText": "Zonat kombinojnë kërkesën, cilësinë, hidden gems, eventet dhe besueshmërinë e rrugëve.",
+    "topVibes": "Atmosferat kryesore",
+    "supplyGaps": "Boshllëqe oferte",
+    "transportHealth": "Gjendja e transportit",
+    "suggestedActions": "Veprime të sugjeruara"
+  },
+  "business": {
+    "dashboardBadge": "Paneli i biznesit",
+    "dashboardTitle": "Menaxho ofertën lokale dhe sinjalet e renditjes.",
+    "dashboardText": "Ndiq zbulimin, rrugët, ruajtjet, check-in dhe gatishmërinë për rekomandime.",
+    "boostTitle": "Rritje rekomandimi",
+    "boostText": "Pikët boost ndikojnë vetëm pjesën businessBoost dhe mbeten të kufizuara që cilësia organike të jetë sinjali kryesor.",
+    "eventManager": "Menaxher eventesh",
+    "addEvent": "Shto event",
+    "photosMedia": "Foto dhe media",
+    "photosText": "Nënshkrimet për ngarkim gjenerohen në server për Cloudinary. Në prototip, ngarkimet bëhen preview lokale.",
+    "requestUpload": "Kërko nënshkrim ngarkimi",
+    "qrTitle": "QR check-ins",
+    "qrText": "Check-in mund të nxisin badge, besnikëri, vizita të verifikuara dhe analitikë anti-abuzim.",
+    "funnel": "Tuneli",
+    "analyticsText": "Analitika përditësohet nga shikimet, ruajtjet, recensionet, kërkesat e rrugës, itineraret dhe check-in.",
+    "onboardingBadge": "Onboarding biznesi",
+    "onboardingTitle": "Krijo profil biznesi lokal.",
+    "onboardingText": "Bizneset nisin në pritje. Miratimi i adminit i bën të dukshme për zbulim, evente, QR check-ins dhe renditje.",
+    "businessName": "Emri i biznesit",
+    "descriptionPlaceholder": "Çfarë duhet të dinë udhëtarët dhe vendasit?",
+    "vibeTags": "Etiketa atmosfere",
+    "submitApproval": "Dërgo për miratim",
+    "submitted": "Profili u dërgua për miratim nga admini.",
+    "onboardAnother": "Shto profil tjetër",
+    "event1Title": "Mbrëmje Indie Jazz",
+    "event1Meta": "Sonte · heat score 86 · audiencë hidden-gem",
+    "event2Title": "Tavolinë brunch fundjave",
+    "event2Meta": "E shtunë · segment turi ushqimi",
+    "funnelItems": [
+      "Impresione AI",
+      "Hapje kartash",
+      "Kërkesa rruge",
+      "Itinerare të ruajtura",
+      "QR check-ins"
+    ],
+    "visibility": "I promovuar në Qetësi, Ushqim lokal dhe Thesare të fshehura",
+    "contributors": [
+      "Profil i plotë",
+      "Cilësi e lartë recensionesh",
+      "Evente të fundit",
+      "Përgjigje e shpejtë për rrugë"
+    ]
+  },
+  "admin": {
+    "badge": "Moderimi admin",
+    "title": "Menaxho besimin dhe cilësinë e tregut.",
+    "description": "Veprimet e adminit miratojnë ofertën, moderojnë përmbajtjen sociale dhe mbrojnë cilësinë e rekomandimeve.",
+    "businessApprovals": "Miratime biznesesh",
+    "reviewModeration": "Moderim recensionesh",
+    "locationApproval": "Miratim lokacioni",
+    "coordinateConfidence": "{{value}}% besueshmëri koordinatash"
+  },
+  "auth": {
+    "protectedRoutes": "Rrugë të mbrojtura",
+    "loginTitle": "Hyr në Stay in Kosovo.",
+    "loginHelp": "Përdor kredencialet seed pas `npm run db:seed`, ose konfiguro Google OAuth në `.env`.",
+    "loginFailed": "Hyrja dështoi. Ekzekuto Prisma seed ose kontrollo kredencialet.",
+    "google": "Vazhdo me Google",
+    "seeded": "Turist: tourist@staykosovo.dev · Pronar: owner@staykosovo.dev · Admin: admin@staykosovo.dev",
+    "newAccount": "Llogari e re?",
+    "createAccount": "Krijo llogari",
+    "registerTitle": "Bashkohu me grafin e përvojave të Kosovës.",
+    "registerHelp": "Turistët mund të ruajnë vende dhe të gjenerojnë itinerare. Pronarët e bizneseve mund të dërgojnë profile për miratim.",
+    "userRole": "Turist / Përdorues",
+    "businessOwner": "Pronar biznesi",
+    "created": "Llogaria u krijua. Tani mund të hysh.",
+    "alreadyRegistered": "Je regjistruar tashmë?"
+  },
+  "assistant": {
+    "open": "Hap asistentin AI të udhëtimit",
+    "close": "Mbyll asistentin",
+    "title": "Asistent udhëtimi AI",
+    "subtitle": "Përdor kontekstin e motorit të rekomandimeve",
+    "initial": "Pyet për një mbrëmje ideale, tur ushqimi, hidden gem ose plan me mobilitet të lehtë.",
+    "error": "Nuk arrita API-në e asistentit. Provo përsëri pasi aplikacioni të rilidhet.",
+    "placeholder": "Planifiko një natë ushqimi...",
+    "send": "Dërgo mesazh"
+  },
+  "notFound": {
+    "title": "Kjo rrugë nuk është në hartë.",
+    "text": "Kthehu te zbulimi dhe zgjidh një përvojë të re në Kosovë.",
+    "action": "Hap zbulimin"
+  },
+  "domain": {
+    "vibes": {
+      "chill": "Qetësi",
+      "nightlife": "Jetë nate",
+      "romantic": "Romantike",
+      "adventure": "Aventurë",
+      "local-food": "Ushqim lokal",
+      "hidden-gems": "Thesare të fshehura",
+      "family-friendly": "Për familje",
+      "culture": "Kulturë"
+    },
+    "categories": {
+      "restaurants": "Restorante",
+      "cafes": "Kafene",
+      "nightlife": "Jetë nate",
+      "nature": "Natyrë",
+      "culture": "Kulturë",
+      "events": "Evente",
+      "parks": "Parqe"
+    },
+    "transport": {
+      "WALKING": "Ecje",
+      "TAXI": "Taksi",
+      "BUS": "Autobus",
+      "BIKE": "Biçikletë",
+      "CAR": "Makinë"
+    },
+    "crowd": {
+      "Quiet": "Qetë",
+      "Balanced": "E balancuar",
+      "Lively": "E gjallë",
+      "Busy": "E ngarkuar",
+      "Seasonal": "Sezonale",
+      "Cozy": "Komode"
+    },
+    "availability": {
+      "high": "e lartë",
+      "medium": "mesatare",
+      "low": "e ulët",
+      "surging": "në rritje të fortë",
+      "lively": "e gjallë",
+      "balanced": "e balancuar",
+      "calm": "e qetë",
+      "easy": "e lehtë",
+      "busy": "e ngarkuar",
+      "moderate": "mesatare"
+    },
+    "dayParts": {
+      "MORNING": "Mëngjes",
+      "AFTERNOON": "Pasdite",
+      "EVENING": "Mbrëmje",
+      "LATE_NIGHT": "Natë vonë"
+    },
+    "atmosphere": {
+      "warm": "e ngrohtë",
+      "local": "lokale",
+      "creative": "kreative",
+      "quiet": "e qetë",
+      "lively": "e gjallë",
+      "romantic": "romantike",
+      "family": "familjare",
+      "scenic": "panoramike"
+    },
+    "vibeDescriptions": {
+      "chill": "Kafene të qeta, parqe, ecje të lehta dhe pamje të qeta.",
+      "nightlife": "Bare, kuzhina të vona, sete live dhe rrugë sociale.",
+      "romantic": "Pika perëndimi, ndriçim i ngrohtë, darkë dhe shëtitje.",
+      "adventure": "Male, kanione, rrugë skijimi dhe plane energjike.",
+      "local-food": "Kuzhina tradicionale, bistro moderne dhe ture ushqimi.",
+      "hidden-gems": "Vende më pak të dukshme me sinjal të fortë lokal.",
+      "family-friendly": "Ditë, aksesueshmëri, rrugë më të sigurta dhe ritëm i lehtë."
+    }
+  },
+  "geo": {
+    "unavailable": "Gjeolokacioni nuk është i disponueshëm. Po përdoret qendra e Prishtinës.",
+    "denied": "Leja e vendndodhjes nuk u dha. Po përdoret qendra e Prishtinës."
+  },
+  "metrics": {
+    "labels": {
+      "discovery-views": "Shikime zbulimi",
+      "route-requests": "Kërkesa rruge",
+      "saved-by-users": "Ruajtur nga përdoruesit",
+      "check-ins": "Check-ins",
+      "pending-businesses": "Biznese në pritje",
+      "flagged-reviews": "Recensione të shënuara",
+      "approved-places": "Vende të miratuara",
+      "api-health": "Gjendja e API-së"
+    },
+    "deltas": {
+      "22-vs-last-month": "+22% ndaj muajit të kaluar",
+      "14-from-mobility": "+14% nga mobiliteti",
+      "9-from-ai-picks": "+9% nga zgjedhjet AI",
+      "31-qr-flow": "+31% rrjedha QR",
+      "4-need-document-review": "4 kërkojnë shqyrtim dokumentesh",
+      "2-high-priority": "2 me prioritet të lartë",
+      "18-this-week": "+18 këtë javë",
+      "cache-hit-rate-74": "cache hit rate 74%"
+    }
+  }
+}

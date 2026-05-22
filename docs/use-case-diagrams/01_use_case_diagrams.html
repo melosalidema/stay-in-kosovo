@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Use Case Diagrams</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "default",
+      flowchart: { curve: "basis", htmlLabels: true }
+    });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Use Case Diagrams</h1>
+    <p>UML-style use case diagrams for Stay in Kosovo: web, mobile/PWA, API backend, roles, and third-party services.</p>
+  </header>
+  <main>
+    <nav class="toolbar">
+      <a href="index.html">Back to index</a>
+      <a href="../system-use-case-overview.md">Open full Markdown overview</a>
+    </nav>
+
+    <section class="section">
+      <h2>Legend</h2>
+      <p>
+        Mermaid does not provide a native use-case diagram type, so these diagrams use flowchart notation to approximate UML:
+        actors are rectangular external nodes, use cases are rounded nodes, subgraphs are system boundaries, solid arrows show actor/API usage,
+        and dotted arrows show include/extend relationships.
+      </p>
+    </section>
+
+    <section class="diagram-block">
+      <h2>Diagram 1: Full System Overview</h2>
+      <pre class="mermaid">
+flowchart LR
+  Tourist[Tourist / Local User]
+  WebUser[Web User<br/>Desktop Browser]
+  MobileUser[Mobile User<br/>Mobile / PWA]
+  Owner[Business Owner]
+  Admin[Admin]
+  DB[(PostgreSQL<br/>Database)]
+  Auth[NextAuth]
+  Weather[Open-Meteo]
+  Mapbox[Mapbox<br/>optional]
+  Cloudinary[Cloudinary<br/>optional]
+  Google[Google OAuth<br/>optional]
+  OpenAI[OpenAI<br/>future optional]
+
+  subgraph Clients[Stay in Kosovo Clients]
+    UCWeb([Open Web App])
+    UCMobile([Open Mobile / PWA App])
+    UCPWA([Install / Offline PWA])
+    UCHome([Browse Home Dashboard])
+    UCVibe([Select Vibe])
+    UCDiscover([Discover & Filter Places])
+    UCMap([View Map / Request Location])
+    UCRecs([Get AI-style Recommendations])
+    UCPulse([View City Pulse])
+    UCMobility([Calculate Mobility Options])
+    UCItinerary([Generate Itinerary])
+    UCInteract([Save / View / Route Interaction])
+    UCReview([Leave Review])
+    UCAssistant([Ask Travel Assistant])
+    UCWeather([Check Weather])
+  end
+
+  subgraph Account[Account and Protected Areas]
+    UCRegister([Register Account])
+    UCLogin([Login])
+    UCAuth([Authenticate User])
+    UCRole([Authorize Role])
+    UCBizDashboard([View Business Dashboard])
+    UCBizOnboard([Submit Business Onboarding])
+    UCUpload([Get Upload Signature])
+    UCAdmin([View Admin Moderation Queues])
+  end
+
+  subgraph API[Shared API Backend]
+    UCValidate([Validate Request])
+    UCRate([Rate Limit Request])
+    UCData([Fetch / Persist Data])
+    UCRank([Rank Recommendations])
+    UCProfile([Build Preference Profile])
+    UCPulseEngine([Generate Pulse Intelligence])
+    UCMobilityEngine([Generate Route / ETA Options])
+    UCItinEngine([Generate Itinerary Plan])
+  end
+
+  WebUser --> UCWeb
+  WebUser --> UCLogin
+  WebUser --> UCRegister
+  MobileUser --> UCMobile
+  MobileUser --> UCLogin
+  MobileUser --> UCRegister
+  MobileUser --> UCPWA
+  Tourist --> UCHome
+  Tourist --> UCDiscover
+  Tourist --> UCMap
+  Tourist --> UCRecs
+  Tourist --> UCPulse
+  Tourist --> UCMobility
+  Tourist --> UCItinerary
+  Tourist --> UCInteract
+  Tourist --> UCReview
+  Tourist --> UCAssistant
+  Tourist --> UCWeather
+  Owner --> UCBizDashboard
+  Owner --> UCBizOnboard
+  Owner --> UCUpload
+  Admin --> UCAdmin
+  Admin --> UCBizDashboard
+
+  UCWeb --> API
+  UCMobile --> API
+  UCDiscover --> API
+  UCRecs --> API
+  UCPulse --> API
+  UCMobility --> API
+  UCItinerary --> API
+  UCReview --> API
+  UCAssistant --> API
+  UCWeather --> API
+  UCRegister --> API
+  UCLogin --> Auth
+  UCBizDashboard --> API
+  UCBizOnboard --> API
+  UCAdmin --> API
+  UCUpload --> API
+  UCInteract --> API
+
+  UCRegister -. include .-> UCValidate
+  UCLogin -. include .-> UCAuth
+  UCDiscover -. include .-> UCValidate
+  UCRecs -. include .-> UCValidate
+  UCRecs -. include .-> UCRank
+  UCRecs -. extend .-> UCProfile
+  UCPulse -. include .-> UCPulseEngine
+  UCMobility -. include .-> UCMobilityEngine
+  UCItinerary -. include .-> UCItinEngine
+  UCItinerary -. include .-> UCRecs
+  UCItinerary -. include .-> UCPulse
+  UCItinerary -. include .-> UCMobility
+  UCReview -. include .-> UCAuth
+  UCBizDashboard -. include .-> UCRole
+  UCBizOnboard -. include .-> UCRole
+  UCAdmin -. include .-> UCRole
+  UCUpload -. include .-> UCAuth
+  UCAssistant -. extend .-> UCRecs
+
+  API --> DB
+  API --> Auth
+  Auth --> DB
+  Auth --> Google
+  UCWeather --> Weather
+  UCMap --> Mapbox
+  UCUpload --> Cloudinary
+  UCAssistant -. future .-> OpenAI
+  UCRecs -. future explanations .-> OpenAI
+      </pre>
+    </section>
+
+    <table>
+      <tr><th>Actor</th><th>Role</th><th>Main use cases</th></tr>
+      <tr><td>Tourist / Local User</td><td>Primary visitor using the product for exploration.</td><td>Discover places, recommendations, city pulse, mobility, itinerary, reviews, assistant, weather.</td></tr>
+      <tr><td>Web User</td><td>Desktop/tablet browser user.</td><td>Opens the same Next.js app and consumes the API through browser fetch calls.</td></tr>
+      <tr><td>Mobile User</td><td>Phone/PWA user.</td><td>Uses the mobile-first responsive app, install/offline support, same shared API endpoints.</td></tr>
+      <tr><td>Business Owner</td><td>Authenticated role for operator features.</td><td>Business dashboard, onboarding, upload signature, visibility and analytics.</td></tr>
+      <tr><td>Admin</td><td>Authenticated administrator.</td><td>Moderation queues, platform metrics, business/review/location oversight.</td></tr>
+      <tr><td>External Services</td><td>Providers outside the app.</td><td>Weather, map images, uploads, OAuth, future AI narrative/chat enhancement.</td></tr>
+    </table>
+
+    <section class="diagram-block">
+      <h2>Diagram 2: Tourist / Mobile / Web Shared Use Cases</h2>
+      <pre class="mermaid">
+flowchart LR
+  Tourist[Tourist / Local User]
+  Web[Web Client]
+  Mobile[Mobile / PWA Client]
+
+  subgraph UI[Client Platform]
+    Home([Browse Home])
+    Vibe([Select Vibe])
+    Discover([Discover Places])
+    Map([Use Map / Location])
+    Recs([Request Recommendations])
+    Pulse([View City Pulse])
+    Mobility([Compare Transport])
+    Itinerary([Generate Itinerary])
+    Review([Submit Review])
+    Assistant([Ask Assistant])
+    Weather([View Weather])
+  end
+
+  subgraph SharedAPI[Shared API]
+    PlacesAPI([GET /api/places])
+    RecsAPI([POST /api/recommendations])
+    PulseAPI([GET or POST /api/pulse])
+    MobilityAPI([POST /api/mobility])
+    ItineraryAPI([POST /api/itinerary])
+    ReviewAPI([POST /api/reviews])
+    AssistantAPI([POST /api/assistant])
+    WeatherAPI([GET /api/weather])
+    InteractionsAPI([POST /api/interactions])
+  end
+
+  Tourist --> Web
+  Tourist --> Mobile
+  Web --> Home
+  Mobile --> Home
+  Home --> Vibe
+  Vibe --> Recs
+  Discover --> PlacesAPI
+  Map --> PlacesAPI
+  Recs --> RecsAPI
+  Pulse --> PulseAPI
+  Mobility --> MobilityAPI
+  Itinerary --> ItineraryAPI
+  Review --> ReviewAPI
+  Assistant --> AssistantAPI
+  Weather --> WeatherAPI
+  Discover --> InteractionsAPI
+  Recs --> InteractionsAPI
+
+  Recs -. include .-> PlacesAPI
+  Itinerary -. include .-> Recs
+  Itinerary -. include .-> Pulse
+  Itinerary -. include .-> Mobility
+  Review -. include .-> Login([Authenticate User])
+      </pre>
+    </section>
+
+    <table>
+      <tr><th>Use case</th><th>Web/mobile action</th><th>API endpoint</th><th>Code mapping</th></tr>
+      <tr><td>Discover Places</td><td>User filters by city, category, vibe, budget, open status, or transport.</td><td>GET /api/places</td><td>src/components/discovery/discovery-board.tsx, src/app/api/places/route.ts</td></tr>
+      <tr><td>Recommendations</td><td>User selects vibe and receives ranked places.</td><td>POST /api/recommendations</td><td>src/components/home/ai-recommendations.tsx, src/services/recommendation-engine.ts</td></tr>
+      <tr><td>City Pulse</td><td>User views live city demand, zones, top vibes, and supply gaps.</td><td>GET /api/pulse</td><td>src/components/pulse/pulse-console.tsx, src/services/pulse-engine.ts</td></tr>
+      <tr><td>Mobility</td><td>User compares walking, taxi, bus, bike, and car options.</td><td>POST /api/mobility</td><td>src/components/mobility/mobility-panel.tsx, src/services/mobility-engine.ts</td></tr>
+      <tr><td>Itinerary</td><td>User generates a timeline of stops.</td><td>POST /api/itinerary</td><td>src/components/itinerary/itinerary-builder.tsx, src/services/itinerary-engine.ts</td></tr>
+      <tr><td>Review</td><td>Signed-in user leaves a review.</td><td>POST /api/reviews</td><td>src/components/experiences/review-composer.tsx, src/app/api/reviews/route.ts</td></tr>
+    </table>
+
+    <section class="diagram-block">
+      <h2>Diagram 3: Authentication, Business Owner, and Admin Use Cases</h2>
+      <pre class="mermaid">
+flowchart LR
+  Visitor[Visitor]
+  Owner[Business Owner]
+  Admin[Admin]
+  NextAuth[NextAuth]
+  DB[(PostgreSQL)]
+
+  subgraph Account[Authentication]
+    Register([Register Account])
+    Login([Login])
+    Credentials([Verify Credentials])
+    Session([Create JWT Session])
+    Role([Authorize Role])
+  end
+
+  subgraph Business[Business Owner Area]
+    Dashboard([View Business Dashboard])
+    Onboarding([Submit Business Onboarding])
+    Upload([Get Upload Signature])
+    Metrics([View Business Metrics])
+  end
+
+  subgraph AdminArea[Admin Area]
+    Moderation([View Moderation Queues])
+    BusinessQueue([Review Pending Businesses])
+    ReviewQueue([Review Flagged Reviews])
+    LocationQueue([Review Location Queue])
+    AdminMetrics([View Platform Metrics])
+  end
+
+  Visitor --> Register
+  Visitor --> Login
+  Owner --> Login
+  Admin --> Login
+  Login --> Credentials
+  Credentials --> NextAuth
+  NextAuth --> DB
+  Credentials --> Session
+
+  Owner --> Dashboard
+  Owner --> Onboarding
+  Owner --> Upload
+  Dashboard -. include .-> Role
+  Onboarding -. include .-> Role
+  Upload -. include .-> Session
+  Dashboard --> Metrics
+  Onboarding --> DB
+
+  Admin --> Moderation
+  Moderation -. include .-> Role
+  Moderation --> BusinessQueue
+  Moderation --> ReviewQueue
+  Moderation --> LocationQueue
+  Moderation --> AdminMetrics
+  Moderation --> DB
+      </pre>
+    </section>
+
+    <table>
+      <tr><th>Protected use case</th><th>Required role/session</th><th>Code mapping</th></tr>
+      <tr><td>Login</td><td>Valid email/password or optional Google OAuth.</td><td>src/app/auth/login/page.tsx, src/lib/auth/options.ts</td></tr>
+      <tr><td>Register</td><td>Public, validated by registerSchema.</td><td>src/app/auth/register/page.tsx, src/app/api/auth/register/route.ts</td></tr>
+      <tr><td>Business Dashboard</td><td>BUSINESS_OWNER or ADMIN.</td><td>src/middleware.ts, src/app/api/businesses/route.ts, src/components/business/business-dashboard.tsx</td></tr>
+      <tr><td>Business Onboarding</td><td>BUSINESS_OWNER or ADMIN.</td><td>src/app/api/businesses/onboarding/route.ts, src/components/business/onboarding-form.tsx</td></tr>
+      <tr><td>Admin Moderation</td><td>ADMIN only.</td><td>src/middleware.ts, src/app/api/admin/moderation/route.ts, src/components/admin/admin-console.tsx</td></tr>
+      <tr><td>Upload Signature</td><td>Any authenticated user.</td><td>src/app/api/upload/signature/route.ts, src/services/upload-service.ts</td></tr>
+    </table>
+
+    <section class="diagram-block">
+      <h2>Diagram 4: Shared API Backend Use Cases</h2>
+      <pre class="mermaid">
+flowchart LR
+  Client[Web or Mobile/PWA Client]
+  DB[(PostgreSQL)]
+  Fallback[Static Kosovo Data]
+  WeatherProvider[Open-Meteo]
+  Cloudinary[Cloudinary]
+
+  subgraph Backend[Next.js Shared API Backend]
+    ReadRequest([Read Request])
+    Validate([Validate with Zod])
+    RateLimit([Apply Rate Limit])
+    AuthCheck([Check Session / Role])
+    Places([Fetch Places])
+    Profile([Build User Profile])
+    Recs([Rank Recommendations])
+    Pulse([Generate City Pulse])
+    Mobility([Calculate Mobility])
+    Itinerary([Generate Itinerary])
+    Persist([Persist Data])
+    Response([Return JSON Response])
+  end
+
+  Client --> ReadRequest
+  ReadRequest --> Validate
+  Validate --> RateLimit
+  RateLimit --> AuthCheck
+  AuthCheck --> Places
+  Places --> DB
+  Places --> Fallback
+  Places --> Recs
+  Profile --> Recs
+  Recs --> Response
+  Pulse --> Response
+  Mobility --> Response
+  Recs --> Itinerary
+  Pulse --> Itinerary
+  Mobility --> Itinerary
+  Itinerary --> Persist
+  Persist --> DB
+  Persist --> Response
+  Response --> Client
+  Weather([Fetch Weather]) --> WeatherProvider
+  Upload([Create Upload Signature]) --> Cloudinary
+      </pre>
+    </section>
+
+    <table>
+      <tr><th>Backend step</th><th>Responsibility</th><th>Code mapping</th></tr>
+      <tr><td>Read request</td><td>Extract query params or JSON body.</td><td>src/app/api/*/route.ts</td></tr>
+      <tr><td>Validate</td><td>Check payload shape and allowed values.</td><td>src/lib/validation.ts</td></tr>
+      <tr><td>Rate limit</td><td>Protect high-input endpoints such as assistant, recommendations, itinerary, reviews.</td><td>src/lib/rate-limit.ts</td></tr>
+      <tr><td>Auth/role check</td><td>Protect reviews, business, admin, and upload signature flows.</td><td>src/lib/auth/permissions.ts, src/middleware.ts</td></tr>
+      <tr><td>Domain logic</td><td>Recommendation, pulse, mobility, itinerary, interaction, upload, weather logic.</td><td>src/services/*</td></tr>
+      <tr><td>Persist data</td><td>Create/read users, places, reviews, itineraries, businesses, interactions.</td><td>prisma/schema.prisma, src/lib/prisma.ts</td></tr>
+      <tr><td>Return response</td><td>Consistent JSON success/error shape.</td><td>src/lib/api-response.ts</td></tr>
+    </table>
+  </main>
+
+  <footer>Stay in Kosovo - Use Case Diagrams</footer>
+</body>
+</html>

@@ -1,0 +1,386 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  BUSINESS_OWNER
+  ADMIN
+}
+
+enum BusinessStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  SUSPENDED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CategoryType {
+  FOOD
+  NIGHTLIFE
+  NATURE
+  CULTURE
+  EVENT
+  WELLNESS
+  SHOPPING
+  STAY
+}
+
+enum TransportType {
+  WALKING
+  TAXI
+  BUS
+  BIKE
+  CAR
+}
+
+enum InteractionType {
+  VIEW
+  SAVE
+  REVIEW
+  CHECK_IN
+  SHARE
+  ROUTE_REQUEST
+  ITINERARY_ADD
+}
+
+model User {
+  id              String              @id @default(cuid())
+  name            String?
+  email           String?             @unique
+  emailVerified   DateTime?
+  image           String?
+  hashedPassword  String?
+  role            Role                @default(USER)
+  homeCity        String?
+  preferences     Json?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  accounts        Account[]
+  sessions        Session[]
+  businesses      Business[]
+  reviews         Review[]
+  savedPlaces     SavedPlace[]
+  itineraries     Itinerary[]
+  interactions    UserInteraction[]
+  checkIns        BusinessCheckIn[]
+  badges          UserBadge[]
+
+  @@index([role])
+  @@index([createdAt])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Business {
+  id          String              @id @default(cuid())
+  ownerId     String
+  name        String
+  slug        String              @unique
+  description String
+  city        String
+  address     String
+  status      BusinessStatus      @default(PENDING)
+  verified    Boolean             @default(false)
+  boostScore  Int                 @default(0)
+  photos      String[]            @default([])
+  schedule    Json?
+  contact     Json?
+  analytics   Json?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  owner       User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  places      Place[]
+  events      Event[]
+  checkIns    BusinessCheckIn[]
+
+  @@index([ownerId])
+  @@index([status, city])
+  @@index([boostScore])
+}
+
+model Category {
+  id     String       @id @default(cuid())
+  name   String
+  slug   String       @unique
+  type   CategoryType
+  icon   String
+  places Place[]
+  events Event[]
+
+  @@index([type])
+}
+
+model Vibe {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String
+  color       String
+  weight      Float    @default(1)
+  createdAt   DateTime @default(now())
+}
+
+model Place {
+  id                String              @id @default(cuid())
+  businessId        String?
+  categoryId        String
+  title             String
+  slug              String              @unique
+  description       String
+  city              String
+  address           String
+  latitude          Decimal             @db.Decimal(10, 7)
+  longitude         Decimal             @db.Decimal(10, 7)
+  priceLevel        Int                 @default(2)
+  rating            Float               @default(0)
+  reviewCount       Int                 @default(0)
+  avgStayMinutes    Int                 @default(75)
+  openNow           Boolean             @default(true)
+  vibeTags          String[]            @default([])
+  atmosphereTags    String[]            @default([])
+  musicVibe         String?
+  crowdLevel        String?
+  images            String[]            @default([])
+  transportation    Json?
+  accessibility     Json?
+  popularityScore   Int                 @default(50)
+  hiddenGemScore    Int                 @default(40)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  business          Business?           @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  category          Category            @relation(fields: [categoryId], references: [id])
+  reviews           Review[]
+  savedBy           SavedPlace[]
+  itineraryStops    ItineraryStop[]
+  events            Event[]
+  interactions      UserInteraction[]
+  transportationHub TransportationPoint[]
+
+  @@index([businessId])
+  @@index([categoryId])
+  @@index([city, openNow])
+  @@index([rating])
+  @@index([popularityScore])
+  @@index([latitude, longitude])
+}
+
+model Review {
+  id              String       @id @default(cuid())
+  userId          String
+  placeId         String
+  rating          Int
+  comment         String
+  photos          String[]     @default([])
+  atmosphereTags  String[]     @default([])
+  crowdLevel      String
+  musicVibe       String?
+  localPopularity String?
+  status          ReviewStatus @default(APPROVED)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place           Place        @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@index([placeId, status])
+  @@index([userId])
+  @@index([rating])
+}
+
+model Itinerary {
+  id                  String          @id @default(cuid())
+  userId              String?
+  title               String
+  description         String
+  city                String
+  vibe                String
+  budget              Decimal         @db.Decimal(8, 2)
+  durationHours       Int
+  transportPreference TransportType
+  totalCost           Decimal         @db.Decimal(8, 2)
+  aiRationale         String
+  routeSummary        Json?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  user                User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  stops               ItineraryStop[]
+
+  @@index([userId])
+  @@index([city, vibe])
+  @@index([createdAt])
+}
+
+model ItineraryStop {
+  id              String    @id @default(cuid())
+  itineraryId     String
+  placeId         String
+  order           Int
+  startTime       String
+  durationMinutes Int
+  travelMinutes   Int
+  estimatedCost   Decimal   @db.Decimal(8, 2)
+  note            String
+  itinerary       Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  place           Place     @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@unique([itineraryId, order])
+  @@index([placeId])
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  businessId  String?
+  placeId     String?
+  categoryId  String
+  title       String
+  description String
+  startsAt    DateTime
+  endsAt      DateTime
+  city        String
+  price       Decimal   @db.Decimal(8, 2)
+  vibeTags    String[]  @default([])
+  heatScore   Int       @default(40)
+  images      String[]  @default([])
+  business    Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  place       Place?    @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  category    Category  @relation(fields: [categoryId], references: [id])
+
+  @@index([city, startsAt])
+  @@index([heatScore])
+}
+
+model SavedPlace {
+  id        String   @id @default(cuid())
+  userId    String
+  placeId   String
+  note      String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place     Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, placeId])
+  @@index([placeId])
+}
+
+model TransportationPoint {
+  id               String        @id @default(cuid())
+  type             TransportType
+  name             String
+  city             String
+  latitude         Decimal       @db.Decimal(10, 7)
+  longitude        Decimal       @db.Decimal(10, 7)
+  schedule         Json?
+  reliabilityScore Int           @default(70)
+  placeId          String?
+  place            Place?        @relation(fields: [placeId], references: [id], onDelete: SetNull)
+
+  @@index([city, type])
+  @@index([latitude, longitude])
+}
+
+model TransportRoute {
+  id              String        @id @default(cuid())
+  fromLabel       String
+  toLabel         String
+  method          TransportType
+  distanceKm      Float
+  durationMinutes Int
+  cost            Decimal       @db.Decimal(8, 2)
+  carbonScore     Int
+  metadata        Json?
+
+  @@index([method])
+}
+
+model UserInteraction {
+  id        String          @id @default(cuid())
+  userId    String?
+  placeId   String?
+  eventId   String?
+  type      InteractionType
+  weight    Float           @default(1)
+  metadata  Json?
+  createdAt DateTime        @default(now())
+  user      User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  place     Place?          @relation(fields: [placeId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([placeId, type])
+}
+
+model BusinessCheckIn {
+  id         String   @id @default(cuid())
+  businessId String
+  userId     String?
+  qrCode     String
+  value      Decimal  @default(0) @db.Decimal(8, 2)
+  createdAt  DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([businessId, createdAt])
+  @@index([qrCode])
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  description String
+  icon        String
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  earnedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+}

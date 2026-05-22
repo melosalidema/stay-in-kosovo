@@ -1,0 +1,162 @@
+:root {
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --text: #172033;
+  --muted: #5f6b7a;
+  --line: #d7deea;
+  --accent: #0f766e;
+  --accent-soft: #e6f7f4;
+  --blue: #1f6feb;
+  --blue-soft: #eaf2ff;
+  --success: #0f766e;
+  --warning: #a16207;
+  --danger: #b42318;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.55;
+}
+
+header {
+  background: #0f172a;
+  color: #fff;
+  padding: 28px 36px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 30px;
+}
+
+header p {
+  margin: 8px 0 0;
+  color: #cbd5e1;
+}
+
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.nav-grid {
+  display: grid;
+  margin-top: 13px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.card,
+.section,
+.diagram-block {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+}
+
+.card a {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.card p,
+.section p {
+  color: var(--muted);
+}
+
+h2 {
+  margin-top: 28px;
+  border-bottom: 2px solid var(--line);
+  padding-bottom: 8px;
+}
+
+h3 {
+  margin-top: 24px;
+}
+
+.toolbar {
+  margin: 18px 0;
+}
+
+.toolbar a {
+  display: inline-block;
+  margin: 0 8px 8px 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0 24px;
+  background: #fff;
+}
+
+th,
+td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+
+th {
+  background: #ccfbf1;
+  color: #172033;
+  text-align: left;
+}
+
+.diagram-block {
+  margin: 18px 0 28px;
+  overflow-x: auto;
+}
+
+.mermaid {
+  min-width: 900px;
+  padding: 10px;
+}
+
+.note {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  padding: 12px 14px;
+  margin: 16px 0;
+}
+
+footer {
+  color: var(--muted);
+  text-align: center;
+  padding: 30px;
+}
+
+@media print {
+  header,
+  .toolbar,
+  footer {
+    display: none;
+  }
+
+  main {
+    padding: 0;
+  }
+
+  .section,
+  .diagram-block {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}

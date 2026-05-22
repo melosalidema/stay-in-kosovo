@@ -1,0 +1,409 @@
+{
+  "app": {
+    "name": "Stay in Kosovo",
+    "metaTitle": "Stay in Kosovo - Smart Experience & Mobility App",
+    "metaDescription": "AI-powered Kosovo discovery app for places, events, mobility, itineraries, business onboarding, and local experiences."
+  },
+  "common": {
+    "language": "Language",
+    "toggleTheme": "Toggle theme",
+    "account": "Account",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "register": "Register",
+    "login": "Login",
+    "loading": "Loading...",
+    "thinking": "Thinking...",
+    "review": "Review",
+    "approve": "Approve",
+    "refresh": "Refresh",
+    "viewAll": "View all",
+    "submit": "Submit",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "role": "Role",
+    "city": "City",
+    "category": "Category",
+    "vibe": "Vibe",
+    "budget": "Budget",
+    "rating": "Rating",
+    "place": "Place",
+    "address": "Address",
+    "phone": "Phone",
+    "instagram": "Instagram",
+    "description": "Description",
+    "transport": "Transport",
+    "from": "From",
+    "to": "To",
+    "preference": "Preference",
+    "hours": "Hours",
+    "interests": "Interests",
+    "openNow": "Open now",
+    "walkable": "Walkable",
+    "busNearby": "Bus nearby",
+    "allCategories": "All categories",
+    "allVibes": "All vibes",
+    "currentLanguage": "Current language",
+    "minutesShort": "m",
+    "hoursShort": "h",
+    "kilometers": "km",
+    "transit": "transit",
+    "mode": "mode"
+  },
+  "nav": {
+    "pulse": "Pulse",
+    "discover": "Discover",
+    "itinerary": "Itinerary",
+    "mobility": "Mobility",
+    "business": "Business",
+    "admin": "Admin",
+    "menu": "Open menu"
+  },
+  "offline": {
+    "message": "Offline mode is active. Saved places and itinerary draft stay available locally."
+  },
+  "geo": {
+    "unavailable": "Geolocation is unavailable. Using Prishtina center.",
+    "denied": "Location permission was not granted. Using Prishtina center."
+  },
+  "footer": {
+    "description": "Smart discovery, mobility, itineraries, and local business tooling for Kosovo tourism and city life.",
+    "aiTitle": "AI Architecture",
+    "aiText": "Auditable scoring first, OpenAI narrative layer second.",
+    "productionTitle": "Production Path",
+    "productionText": "Prisma, RBAC, rate limits, Docker, and env-based integrations."
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "placeholder": "Choose language"
+  },
+  "hero": {
+    "eyebrow": "AI-powered experience operating system for Kosovo",
+    "title": "Stay in Kosovo",
+    "description": "A mobile-first guide that combines live city pulse, vibe intelligence, smart mobility, business supply, and generated itineraries into one premium Kosovo discovery flow.",
+    "exploreNow": "Explore now",
+    "cityPulse": "City pulse",
+    "useLocation": "Use my location",
+    "stats": {
+      "signals": "live signals",
+      "vibes": "vibe modes",
+      "layers": "service layers"
+    }
+  },
+  "mapPreview": {
+    "title": "Live Kosovo experience graph",
+    "text": "Places, events, weather, and mobility signals update the ranked feed."
+  },
+  "weather": {
+    "wind": "Wind",
+    "cached": "Weather updates are cached for 15 minutes."
+  },
+  "pulseHome": {
+    "badge": "Experience pulse",
+    "title": "A live operating layer for what is worth doing next.",
+    "openConsole": "Open pulse console",
+    "tonightIn": "Tonight in {{city}}",
+    "mobility": "{{value}} mobility",
+    "transit": "{{value}}% transit",
+    "mode": "{{value}} mode",
+    "note": "Pulse scores feed recommendations, itinerary timing, mobility messaging, and business supply prompts."
+  },
+  "vibesSection": {
+    "eyebrow": "Discover your vibe",
+    "title": "Explore by feeling, not only category.",
+    "description": "The selected vibe updates recommendations, discovery filters, itinerary generation, and pulse scoring.",
+    "active": "Active",
+    "explore": "Explore {{vibe}}",
+    "openFilters": "Open full filters"
+  },
+  "aiRecommendations": {
+    "badge": "AI recommendations",
+    "title": "Ranked for {{vibe}} right now.",
+    "description": "The scoring engine blends vibe, distance, quality, budget, hidden-gem signal, mobility, context, and learned interaction preferences.",
+    "score": "AI score"
+  },
+  "trending": {
+    "badge": "Trending in Kosovo",
+    "title": "Popular places and events.",
+    "eventHeatmap": "Event heatmap"
+  },
+  "flow": {
+    "eyebrow": "Complete application flow",
+    "title": "From first open to business analytics.",
+    "steps": {
+      "location": {
+        "title": "Location",
+        "text": "The app requests location and falls back to Prishtina center when permission is denied."
+      },
+      "recommendations": {
+        "title": "Recommendations",
+        "text": "Vibe and filter intent are sent to the scoring API for ranked places and reasons."
+      },
+      "mobility": {
+        "title": "Mobility",
+        "text": "Route options estimate duration, cost, carbon score, and transport availability."
+      },
+      "itinerary": {
+        "title": "Itinerary",
+        "text": "Ranked places become a timed route with stops, costs, and travel segments."
+      },
+      "business": {
+        "title": "Business Signal",
+        "text": "Saves, views, check-ins, reviews, and route requests update business analytics."
+      },
+      "personalization": {
+        "title": "Personalization",
+        "text": "Interactions can tune future recommendations through user preference vectors."
+      }
+    }
+  },
+  "discover": {
+    "badge": "Real-time discovery",
+    "title": "Find the right Kosovo experience now.",
+    "description": "Search, filter, and map places by vibe, budget, rating, open status, and transportation availability.",
+    "matching": "{{count}} matching experiences",
+    "searchPlaceholder": "Search cafes, hikes, museums..."
+  },
+  "mapPanel": {
+    "title": "Live discovery map",
+    "subtitle": "Mapbox-ready overlay with route and heat signals.",
+    "useCurrentLocation": "Use current location",
+    "alt": "Mapbox Kosovo discovery map",
+    "eventHeatmap": "Event heatmap",
+    "demand": "Simulated demand from saves, views, check-ins, and event heat.",
+    "smartEta": "Smart ETA",
+    "foodHigh": "Food: high",
+    "nightRising": "Night: rising",
+    "natureCalm": "Nature: calm"
+  },
+  "placeCard": {
+    "save": "Save place",
+    "removeSaved": "Remove saved place",
+    "walk": "Walk",
+    "bus": "Bus",
+    "taxi": "Taxi"
+  },
+  "reviews": {
+    "badge": "User experience system",
+    "title": "Capture what a place feels like.",
+    "description": "Reviews become structured signals for atmosphere, crowd level, music vibe, local popularity, and photos.",
+    "commentLabel": "What it feels like here",
+    "commentPlaceholder": "Books, warm lights, easy conversations, and a very local crowd...",
+    "crowdLevel": "Crowd level",
+    "musicVibe": "Music vibe",
+    "atmosphereTags": "Atmosphere tags",
+    "submit": "Submit review",
+    "success": "Review submitted and ready for moderation analytics."
+  },
+  "itinerary": {
+    "badge": "AI itinerary builder",
+    "title": "Build a smart day in Kosovo.",
+    "description": "The engine ranks places, estimates mobility, assigns time blocks, and keeps the plan inside budget.",
+    "interestsPlaceholder": "food, culture, music",
+    "generate": "Generate itinerary",
+    "generatedRoute": "Generated route",
+    "stop": "Stop {{order}}",
+    "stay": "{{minutes}} min stay",
+    "travel": "{{minutes}} min travel",
+    "emptyTitle": "Your generated route appears here.",
+    "emptyText": "Try Nightlife for a Prishtina evening, Adventure for Rugova or Brezovica, or Local Food for a restaurant-led city plan."
+  },
+  "mobility": {
+    "badge": "Smart mobility",
+    "title": "Plan the best way across Kosovo.",
+    "description": "Compare walking, taxi, bus, bike, and car routes with travel time, cost, availability, and carbon score.",
+    "calculate": "Calculate routes",
+    "routeVisualization": "Route visualization uses service route points now and can plug into Mapbox Directions later.",
+    "empty": "Select two places and calculate routes to compare travel options.",
+    "nearby": "Nearby transport points"
+  },
+  "pulseConsole": {
+    "badge": "Pulse console",
+    "title": "Monitor demand, mobility pressure, and supply gaps by city.",
+    "liveMap": "{{city}} live map",
+    "mapText": "Zones blend demand, quality, hidden gems, events, and route reliability.",
+    "topVibes": "Top vibes",
+    "supplyGaps": "Supply gaps",
+    "transportHealth": "Transport health",
+    "suggestedActions": "Suggested actions"
+  },
+  "business": {
+    "dashboardBadge": "Business dashboard",
+    "dashboardTitle": "Operate your local supply and ranking signals.",
+    "dashboardText": "Track discovery, routes, saves, check-ins, and recommendation readiness for your business.",
+    "boostTitle": "Recommendation boost",
+    "boostText": "Boost score affects only the businessBoost part of ranking and stays capped so organic quality remains the primary recommendation signal.",
+    "eventManager": "Event manager",
+    "addEvent": "Add event",
+    "photosMedia": "Photos and media",
+    "photosText": "Upload signatures are generated server-side for Cloudinary. In prototype mode, uploads become local previews until env vars are added.",
+    "requestUpload": "Request upload signature",
+    "qrTitle": "QR check-ins",
+    "qrText": "Check-ins can drive badges, loyalty, verified visits, and anti-fraud engagement analytics.",
+    "funnel": "Funnel",
+    "analyticsText": "Analytics update from views, saves, reviews, route requests, itinerary adds, and check-ins.",
+    "onboardingBadge": "Business onboarding",
+    "onboardingTitle": "Create a local business profile.",
+    "onboardingText": "Businesses start pending. Admin approval makes them eligible for public discovery, events, QR check-ins, and recommendation ranking.",
+    "businessName": "Business name",
+    "descriptionPlaceholder": "What should travelers and locals know?",
+    "vibeTags": "Vibe tags",
+    "submitApproval": "Submit for approval",
+    "submitted": "Profile submitted for admin approval.",
+    "onboardAnother": "Onboard another profile",
+    "event1Title": "Indie Jazz Night",
+    "event1Meta": "Tonight · heat score 86 · hidden-gem audience",
+    "event2Title": "Weekend brunch board",
+    "event2Meta": "Saturday · food tour segment",
+    "funnelItems": [
+      "AI impressions",
+      "Card opens",
+      "Route requests",
+      "Saved itineraries",
+      "QR check-ins"
+    ],
+    "visibility": "Boosted in Chill, Local Food, and Hidden Gems",
+    "contributors": [
+      "Complete profile",
+      "High review quality",
+      "Recent events",
+      "Fast route response"
+    ]
+  },
+  "admin": {
+    "badge": "Admin moderation",
+    "title": "Manage trust and marketplace quality.",
+    "description": "Admin actions approve supply, moderate social content, and protect recommendation quality.",
+    "businessApprovals": "Business approvals",
+    "reviewModeration": "Review moderation",
+    "locationApproval": "Location approval",
+    "coordinateConfidence": "{{value}}% coordinate confidence"
+  },
+  "auth": {
+    "protectedRoutes": "Protected routes",
+    "loginTitle": "Sign in to Stay in Kosovo.",
+    "loginHelp": "Use seeded credentials after `npm run db:seed`, or configure Google OAuth in `.env`.",
+    "loginFailed": "Login failed. Run the Prisma seed or check credentials.",
+    "google": "Continue with Google",
+    "seeded": "Tourist: tourist@staykosovo.dev · Owner: owner@staykosovo.dev · Admin: admin@staykosovo.dev",
+    "newAccount": "New account?",
+    "createAccount": "Create account",
+    "registerTitle": "Join the Kosovo experience graph.",
+    "registerHelp": "Tourist accounts can save places and generate itineraries. Business owners can submit profiles for approval.",
+    "userRole": "Tourist / User",
+    "businessOwner": "Business owner",
+    "created": "Account created. You can now sign in.",
+    "alreadyRegistered": "Already registered?"
+  },
+  "assistant": {
+    "open": "Open AI travel assistant",
+    "close": "Close assistant",
+    "title": "AI travel assistant",
+    "subtitle": "Uses recommendation engine context",
+    "initial": "Ask for a perfect evening, food tour, hidden gem, or mobility-friendly plan.",
+    "error": "I could not reach the assistant API. Try again after the app reconnects.",
+    "placeholder": "Plan a food night...",
+    "send": "Send message"
+  },
+  "notFound": {
+    "title": "This route is not on the map.",
+    "text": "Return to discovery and choose a new Kosovo experience.",
+    "action": "Open discovery"
+  },
+  "domain": {
+    "vibes": {
+      "chill": "Chill",
+      "nightlife": "Nightlife",
+      "romantic": "Romantic",
+      "adventure": "Adventure",
+      "local-food": "Local Food",
+      "hidden-gems": "Hidden Gems",
+      "family-friendly": "Family Friendly",
+      "culture": "Culture"
+    },
+    "vibeDescriptions": {
+      "chill": "Quiet cafes, parks, easy walks, and calm views.",
+      "nightlife": "Bars, late kitchens, live sets, and social streets.",
+      "romantic": "Sunset viewpoints, warm lighting, dinner, and walks.",
+      "adventure": "Mountains, canyons, ski routes, and high-energy plans.",
+      "local-food": "Traditional kitchens, modern bistros, and food tours.",
+      "hidden-gems": "Less obvious spots with strong local signal.",
+      "family-friendly": "Daytime, accessible, safer routes, and easy pacing."
+    },
+    "categories": {
+      "restaurants": "Restaurants",
+      "cafes": "Cafes",
+      "nightlife": "Nightlife",
+      "nature": "Nature",
+      "culture": "Culture",
+      "events": "Events",
+      "parks": "Parks"
+    },
+    "transport": {
+      "WALKING": "Walking",
+      "TAXI": "Taxi",
+      "BUS": "Bus",
+      "BIKE": "Bike",
+      "CAR": "Car"
+    },
+    "crowd": {
+      "Quiet": "Quiet",
+      "Balanced": "Balanced",
+      "Lively": "Lively",
+      "Busy": "Busy",
+      "Seasonal": "Seasonal",
+      "Cozy": "Cozy"
+    },
+    "availability": {
+      "high": "high",
+      "medium": "medium",
+      "low": "low",
+      "surging": "surging",
+      "lively": "lively",
+      "balanced": "balanced",
+      "calm": "calm",
+      "easy": "easy",
+      "busy": "busy",
+      "moderate": "moderate"
+    },
+    "dayParts": {
+      "MORNING": "Morning",
+      "AFTERNOON": "Afternoon",
+      "EVENING": "Evening",
+      "LATE_NIGHT": "Late night"
+    },
+    "atmosphere": {
+      "warm": "warm",
+      "local": "local",
+      "creative": "creative",
+      "quiet": "quiet",
+      "lively": "lively",
+      "romantic": "romantic",
+      "family": "family",
+      "scenic": "scenic"
+    }
+  },
+  "metrics": {
+    "labels": {
+      "discovery-views": "Discovery views",
+      "route-requests": "Route requests",
+      "saved-by-users": "Saved by users",
+      "check-ins": "Check-ins",
+      "pending-businesses": "Pending businesses",
+      "flagged-reviews": "Flagged reviews",
+      "approved-places": "Approved places",
+      "api-health": "API health"
+    },
+    "deltas": {
+      "22-vs-last-month": "+22% vs last month",
+      "14-from-mobility": "+14% from mobility",
+      "9-from-ai-picks": "+9% from AI picks",
+      "31-qr-flow": "+31% QR flow",
+      "4-need-document-review": "4 need document review",
+      "2-high-priority": "2 high priority",
+      "18-this-week": "+18 this week",
+      "cache-hit-rate-74": "cache hit rate 74%"
+    }
+  }
+}

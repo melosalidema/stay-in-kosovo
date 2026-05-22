@@ -1,0 +1,50 @@
+### Health check
+GET http://localhost:3000/api/health
+
+### Discover places with filters
+GET http://localhost:3000/api/places?vibe=Local%20Food&city=Prishtina&budget=3&openNow=true
+
+### AI recommendations
+POST http://localhost:3000/api/recommendations
+Content-Type: application/json
+
+{
+  "vibes": ["Hidden Gems", "Local Food"],
+  "city": "Prizren",
+  "budget": 3,
+  "location": { "lat": 42.6629, "lng": 21.1655 },
+  "dayPart": "EVENING",
+  "partySize": 2
+}
+
+### Experience pulse
+GET http://localhost:3000/api/pulse?city=Prishtina&vibe=Nightlife&dayPart=EVENING
+
+### Track an engagement signal
+POST http://localhost:3000/api/interactions
+Content-Type: application/json
+
+{
+  "type": "SAVE",
+  "placeId": "soma-book-station",
+  "city": "Prishtina",
+  "vibe": "Hidden Gems",
+  "metadata": {
+    "source": "api.http",
+    "transportPreference": "WALKING"
+  }
+}
+
+### Itinerary generation
+POST http://localhost:3000/api/itinerary
+Content-Type: application/json
+
+{
+  "title": "Perfect Evening in Prishtina",
+  "city": "Prishtina",
+  "budget": 60,
+  "durationHours": 5,
+  "interests": ["food", "nightlife", "culture"],
+  "vibe": "Nightlife",
+  "transportPreference": "WALKING"
+}
