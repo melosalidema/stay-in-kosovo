@@ -2,28 +2,31 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, LocateFixed, RadioTower, Sparkles } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { KosovoPulseMap } from "@/components/home/kosovo-pulse-map";
+import { buildHeroImageRotation } from "@/components/home/hero-image-rotation";
 import { Button } from "@/components/ui/button";
 import { experienceCardKeyframes, homePulseCardStyle } from "@/components/ui/experience-card-effects";
 import { useGeolocation } from "@/hooks/use-geolocation";
-import type { PlaceDTO } from "@/types";
+import type { EventDTO, PlaceDTO } from "@/types";
 
-const fallbackHeroImage =
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80";
+type HeroSectionProps = {
+  featuredPlaces: PlaceDTO[];
+  featuredEvents?: EventDTO[];
+};
 
-export function HeroSection({ featuredPlaces }: { featuredPlaces: PlaceDTO[] }) {
+export function HeroSection({ featuredPlaces, featuredEvents = [] }: HeroSectionProps) {
   const { t } = useTranslation();
   const { requestLocation, loading, error } = useGeolocation();
   const [hoveredStat, setHoveredStat] = useState<string | null>(null);
   const [activeHeroImageIndex, setActiveHeroImageIndex] = useState(0);
   const heroImages = useMemo(() => {
-    const images = featuredPlaces.flatMap((place) => place.images).filter(Boolean);
-    return Array.from(new Set(images.length ? images : [fallbackHeroImage]));
-  }, [featuredPlaces]);
+    return buildHeroImageRotation([...featuredPlaces, ...featuredEvents]);
+  }, [featuredEvents, featuredPlaces]);
   const heroStats = [
     { id: "signals", value: "312+", label: t("hero.stats.signals"), intensity: 99 },
     { id: "vibes", value: "7", label: t("hero.stats.vibes"), intensity: 84 },
@@ -40,23 +43,34 @@ export function HeroSection({ featuredPlaces }: { featuredPlaces: PlaceDTO[] }) 
     return () => window.clearInterval(interval);
   }, [heroImages.length]);
 
-  const activeHeroImage = heroImages[activeHeroImageIndex] ?? fallbackHeroImage;
+  useEffect(() => {
+    setActiveHeroImageIndex((index) => (index >= heroImages.length ? 0 : index));
+  }, [heroImages.length]);
+
+  const activeHeroImage = heroImages[activeHeroImageIndex] ?? heroImages[0];
 
   return (
     <section className="relative overflow-hidden bg-slate-950 px-4 py-10 text-white sm:px-6 lg:px-8">
       <style>{experienceCardKeyframes}</style>
       <AnimatePresence initial={false}>
         <motion.div
-          key={activeHeroImage}
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `linear-gradient(135deg, rgba(8, 23, 30, 0.82), rgba(24, 93, 88, 0.34), rgba(144, 82, 53, 0.16)), url('${activeHeroImage}')`
-          }}
-          initial={{ opacity: 0, scale: 1.015 }}
+          key={activeHeroImage.src}
+          className="absolute inset-0"
+          initial={{ opacity: 0, scale: 1.02 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.1, ease: "easeOut" }}
-        />
+        >
+          <Image
+            src={activeHeroImage.src}
+            alt=""
+            fill
+            priority={activeHeroImageIndex === 0}
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(8,23,30,0.82),rgba(24,93,88,0.34),rgba(144,82,53,0.16))]" />
+        </motion.div>
       </AnimatePresence>
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950/18 via-slate-950/8 to-background" />
       <div className="relative mx-auto grid max-w-7xl gap-8 py-12 lg:min-h-[72svh] lg:grid-cols-[1fr_460px] lg:items-center">
@@ -88,6 +102,12 @@ export function HeroSection({ featuredPlaces }: { featuredPlaces: PlaceDTO[] }) 
             </Button>
           </div>
           {error && <p className="mt-3 text-sm text-amber-100">{t(error)}</p>}
+
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-1 text-xs text-white/78 backdrop-blur-xl">
+            <span>{activeHeroImage.label}</span>
+            {activeHeroImage.city && <span className="text-white/48">/ {activeHeroImage.city}</span>}
+            <span className="text-white/48">{activeHeroImageIndex + 1}/{heroImages.length}</span>
+          </div>
 
           <div className="mt-10 grid max-w-2xl grid-cols-3 gap-3">
             {heroStats.map((stat) => (

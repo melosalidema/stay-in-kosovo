@@ -3,7 +3,7 @@
 import { AlertTriangle, ExternalLink, Loader2, MapPin, Navigation, Route, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
 } from "@/lib/geo";
 import { cn } from "@/lib/utils";
 import {
+  type GoogleInfoWindowInstance,
   type GoogleMapInstance,
   type GoogleMapsApi,
   type GoogleMapStyle,
@@ -27,6 +28,7 @@ import type { Coordinates, PlaceDTO } from "@/types";
 
 type MapVariant = "glass" | "card";
 type MapTheme = "auto" | "dark" | "light";
+export type MapSelectionSource = "marker" | "programmatic";
 
 type MarkerGroup = {
   id: string;
@@ -45,7 +47,11 @@ type GooglePlacesMapProps = {
   theme?: MapTheme;
   defaultZoom?: number;
   fitPadding?: number;
+  focusZoom?: number;
   animatedMarkers?: boolean;
+  selectedPlaceId?: string | null;
+  defaultSelectedPlaceId?: string | null;
+  onSelectedPlaceChange?: (place: PlaceDTO, source: MapSelectionSource) => void;
 };
 
 const lightMapStyles: GoogleMapStyle[] = [
@@ -113,7 +119,13 @@ function clusterPlaces(places: PlaceDTO[], zoom: number): MarkerGroup[] {
   for (const place of places) {
     const point = projectToWorldPixel(place.coordinates, zoom);
     const key = `${Math.floor(point.x / cellSize)}:${Math.floor(point.y / cellSize)}`;
-    buckets.set(key, [...(buckets.get(key) ?? []), place]);
+    const bucket = buckets.get(key);
+
+    if (bucket) {
+      bucket.push(place);
+    } else {
+      buckets.set(key, [place]);
+    }
   }
 
   return Array.from(buckets.entries()).map(([id, bucket]) => {
@@ -154,6 +166,12 @@ function markerIcon(
   const size = hovered ? 52 : selected ? 48 : 42;
   const svg = `
     <svg width="${size}" height="${size}" viewBox="0 0 58 58" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${
+        selected
+          ? `<circle cx="29" cy="32" r="21" fill="${color}" opacity="0.2"/>
+             <circle cx="29" cy="32" r="18" fill="none" stroke="white" stroke-opacity="0.92" stroke-width="2.4"/>`
+          : ""
+      }
       ${
         pulsing
           ? `<circle cx="29" cy="32" r="14" fill="${color}" opacity="0.24">
@@ -212,6 +230,49 @@ function googleMapsEmbedUrl(place: PlaceDTO | undefined, zoom: number) {
   return `https://www.google.com/maps?q=${query}&z=${zoom}&output=embed`;
 }
 
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (character) => {
+    const entities: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;"
+    };
+
+    return entities[character];
+  });
+}
+
+function infoWindowContent(place: PlaceDTO, detailsLabel: string) {
+  const image = place.images[0]
+    ? `<img src="${escapeHtml(place.images[0])}" alt="" style="width:74px;height:74px;object-fit:cover;border-radius:10px;flex:0 0 auto;" />`
+    : `<div style="width:74px;height:74px;border-radius:10px;background:#e2e8f0;display:grid;place-items:center;color:#64748b;flex:0 0 auto;">●</div>`;
+  const rating =
+    place.rating > 0
+      ? `<span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#f59e0b1f;color:#92400e;padding:3px 8px;font-size:12px;font-weight:800;">★ ${place.rating.toFixed(1)}</span>`
+      : "";
+
+  return `
+    <div style="width:292px;max-width:292px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0f172a;">
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        ${image}
+        <div style="min-width:0;flex:1;">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
+            <div style="min-width:0;">
+              <p style="margin:0;font-size:15px;line-height:1.25;font-weight:850;color:#0f172a;">${escapeHtml(place.title)}</p>
+              <p style="margin:5px 0 0;font-size:12px;line-height:1.35;color:#475569;">${escapeHtml(place.city)} · ${escapeHtml(place.category.name)}</p>
+            </div>
+            ${rating}
+          </div>
+          <p style="margin:8px 0 0;font-size:12px;line-height:1.55;color:#475569;">${escapeHtml(place.description)}</p>
+        </div>
+      </div>
+      <a href="/discover/${escapeHtml(place.slug)}" style="margin-top:12px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#0f766e;color:white;text-decoration:none;font-size:12px;font-weight:800;padding:8px 11px;">${escapeHtml(detailsLabel)}</a>
+    </div>
+  `;
+}
+
 export function GooglePlacesMap({
   places,
   title,
@@ -222,7 +283,11 @@ export function GooglePlacesMap({
   theme = "auto",
   defaultZoom = 9,
   fitPadding = 56,
-  animatedMarkers = false
+  focusZoom = 14,
+  animatedMarkers = false,
+  selectedPlaceId: controlledSelectedPlaceId,
+  defaultSelectedPlaceId = null,
+  onSelectedPlaceChange
 }: GooglePlacesMapProps) {
   const { t } = useTranslation();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -231,20 +296,77 @@ export function GooglePlacesMap({
   const apiRef = useRef<GoogleMapsApi | null>(null);
   const mapRef = useRef<GoogleMapInstance | null>(null);
   const markerRefs = useRef<GoogleMarkerInstance[]>([]);
+  const markerByPlaceIdRef = useRef<Map<string, GoogleMarkerInstance>>(new Map());
+  const infoWindowRef = useRef<GoogleInfoWindowInstance | null>(null);
   const fitAppliedRef = useRef(false);
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "fallback">(apiKey ? "idle" : "fallback");
   const [zoom, setZoom] = useState(defaultZoom);
-  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+  const [internalSelectedPlaceId, setInternalSelectedPlaceId] = useState<string | null>(defaultSelectedPlaceId);
+  const selectedPlaceId = controlledSelectedPlaceId !== undefined ? controlledSelectedPlaceId : internalSelectedPlaceId;
 
   const { validPlaces, invalidRecords } = useMemo(() => validatePlacesForKosovoMap(places), [places]);
-  const selectedPlace = validPlaces.find((place) => place.id === selectedPlaceId) ?? validPlaces[0];
+  const validPlaceKey = useMemo(() => validPlaces.map((place) => place.id).join("|"), [validPlaces]);
+  const selectedPlace = selectedPlaceId ? validPlaces.find((place) => place.id === selectedPlaceId) : undefined;
   const markerGroups = useMemo(() => clusterPlaces(validPlaces, zoom), [validPlaces, zoom]);
+  const isControlledSelection = controlledSelectedPlaceId !== undefined;
+
+  const focusPlace = useCallback(
+    (place: PlaceDTO) => {
+      const map = mapRef.current;
+
+      if (!map) return;
+
+      map.panTo(place.coordinates);
+      if ((map.getZoom() ?? defaultZoom) < focusZoom) {
+        window.setTimeout(() => map.setZoom(focusZoom), 120);
+      }
+    },
+    [defaultZoom, focusZoom]
+  );
+
+  const openInfoWindow = useCallback(
+    (place: PlaceDTO) => {
+      const map = mapRef.current;
+      const marker = markerByPlaceIdRef.current.get(place.id);
+      const infoWindow = infoWindowRef.current;
+
+      if (!map || !marker || !infoWindow) return;
+
+      infoWindow.setContent(infoWindowContent(place, t("googleMap.details")));
+      infoWindow.open({ map, anchor: marker, shouldFocus: false });
+    },
+    [t]
+  );
+
+  const selectPlace = useCallback(
+    (place: PlaceDTO, source: MapSelectionSource) => {
+      if (!isControlledSelection) {
+        setInternalSelectedPlaceId(place.id);
+      }
+
+      onSelectedPlaceChange?.(place, source);
+    },
+    [isControlledSelection, onSelectedPlaceChange]
+  );
 
   useEffect(() => {
     if (invalidRecords.length > 0) {
       console.warn("[Stay Kosovo map] Invalid place coordinates skipped:", invalidRecords);
     }
   }, [invalidRecords]);
+
+  useEffect(() => {
+    fitAppliedRef.current = false;
+  }, [validPlaceKey]);
+
+  useEffect(() => {
+    if (!selectedPlaceId) return;
+    if (validPlaces.some((place) => place.id === selectedPlaceId)) return;
+
+    if (!isControlledSelection) {
+      setInternalSelectedPlaceId(null);
+    }
+  }, [isControlledSelection, selectedPlaceId, validPlaces]);
 
   useEffect(() => {
     let cancelled = false;
@@ -286,6 +408,7 @@ export function GooglePlacesMap({
 
         apiRef.current = api;
         mapRef.current = map;
+        infoWindowRef.current = new api.maps.InfoWindow({ maxWidth: 324 });
         setZoom(map.getZoom() ?? defaultZoom);
         setStatus("ready");
       })
@@ -347,6 +470,18 @@ export function GooglePlacesMap({
   }, [fitPadding, status, validPlaces]);
 
   useEffect(() => {
+    if (!selectedPlace) {
+      infoWindowRef.current?.close();
+      return;
+    }
+
+    if (status === "ready") {
+      focusPlace(selectedPlace);
+      openInfoWindow(selectedPlace);
+    }
+  }, [focusPlace, openInfoWindow, selectedPlace, status]);
+
+  useEffect(() => {
     const api = apiRef.current;
     const map = mapRef.current;
 
@@ -357,6 +492,7 @@ export function GooglePlacesMap({
       marker.setMap(null);
     });
     markerRefs.current = [];
+    markerByPlaceIdRef.current.clear();
 
     for (const group of markerGroups) {
       if (group.isCluster) {
@@ -386,7 +522,7 @@ export function GooglePlacesMap({
       const getIcon = (hovered: boolean) =>
         markerIcon(api, color, {
           selected,
-          pulsing: animatedMarkers,
+          pulsing: animatedMarkers || selected,
           hovered
         });
       const marker = new api.maps.Marker({
@@ -406,15 +542,22 @@ export function GooglePlacesMap({
         marker.setZIndex(selected ? 20 : 12);
       });
       marker.addListener("click", () => {
-        setSelectedPlaceId(place.id);
-        map.panTo(place.coordinates);
-        if ((map.getZoom() ?? defaultZoom) < 12) map.setZoom(12);
+        selectPlace(place, "marker");
+        focusPlace(place);
+        openInfoWindow(place);
       });
       markerRefs.current.push(marker);
+      markerByPlaceIdRef.current.set(place.id, marker);
     }
-  }, [animatedMarkers, defaultZoom, markerGroups, selectedPlaceId, status, t]);
+
+    if (selectedPlace) {
+      openInfoWindow(selectedPlace);
+    }
+  }, [animatedMarkers, focusPlace, markerGroups, openInfoWindow, selectPlace, selectedPlace, selectedPlaceId, status, t]);
 
   useEffect(() => {
+    const markerByPlaceId = markerByPlaceIdRef.current;
+
     return () => {
       const api = apiRef.current;
       if (!api) return;
@@ -424,6 +567,8 @@ export function GooglePlacesMap({
         marker.setMap(null);
       });
       markerRefs.current = [];
+      markerByPlaceId.clear();
+      infoWindowRef.current?.close();
     };
   }, []);
 

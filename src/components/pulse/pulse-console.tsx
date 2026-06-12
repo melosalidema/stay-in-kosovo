@@ -1,15 +1,16 @@
 "use client";
 
-import { AlertTriangle, Building2, Clock3, Compass, RadioTower, Route, Sparkles } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { AlertTriangle, Building2, Clock3, Compass, MapPin, RadioTower, Route, Sparkles } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { GooglePlacesMap } from "@/components/maps/google-places-map";
+import { GooglePlacesMap, type MapSelectionSource } from "@/components/maps/google-places-map";
 import { pulseIntensityTone, pulseZoneCardKeyframes, pulseZoneCardStyle } from "@/components/pulse/pulse-zone-card-effects";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { places as allPlaces } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
+import { cn } from "@/lib/utils";
 import type { DayPart, ExperiencePulseDTO } from "@/types";
 
 const cities = ["Prishtina", "Prizren", "Peja", "Gjakova", "Brezovica"];
@@ -30,20 +31,40 @@ export function PulseConsole() {
   const [pulse, setPulse] = useState<ExperiencePulseDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [hoveredZoneId, setHoveredZoneId] = useState<string | null>(null);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+  const zoneCardRefs = useRef<Map<string, HTMLElement>>(new Map());
 
   const query = useMemo(() => {
     const params = new URLSearchParams({ city, vibe, dayPart });
     return params.toString();
   }, [city, vibe, dayPart]);
 
-  const pulseMapPlaces = useMemo(() => {
-    const zoneIds = new Set((pulse?.zones ?? []).map((zone) => zone.id));
-    const activePlaces = zoneIds.size
-      ? allPlaces.filter((place) => zoneIds.has(place.id))
-      : allPlaces.filter((place) => place.city.toLowerCase() === city.toLowerCase());
+  const pulseZoneIds = useMemo(() => new Set((pulse?.zones ?? []).map((zone) => zone.id)), [pulse]);
 
-    return activePlaces.length ? activePlaces : allPlaces;
-  }, [city, pulse]);
+  const selectPulsePlace = useCallback((placeId: string) => {
+    setSelectedPlaceId(placeId);
+  }, []);
+
+  const setZoneCardRef = useCallback((placeId: string, element: HTMLElement | null) => {
+    if (element) {
+      zoneCardRefs.current.set(placeId, element);
+    } else {
+      zoneCardRefs.current.delete(placeId);
+    }
+  }, []);
+
+  const handleMapSelection = useCallback(
+    (place: (typeof allPlaces)[number], source: MapSelectionSource) => {
+      setSelectedPlaceId(place.id);
+
+      if (source === "marker" && pulseZoneIds.has(place.id)) {
+        window.setTimeout(() => {
+          zoneCardRefs.current.get(place.id)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }, 80);
+      }
+    },
+    [pulseZoneIds]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -133,27 +154,43 @@ export function PulseConsole() {
             </div>
 
             <GooglePlacesMap
-              places={pulseMapPlaces}
-              title={t("pulseConsole.liveMap", { city: pulse?.city ?? city })}
+              places={allPlaces}
+              title={t("pulseConsole.kosovoMap")}
               subtitle={loading ? t("common.loading") : `${t("pulseConsole.mapText")} · ${labels.availability(pulse?.crowdMode ?? "")}`}
               className="min-h-[540px]"
               variant="card"
               theme="auto"
-              defaultZoom={city === "Prishtina" ? 11 : 9}
+              defaultZoom={8}
               fitPadding={64}
+              focusZoom={14}
               animatedMarkers
+              selectedPlaceId={selectedPlaceId}
+              onSelectedPlaceChange={handleMapSelection}
             />
 
             <div className="grid gap-3 md:grid-cols-2">
               {(pulse?.zones ?? []).map((zone) => (
                 <article
                   key={zone.id}
-                  style={pulseZoneCardStyle(zone.intensity, hoveredZoneId === zone.id)}
-                  className="experience-card-pulse group relative cursor-default overflow-hidden p-4 transition-[background,background-image,border-color,box-shadow,filter,transform] duration-200 ease-out will-change-transform"
+                  ref={(element) => setZoneCardRef(zone.id, element)}
+                  style={pulseZoneCardStyle(zone.intensity, hoveredZoneId === zone.id || selectedPlaceId === zone.id)}
+                  className={cn(
+                    "experience-card-pulse group relative cursor-pointer overflow-hidden p-4 transition-[background,background-image,border-color,box-shadow,filter,transform] duration-200 ease-out will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55",
+                    selectedPlaceId === zone.id && "ring-2 ring-primary/45"
+                  )}
                   onMouseEnter={() => setHoveredZoneId(zone.id)}
                   onMouseLeave={() => setHoveredZoneId(null)}
                   onFocus={() => setHoveredZoneId(zone.id)}
                   onBlur={() => setHoveredZoneId(null)}
+                  onClick={() => selectPulsePlace(zone.id)}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter" && event.key !== " ") return;
+                    event.preventDefault();
+                    selectPulsePlace(zone.id);
+                  }}
+                  role="button"
+                  aria-pressed={selectedPlaceId === zone.id}
+                  aria-label={`${zone.title} map focus`}
                   tabIndex={0}
                 >
                   <span className="pointer-events-none absolute inset-x-0 top-0 z-20 h-1 origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100" />
@@ -171,9 +208,17 @@ export function PulseConsole() {
                       <p className="font-bold">{zone.title}</p>
                       <p className="mt-1 text-sm text-muted-foreground">{labels.vibe(zone.primaryVibe)} · {zone.city}</p>
                     </div>
-                    <Badge variant={pulseIntensityTone(zone.intensity)}>
-                      {labels.availability(zone.demandLevel)}
-                    </Badge>
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      <Badge variant={pulseIntensityTone(zone.intensity)}>
+                        {labels.availability(zone.demandLevel)}
+                      </Badge>
+                      {selectedPlaceId === zone.id && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/[0.14] px-2 py-1 text-[11px] font-semibold text-primary">
+                          <MapPin className="h-3 w-3" />
+                          {t("pulseConsole.mapFocus")}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <p className="relative z-10 mt-3 text-sm leading-6 text-muted-foreground">{zone.summary}</p>
                   <div className="relative z-10 mt-4 grid grid-cols-2 gap-2 text-sm">

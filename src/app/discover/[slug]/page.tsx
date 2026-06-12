@@ -96,7 +96,9 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
           className="min-h-[520px] lg:sticky lg:top-24"
           variant="card"
           defaultZoom={14}
+          focusZoom={15}
           fitPadding={72}
+          defaultSelectedPlaceId={place.id}
         />
       </div>
     </section>

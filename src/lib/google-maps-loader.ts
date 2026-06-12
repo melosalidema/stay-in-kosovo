@@ -57,6 +57,12 @@ export type GoogleMarkerInstance = {
   setZIndex: (zIndex: number) => void;
 };
 
+export type GoogleInfoWindowInstance = {
+  close: () => void;
+  open: (options: { map: GoogleMapInstance; anchor?: GoogleMarkerInstance | null; shouldFocus?: boolean }) => void;
+  setContent: (content: string | Node) => void;
+};
+
 export type GoogleMarkerOptions = {
   position: Coordinates;
   map: GoogleMapInstance;
@@ -77,6 +83,7 @@ export type GoogleMapsApi = {
       clearInstanceListeners: (instance: GoogleMarkerInstance) => void;
     };
     LatLngBounds: new () => GoogleLatLngBounds;
+    InfoWindow: new (options?: { content?: string | Node; maxWidth?: number }) => GoogleInfoWindowInstance;
     Map: new (element: HTMLElement, options: GoogleMapOptions) => GoogleMapInstance;
     Marker: new (options: GoogleMarkerOptions) => GoogleMarkerInstance;
     Point: new (x: number, y: number) => unknown;
