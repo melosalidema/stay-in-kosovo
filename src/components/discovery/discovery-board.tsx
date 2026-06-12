@@ -1,6 +1,6 @@
 "use client";
 
-import { Filter, Search, SlidersHorizontal } from "lucide-react";
+import { Filter, RefreshCw, Search, SlidersHorizontal } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -11,9 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { categories, vibes } from "@/data/kosovo-data";
+import { categories, places as fallbackPlaces, vibes } from "@/data/kosovo-data";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
+import { ALL_KOSOVO_CITY, getPlaceCityOptions, validatePlaceCityAssignments } from "@/lib/place-options";
 import { useAppStore } from "@/store/app-store";
 import type { PlaceDTO } from "@/types";
 
@@ -24,16 +25,30 @@ type ApiResponse = {
   };
 };
 
-const cities = ["Prishtina", "Prizren", "Peja", "Gjakova", "Brezovica"];
-
 export function DiscoveryBoard() {
   const { t } = useTranslation();
   const labels = useLocalizedLabels();
   const filters = useAppStore((state) => state.filters);
   const setFilters = useAppStore((state) => state.setFilters);
+  const resetFilters = useAppStore((state) => state.resetFilters);
   const [places, setPlaces] = useState<PlaceDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [relaxedFallback, setRelaxedFallback] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const debouncedQuery = useDebounce(filters.q);
+  const cityOptions = useMemo(() => getPlaceCityOptions(fallbackPlaces), []);
+  const invalidCityRecords = useMemo(() => validatePlaceCityAssignments(fallbackPlaces), []);
+  const mapPlaces = places.length ? places : fallbackPlaces;
+  const hasActiveFilters = Boolean(
+    debouncedQuery ||
+      filters.city ||
+      filters.category ||
+      filters.vibe ||
+      filters.budget ||
+      filters.openNow ||
+      filters.rating ||
+      filters.transport
+  );
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -49,17 +64,52 @@ export function DiscoveryBoard() {
   }, [debouncedQuery, filters]);
 
   useEffect(() => {
+    if (invalidCityRecords.length > 0) {
+      console.warn("[Stay Kosovo discover] Places with missing city values:", invalidCityRecords);
+    }
+  }, [invalidCityRecords]);
+
+  useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setLoadError(false);
 
-    fetch(`/api/places?${queryString}`)
-      .then((response) => response.json())
-      .then((payload: ApiResponse) => {
-        if (!cancelled) setPlaces(payload.data.places);
-      })
-      .finally(() => {
+    async function loadPlaces() {
+      try {
+        const response = await fetch(`/api/places?${queryString}`);
+        if (!response.ok) throw new Error("Failed to load places.");
+        const payload = (await response.json()) as ApiResponse;
+        const exactPlaces = payload.data?.places ?? [];
+
+        if (cancelled) return;
+
+        if (exactPlaces.length || !queryString) {
+          setPlaces(exactPlaces);
+          setRelaxedFallback(false);
+          return;
+        }
+
+        const fallbackResponse = await fetch("/api/places");
+        if (!fallbackResponse.ok) throw new Error("Failed to load fallback places.");
+        const fallbackPayload = (await fallbackResponse.json()) as ApiResponse;
+
+        if (cancelled) return;
+
+        setPlaces(fallbackPayload.data?.places ?? fallbackPlaces);
+        setRelaxedFallback(true);
+      } catch (error) {
+        if (cancelled) return;
+
+        console.warn("[Stay Kosovo discover] Falling back to static places after load failure:", error);
+        setPlaces(fallbackPlaces);
+        setRelaxedFallback(true);
+        setLoadError(true);
+      } finally {
         if (!cancelled) setLoading(false);
-      });
+      }
+    }
+
+    loadPlaces();
 
     return () => {
       cancelled = true;
@@ -82,7 +132,9 @@ export function DiscoveryBoard() {
           </div>
           <div className="flex items-center gap-2 rounded-lg border border-border bg-card/[0.82] px-3 py-2 text-sm shadow-editorial">
             <SlidersHorizontal className="h-4 w-4 text-primary" />
-            {t("discover.matching", { count: places.length })}
+            {relaxedFallback
+              ? t("discover.relaxedMatching", { count: places.length })
+              : t("discover.matching", { count: places.length })}
           </div>
         </div>
 
@@ -96,12 +148,13 @@ export function DiscoveryBoard() {
               onChange={(event) => setFilters({ q: event.target.value })}
             />
           </label>
-          <Select value={filters.city} onValueChange={(city) => setFilters({ city })}>
+          <Select value={filters.city || ALL_KOSOVO_CITY} onValueChange={(city) => setFilters({ city: city === ALL_KOSOVO_CITY ? "" : city })}>
             <SelectTrigger>
               <SelectValue placeholder={t("common.city")} />
             </SelectTrigger>
             <SelectContent>
-              {cities.map((city) => (
+              <SelectItem value={ALL_KOSOVO_CITY}>{t("common.allKosovo")}</SelectItem>
+              {cityOptions.map((city) => (
                 <SelectItem key={city} value={city}>
                   {city}
                 </SelectItem>
@@ -134,11 +187,12 @@ export function DiscoveryBoard() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={String(filters.budget)} onValueChange={(budget) => setFilters({ budget: Number(budget) })}>
+          <Select value={filters.budget ? String(filters.budget) : "all"} onValueChange={(budget) => setFilters({ budget: budget === "all" ? 0 : Number(budget) })}>
             <SelectTrigger>
               <SelectValue placeholder={t("common.budget")} />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">{t("common.anyBudget")}</SelectItem>
               {[1, 2, 3, 4, 5].map((level) => (
                 <SelectItem key={level} value={String(level)}>
                   {t("common.budget")} {level}
@@ -171,8 +225,24 @@ export function DiscoveryBoard() {
             >
               {t("common.busNearby")}
             </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={resetFilters}
+              disabled={!hasActiveFilters}
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              {t("discover.resetFilters")}
+            </Button>
           </div>
         </div>
+
+        {(relaxedFallback || loadError) && (
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.08] px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
+            {loadError ? t("discover.loadFallback") : t("discover.relaxedNotice")}
+          </div>
+        )}
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_440px]">
           <div className="grid gap-5 sm:grid-cols-2">
@@ -187,7 +257,7 @@ export function DiscoveryBoard() {
               </div>
             )}
           </div>
-          <MapPanel places={places} />
+          <MapPanel places={mapPlaces} />
         </div>
       </div>
     </section>

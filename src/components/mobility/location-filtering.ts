@@ -1,40 +1,24 @@
 import type { PlaceDTO } from "@/types";
+import {
+  ALL_KOSOVO_CITY,
+  filterPlacesByCity,
+  getPlaceCityOptions,
+  normalizeCity,
+  placeMatchesCity
+} from "@/lib/place-options";
 
-export const ALL_KOSOVO_CITY = "ALL_KOSOVO";
 export const UNKNOWN_CITY_LABEL = "Unknown city";
 
-export function normalizeCity(city?: string | null) {
-  return city?.trim() ?? "";
-}
-
 export function getMobilityCityOptions(locationPlaces: PlaceDTO[]) {
-  const seen = new Set<string>();
-  const cities: string[] = [];
-
-  for (const place of locationPlaces) {
-    const city = normalizeCity(place.city);
-    const key = city.toLowerCase();
-
-    if (!city || seen.has(key)) continue;
-
-    seen.add(key);
-    cities.push(city);
-  }
-
-  return cities;
+  return getPlaceCityOptions(locationPlaces);
 }
 
 export function placeMatchesMobilityCity(place: PlaceDTO | undefined, city: string) {
-  if (!place) return false;
-  if (city === ALL_KOSOVO_CITY) return true;
-
-  return normalizeCity(place.city).toLowerCase() === city.toLowerCase();
+  return placeMatchesCity(place, city);
 }
 
 export function filterMobilityPlacesByCity(locationPlaces: PlaceDTO[], city: string) {
-  if (city === ALL_KOSOVO_CITY) return locationPlaces;
-
-  return locationPlaces.filter((place) => placeMatchesMobilityCity(place, city));
+  return filterPlacesByCity(locationPlaces, city);
 }
 
 export function findMobilityPlaceById(locationPlaces: PlaceDTO[], id: string) {
@@ -47,3 +31,5 @@ export function formatMobilityPlaceLabel(place: PlaceDTO, unknownCityLabel = UNK
 
   return `${place.title} (${city}) - ${category}`;
 }
+
+export { ALL_KOSOVO_CITY, normalizeCity };

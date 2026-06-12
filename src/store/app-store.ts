@@ -24,6 +24,7 @@ type AppState = {
   itineraryDraft: ItineraryInput;
   setSelectedVibe: (vibe: string) => void;
   setFilters: (filters: Partial<Filters>) => void;
+  resetFilters: () => void;
   setLocation: (location: Coordinates) => void;
   toggleSavedPlace: (place: PlaceDTO) => void;
   setItineraryDraft: (draft: Partial<ItineraryInput>) => void;
@@ -31,10 +32,10 @@ type AppState = {
 
 const defaultFilters: Filters = {
   q: "",
-  city: "Prishtina",
+  city: "",
   category: "",
   vibe: "",
-  budget: 4,
+  budget: 0,
   openNow: false,
   rating: 0,
   transport: ""
@@ -63,6 +64,7 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           filters: { ...state.filters, ...filters }
         })),
+      resetFilters: () => set({ filters: defaultFilters }),
       setLocation: (location) => set({ location }),
       toggleSavedPlace: (place) => {
         const saved = get().savedPlaceIds;

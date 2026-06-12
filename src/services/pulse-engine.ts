@@ -1,6 +1,10 @@
 import { events, places, transportPoints, vibes } from "@/data/kosovo-data";
+import { ALL_KOSOVO_CITY } from "@/lib/place-options";
 import { clamp } from "@/lib/utils";
 import type { ExperiencePulseDTO, PlaceDTO, PulseInput, PulseInsight, PulseZone } from "@/types";
+
+const ALL_KOSOVO_PULSE_CITY = "All Kosovo";
+type TransportPoint = (typeof transportPoints)[number];
 
 function demandLevel(intensity: number): PulseZone["demandLevel"] {
   if (intensity >= 90) return "surging";
@@ -31,6 +35,10 @@ function transportReliability(city: string) {
   const points = transportPoints.filter((point) => point.city === city);
   if (!points.length) return 58;
   return points.reduce((total, point) => total + point.reliabilityScore, 0) / points.length;
+}
+
+function averageTransportReliability(points: readonly TransportPoint[]) {
+  return points.length > 0 ? points.reduce((total, point) => total + point.reliabilityScore, 0) / points.length : 58;
 }
 
 function pressureFor(place: PlaceDTO, intensity: number): PulseZone["mobilityPressure"] {
@@ -124,10 +132,8 @@ function buildSupplyGaps(candidates: PlaceDTO[]) {
     .slice(0, 4);
 }
 
-function buildInsights(city: string, zones: PulseZone[], liveScore: number): PulseInsight[] {
-  const transport = transportPoints.filter((point) => point.city === city);
-  const averageReliability =
-    transport.length > 0 ? transport.reduce((total, point) => total + point.reliabilityScore, 0) / transport.length : 58;
+function buildInsights(zones: PulseZone[], liveScore: number, transport: readonly TransportPoint[]): PulseInsight[] {
+  const averageReliability = averageTransportReliability(transport);
   const highDemand = zones.filter((zone) => zone.demandLevel === "high" || zone.demandLevel === "surging").length;
 
   return [
@@ -153,14 +159,18 @@ function buildInsights(city: string, zones: PulseZone[], liveScore: number): Pul
 }
 
 export function generateExperiencePulse(input: PulseInput = {}): ExperiencePulseDTO {
-  const city = input.city ?? "Prishtina";
-  const cityPlaces = places.filter((place) => place.city.toLowerCase() === city.toLowerCase());
+  const requestedCity = input.city?.trim() || "Prishtina";
+  const allKosovoMode = requestedCity === ALL_KOSOVO_CITY;
+  const city = allKosovoMode ? ALL_KOSOVO_PULSE_CITY : requestedCity;
+  const cityPlaces = allKosovoMode ? places : places.filter((place) => place.city.toLowerCase() === city.toLowerCase());
   const candidates = cityPlaces.length ? cityPlaces : places;
   const zones = buildZones(input, candidates);
   const liveScore = zones.length
     ? zones.reduce((total, zone) => total + zone.intensity, 0) / zones.length
     : 0;
-  const cityTransport = transportPoints.filter((point) => point.city.toLowerCase() === city.toLowerCase());
+  const cityTransport = allKosovoMode
+    ? transportPoints
+    : transportPoints.filter((point) => point.city.toLowerCase() === city.toLowerCase());
   const sortedTransport = [...cityTransport].sort((a, b) => b.reliabilityScore - a.reliabilityScore);
 
   return {
@@ -170,7 +180,7 @@ export function generateExperiencePulse(input: PulseInput = {}): ExperiencePulse
     crowdMode: crowdMode(liveScore),
     topVibes: buildTopVibes(candidates),
     zones,
-    insights: buildInsights(city, zones, liveScore),
+    insights: buildInsights(zones, liveScore, cityTransport),
     supplyGaps: buildSupplyGaps(candidates),
     suggestedActions: [
       `Prioritize ${zones[0]?.title ?? city} in the recommendation carousel for the next demand cycle.`,
@@ -179,7 +189,7 @@ export function generateExperiencePulse(input: PulseInput = {}): ExperiencePulse
       "Use review atmosphere tags to validate whether boosted places still match the selected vibe."
     ],
     transportHealth: {
-      averageReliability: Math.round(transportReliability(city)),
+      averageReliability: Math.round(averageTransportReliability(cityTransport)),
       bestPoint: sortedTransport[0]?.name,
       weakestPoint: sortedTransport.at(-1)?.name
     },
