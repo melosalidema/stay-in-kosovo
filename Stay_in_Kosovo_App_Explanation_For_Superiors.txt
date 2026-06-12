@@ -1,0 +1,179 @@
+Stay in Kosovo App - Explanation for Superiors
+
+Project Name:
+Stay in Kosovo - Smart Experience, Mobility, and Tourism Platform
+
+Project Summary:
+Stay in Kosovo is a modern web and mobile-first tourism application designed to help tourists, locals, businesses, and administrators interact with Kosovo's travel and hospitality ecosystem in one platform. The application helps users discover places, receive personalized recommendations, plan trips, compare transport options, view live city activity, contact an AI-style travel assistant, and interact with local businesses.
+
+The application is built as a production-style prototype using Next.js, React, TypeScript, Prisma, PostgreSQL, Tailwind CSS, NextAuth, Zustand, and several optional integrations such as Mapbox, Open-Meteo, Cloudinary, Google OAuth, and future OpenAI support.
+
+Main Purpose:
+The main goal of the application is to create a smart digital experience platform for Kosovo. Instead of being only a simple tourism website, Stay in Kosovo acts like an "experience operating system" for visitors and local operators. It connects places, vibes, reviews, mobility, itineraries, businesses, user behavior, and city intelligence into one system.
+
+Target Users:
+1. Tourists
+Tourists can explore Kosovo, discover attractions, restaurants, cafes, nightlife, cultural places, hidden gems, and events. They can get recommendations, build itineraries, check transport options, and use the travel assistant.
+
+2. Local Users
+Local users can also discover places, save favorites, review businesses, check city activity, and find experiences based on mood, location, budget, and preferred vibe.
+
+3. Business Owners
+Business owners can register or onboard their business, manage business-related information, view dashboard insights, improve their visibility, and eventually benefit from analytics and demand signals.
+
+4. Administrators
+Admins can access protected moderation areas for reviewing businesses, places, reviews, and other platform content.
+
+Core Features:
+
+1. Home Dashboard
+The home page introduces the platform and gives users access to the main experience areas. It includes a hero section, vibe selector, weather strip, trending places, Kosovo pulse preview, and AI-style recommendations.
+
+2. Vibe-Based Discovery
+Users can choose a "vibe" or mood, such as relaxing, cultural, food-focused, social, adventure, nightlife, or hidden-gem style experiences. The selected vibe influences recommendations and city pulse results.
+
+3. Discover Page
+The discovery section lets users browse and filter places in Kosovo. Places can be filtered by city, category, vibe, budget, open status, rating, transport availability, and search query. The UI includes place cards and a map-ready panel.
+
+4. Recommendation Engine
+The app includes a deterministic AI-style recommendation engine. It ranks places using explainable factors such as:
+- Vibe match
+- Distance from the user
+- Budget fit
+- Place quality and rating
+- Hidden-gem score
+- Mobility fit
+- Business boost
+- Current context such as time of day
+- User personalization based on interactions
+
+This means the platform can explain why a place was recommended instead of returning random results.
+
+5. City Pulse System
+The Pulse feature provides city intelligence. It analyzes activity signals and returns a live-style overview of what is happening in a city. It can show:
+- Live city score
+- Demand zones
+- Popular vibes
+- Transport health
+- Supply gaps for businesses
+- Suggested operator actions
+
+This feature is useful for tourists, city operators, and businesses because it shows where activity and demand are concentrated.
+
+6. Mobility Planner
+The mobility section compares transport methods such as walking, taxi, bus, bike, and car. It calculates estimated time, cost, availability, carbon score, and route points. This helps users choose the best way to move between locations.
+
+7. Itinerary Builder
+The itinerary builder generates a trip plan based on user preferences, selected city, available time, vibe, budget, and mobility needs. It combines recommendation ranking with city pulse and mobility data to create a timeline of stops, estimated costs, travel time, and route segments.
+
+8. Reviews and Interactions
+Users can interact with places by viewing, saving, reviewing, checking in, sharing, requesting routes, and adding places to itineraries. These interactions can be stored and later used to personalize recommendations and support business analytics.
+
+9. Business Onboarding
+The business section allows business owners to submit their business details for approval. This supports the idea of building a local marketplace where businesses can join the tourism ecosystem and become discoverable by users.
+
+10. Admin Moderation
+The admin area is role-protected and designed for moderation. Admins can review business submissions, reviews, and location-related content. This keeps the platform reliable and prevents low-quality or invalid data.
+
+11. Authentication and Roles
+The app uses NextAuth for authentication. It supports credentials login and can optionally support Google OAuth. The system includes user roles such as tourist, business owner, and admin. Protected pages and API routes check roles before allowing access.
+
+12. Progressive Web App Support
+The application includes PWA assets such as a web manifest, icons, offline page, and service worker. This means the app is designed to work well on mobile and can support app-like behavior in the browser.
+
+13. Internationalization
+The project includes localization files for English and Albanian. This allows the application to support multiple languages and better serve Kosovo's local and international users.
+
+Technical Architecture:
+The application is built with a full-stack Next.js architecture.
+
+Frontend:
+- Next.js App Router
+- React 19
+- TypeScript
+- Tailwind CSS
+- Reusable UI components
+- Mobile-first responsive design
+- Framer Motion animations
+- Zustand for client-side state
+
+Backend:
+- Next.js API routes
+- Prisma ORM
+- PostgreSQL database
+- Zod validation
+- NextAuth authentication
+- Role-based permission checks
+- Rate limiting for selected routes
+
+Domain Services:
+The app separates business logic into service files. Important services include:
+- recommendation-engine.ts for ranking places
+- profile-engine.ts for personalization
+- pulse-engine.ts for city intelligence
+- mobility-engine.ts for ETA, cost, and transport comparisons
+- itinerary-engine.ts for trip planning
+- place-service.ts for database and fallback place data
+- weather-service.ts for Open-Meteo weather data
+- assistant-engine.ts for travel assistant logic
+- analytics-service.ts for business and interaction insights
+
+Database:
+The Prisma schema models a real marketplace-style system. It includes users, accounts, sessions, businesses, places, reviews, itineraries, events, categories, vibes, saved places, transportation points, interactions, check-ins, and badges.
+
+API Endpoints:
+The app includes REST API routes for:
+- Places
+- Recommendations
+- Pulse
+- Mobility
+- Itinerary generation
+- Reviews
+- Interactions
+- Business onboarding
+- Admin moderation
+- Authentication and registration
+- Weather
+- Assistant chat
+- Upload signatures
+- Health checks
+
+External Integrations:
+The app is designed to work with:
+- Open-Meteo for weather
+- Mapbox for maps
+- Cloudinary for media uploads
+- Google OAuth for optional login
+- OpenAI in the future for natural language explanations and assistant responses
+
+Important Note:
+The app can still work without some external API keys because it includes fallback logic, deterministic recommendation behavior, and local Kosovo data. This makes it practical for demo, development, and prototype presentation.
+
+Testing and Quality:
+The project includes Vitest tests for important engines and UI features, including:
+- Recommendation engine
+- Profile engine
+- Pulse engine
+- Mobility engine
+- Itinerary engine
+- Vibe selector
+- Language switcher
+
+Deployment and Runtime:
+The app can be run locally with npm and can also be deployed using Docker. The repository includes:
+- Dockerfile
+- docker-compose.yml
+- PostgreSQL setup
+- Prisma migration and seed support
+- Production build scripts
+
+Why This Application Is Valuable:
+Stay in Kosovo is valuable because it combines tourism, mobility, personalization, business support, and city intelligence into one platform. It can help tourists find better experiences, help locals discover new places, help businesses understand demand, and help administrators manage platform quality.
+
+The strongest part of the concept is that every user action can improve the system. Views, saves, reviews, check-ins, routes, and itineraries can feed recommendation logic, business analytics, and city pulse intelligence.
+
+Current Status:
+This is a strong MVP/prototype with a broad product direction. It already includes the main structure of a real full-stack application: frontend pages, API routes, authentication, database schema, business logic services, tests, documentation, Docker support, PWA support, and optional third-party integrations.
+
+Conclusion:
+Stay in Kosovo is not only a tourism listing application. It is a smart tourism and mobility platform for Kosovo. It helps users discover experiences, plan routes, generate itineraries, interact with local businesses, and receive personalized recommendations. At the same time, it gives business owners and administrators tools to manage, analyze, and improve the local tourism ecosystem.

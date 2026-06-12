@@ -80,13 +80,13 @@ export function DiscoveryBoard() {
               {t("discover.description")}
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-lg bg-muted p-2 text-sm">
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-card/[0.82] px-3 py-2 text-sm shadow-editorial">
             <SlidersHorizontal className="h-4 w-4 text-primary" />
             {t("discover.matching", { count: places.length })}
           </div>
         </div>
 
-        <div className="grid gap-3 rounded-lg border border-border bg-card/72 p-3 shadow-sm backdrop-blur-xl md:grid-cols-2 lg:grid-cols-6">
+        <div className="experience-card-discovery grid gap-3 bg-card/[0.82] p-3 backdrop-blur-xl md:grid-cols-2 lg:grid-cols-6">
           <label className="relative lg:col-span-2">
             <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -146,7 +146,7 @@ export function DiscoveryBoard() {
               ))}
             </SelectContent>
           </Select>
-          <div className="flex gap-2 lg:col-span-6">
+          <div className="flex flex-wrap gap-2 lg:col-span-6">
             <Button
               type="button"
               variant={filters.openNow ? "default" : "outline"}
@@ -175,10 +175,17 @@ export function DiscoveryBoard() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_440px]">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {loading
-              ? Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-80 rounded-lg" />)
-              : places.map((place) => <PlaceCard key={place.id} place={place} />)}
+          <div className="grid gap-5 sm:grid-cols-2">
+            {loading ? (
+              Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-[360px] rounded-lg bg-muted/[0.7]" />)
+            ) : places.length ? (
+              places.map((place) => <PlaceCard key={place.id} place={place} />)
+            ) : (
+              <div className="experience-card-discovery p-8 text-center sm:col-span-2">
+                <p className="font-bold">{t("discover.emptyTitle")}</p>
+                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{t("discover.emptyText")}</p>
+              </div>
+            )}
           </div>
           <MapPanel places={places} />
         </div>

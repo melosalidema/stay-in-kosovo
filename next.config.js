@@ -9,10 +9,6 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "api.mapbox.com"
-      },
-      {
-        protocol: "https",
         hostname: "res.cloudinary.com"
       }
     ]

@@ -3,15 +3,15 @@ import { clamp } from "@/lib/utils";
 import type { ExperiencePulseDTO, PlaceDTO, PulseInput, PulseInsight, PulseZone } from "@/types";
 
 function demandLevel(intensity: number): PulseZone["demandLevel"] {
-  if (intensity >= 84) return "surging";
-  if (intensity >= 68) return "high";
+  if (intensity >= 90) return "surging";
+  if (intensity >= 70) return "high";
   if (intensity >= 48) return "medium";
   return "low";
 }
 
 function crowdMode(score: number): ExperiencePulseDTO["crowdMode"] {
-  if (score >= 82) return "surging";
-  if (score >= 66) return "lively";
+  if (score >= 90) return "surging";
+  if (score >= 70) return "lively";
   if (score >= 45) return "balanced";
   return "calm";
 }
@@ -40,7 +40,7 @@ function pressureFor(place: PlaceDTO, intensity: number): PulseZone["mobilityPre
 }
 
 function zoneSummary(place: PlaceDTO, intensity: number) {
-  if (intensity >= 84) return `${place.title} is a high-signal stop right now with strong social and route demand.`;
+  if (intensity >= 90) return `${place.title} is a high-signal stop right now with strong social and route demand.`;
   if (place.hiddenGemScore >= 68) return `${place.title} is trending as a hidden-gem option with lower mainstream density.`;
   return `${place.title} is a stable match with reliable quality and manageable mobility.`;
 }

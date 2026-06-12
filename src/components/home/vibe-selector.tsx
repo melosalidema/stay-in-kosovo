@@ -55,22 +55,22 @@ export function VibeSelector() {
                 transition={{ delay: index * 0.04 }}
                 onClick={() => setSelectedVibe(vibe.name)}
                 className={cn(
-                  "group min-h-36 rounded-lg border p-4 text-left transition hover:-translate-y-1 hover:shadow-glass",
+                  "group min-h-36 text-left transition",
                   active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card/84 hover:border-primary/40"
+                    ? "rounded-lg border border-primary/[0.7] bg-primary p-4 text-primary-foreground shadow-card-hover"
+                    : "experience-card-home p-4 hover:-translate-y-0.5 hover:border-primary/[0.3]"
                 )}
               >
                 <span
                   className={cn(
                     "mb-4 grid h-10 w-10 place-items-center rounded-md",
-                    active ? "bg-white/18" : "bg-muted text-primary"
+                    active ? "bg-white/[0.18]" : "bg-muted text-primary"
                   )}
                 >
                   <Icon className="h-5 w-5" />
                 </span>
                 <span className="block text-sm font-bold">{labels.vibe(vibe.name)}</span>
-                <span className={cn("mt-2 block text-xs leading-5", active ? "text-white/78" : "text-muted-foreground")}>
+                <span className={cn("mt-2 block text-xs leading-5", active ? "text-white/[0.78]" : "text-muted-foreground")}>
                   {labels.vibeDescription(vibe.name)}
                 </span>
               </motion.button>

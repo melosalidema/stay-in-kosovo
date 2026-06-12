@@ -61,7 +61,7 @@ export function AiRecommendations() {
   }, [selectedVibe, location, refresh]);
 
   return (
-    <section className="section-band bg-muted/30">
+    <section className="section-band bg-muted/[0.3]">
       <div className="page-shell space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -87,8 +87,8 @@ export function AiRecommendations() {
             ? Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-80 rounded-lg" />)
             : items.map((item) => (
                 <div key={item.place.id} className="space-y-3">
-                  <PlaceCard place={item.place} compact />
-                  <div className="rounded-lg border border-border bg-card p-3 text-sm">
+                  <PlaceCard place={item.place} compact surface="home" />
+                  <div className="experience-card-home p-3 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold">{t("aiRecommendations.score")}</span>
                       <span className="text-primary">{item.score}</span>

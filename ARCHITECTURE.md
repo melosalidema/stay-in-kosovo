@@ -142,7 +142,7 @@ When a user session and database are available, `/api/itinerary` attempts to per
 - Availability.
 - Route points for frontend visualization.
 
-This is Mapbox-ready: the API already returns route points, while the UI can later swap the simulated route for Mapbox Directions.
+This is Google Maps-ready: the API already returns route points, while the UI can later swap the simulated route for provider-backed directions.
 
 ## Authentication Flow
 
@@ -192,10 +192,12 @@ Why Zustand:
 
 ## External Integrations
 
-Mapbox:
+Google Maps:
 
-- `MapPanel` builds a Mapbox Static URL when `NEXT_PUBLIC_MAPBOX_TOKEN` exists.
-- Without a token, the app renders a premium fallback map panel.
+- `GooglePlacesMap` lazy-loads Google Maps when `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` exists.
+- Marker positions come from `PlaceDTO.coordinates`, which are mapped directly from `Place.latitude` and `Place.longitude`.
+- Coordinates are validated against the Kosovo polygon before marker creation; invalid records are logged and skipped.
+- Without a token or on load failure, the app renders exact-coordinate navigation links instead of fake marker positions.
 
 OpenAI:
 

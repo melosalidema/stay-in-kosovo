@@ -1,9 +1,13 @@
 import { z } from "zod";
 
-export const coordinatesSchema = z.object({
-  lat: z.number().min(41).max(43.5),
-  lng: z.number().min(19.5).max(22)
-});
+import { isCoordinateInsideKosovo } from "@/lib/geo";
+
+export const coordinatesSchema = z
+  .object({
+    lat: z.number(),
+    lng: z.number()
+  })
+  .refine((coordinates) => isCoordinateInsideKosovo(coordinates), "Coordinates must be numeric and inside Kosovo.");
 
 export const placeFilterSchema = z.object({
   q: z.string().optional(),
@@ -67,10 +71,15 @@ export const businessOnboardingSchema = z.object({
   description: z.string().min(20),
   city: z.string().min(2),
   address: z.string().min(4),
+  latitude: z.coerce.number(),
+  longitude: z.coerce.number(),
   categorySlug: z.string().min(2),
   vibeTags: z.array(z.string()).default([]),
   phone: z.string().optional(),
   instagram: z.string().optional()
+}).refine((data) => isCoordinateInsideKosovo({ lat: data.latitude, lng: data.longitude }), {
+  message: "Business coordinates must be numeric and inside Kosovo.",
+  path: ["latitude"]
 });
 
 export const registerSchema = z.object({

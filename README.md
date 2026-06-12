@@ -14,7 +14,7 @@ This version is a V2 product direction rather than a copy of the earlier prototy
 - Deterministic simulated AI recommendation engine with explainable scoring, context weighting, and interaction-profile personalization
 - Experience pulse engine that scores city demand zones, top vibes, transport health, and business supply gaps
 - Mobility engine with ETA, cost, carbon score, and transport availability simulation
-- Cloudinary signature endpoint, Open-Meteo weather integration, and Mapbox-ready map UI
+- Cloudinary signature endpoint, Open-Meteo weather integration, and Google Maps-ready map UI
 - Dockerfile and docker-compose for Postgres and production web runtime
 - Vitest tests and HTTP API examples
 
@@ -225,14 +225,15 @@ Optional integrations:
 ```txt
 GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET
-NEXT_PUBLIC_MAPBOX_TOKEN
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID
 OPENAI_API_KEY
 CLOUDINARY_CLOUD_NAME
 CLOUDINARY_API_KEY
 CLOUDINARY_API_SECRET
 ```
 
-The app remains usable without external API keys by using deterministic AI, a Mapbox fallback map, mock upload behavior, and cached/weather fallback behavior.
+The app remains usable without external API keys by using deterministic AI, exact-coordinate map navigation fallbacks, mock upload behavior, and cached/weather fallback behavior.
 
 ## Testing
 
@@ -277,7 +278,7 @@ docker compose up --build
 
 ## Scaling Notes
 
-- Replace fallback maps with Mapbox Directions and Tiles when a token is available.
+- Add provider-backed route polylines and travel modes on top of the Google Maps place markers.
 - Move rate limiting from memory to Redis for multi-instance deployments.
 - Add PostGIS for true distance queries and location indexing.
 - Use Redis or Vercel cache tags for place/recommendation caching.

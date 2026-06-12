@@ -23,7 +23,7 @@ export const POST = withApiTiming("POST /api/mobility", async function POST(requ
     nearbyTransportPoints: await timeStep("mobility.transportPoints", () => getNearbyTransportPoints(parsed.data.city)),
     engine: {
       routeCalculation: "Haversine distance plus Kosovo city speed assumptions and simulated wait time.",
-      mapIntegration: "Mapbox-ready route points are returned for frontend visualization."
+      mapIntegration: "Route points are ready for Google Maps polyline visualization."
     }
   });
 });

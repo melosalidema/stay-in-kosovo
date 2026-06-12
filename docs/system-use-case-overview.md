@@ -28,7 +28,7 @@ actor "PostgreSQL Database" as DB
 actor "NextAuth" as Auth
 actor "Google OAuth\n(optional)" as Google
 actor "Open-Meteo" as Weather
-actor "Mapbox Static Maps\n(optional)" as Mapbox
+actor "Google Maps\n(optional)" as Maps
 actor "Cloudinary\n(optional)" as Cloudinary
 actor "OpenAI\n(future/optional)" as OpenAI
 
@@ -143,7 +143,7 @@ API --> Auth
 Auth --> DB
 Auth --> Google
 UC_Weather --> Weather
-UC_Map --> Mapbox
+UC_Map --> Maps
 UC_Upload --> Cloudinary
 UC_Assistant --> OpenAI : future optional
 UC_Recs --> OpenAI : future optional explanations
@@ -202,7 +202,7 @@ flowchart LR
     DB[(PostgreSQL via Prisma)]
     Fallback[Static Kosovo fallback data]
     OpenMeteo[Open-Meteo]
-    Mapbox[Mapbox Static Maps optional]
+    Maps[Google Maps optional]
     Cloudinary[Cloudinary optional]
     Google[Google OAuth optional]
     OpenAI[OpenAI future optional]
@@ -250,7 +250,7 @@ flowchart LR
   UploadService --> Cloudinary
   RecommendationEngine -. future narratives .-> OpenAI
   AssistantEngine -. future LLM .-> OpenAI
-  Components -. map image .-> Mapbox
+  Components -. interactive map .-> Maps
 ```
 
 ## Plain-English System Explanation
@@ -261,7 +261,7 @@ The app works as a layered system.
 2. **The shared API layer** lives inside the same Next.js app under `src/app/api`. Both the web UI and the mobile/PWA UI call these endpoints with `fetch()`.
 3. **The service layer** contains business logic: ranking places, generating pulse intelligence, calculating mobility, creating itineraries, building profiles, answering assistant questions, and creating upload signatures.
 4. **The data layer** is PostgreSQL accessed through Prisma. Some features also fall back to static Kosovo data so the prototype still works when the database is unavailable.
-5. **External services** are optional integrations: Open-Meteo for weather, Mapbox for map imagery, Cloudinary for upload signatures, Google OAuth for login, and OpenAI as a future enhancement for richer explanations/chat.
+5. **External services** are optional integrations: Open-Meteo for weather, Google Maps for interactive place maps, Cloudinary for upload signatures, Google OAuth for login, and OpenAI as a future enhancement for richer explanations/chat.
 
 The most common data flow is:
 
@@ -292,7 +292,7 @@ User action
 | NextAuth | Handles login/session creation and role propagation. |
 | Google OAuth | Optional external login provider when configured. |
 | Open-Meteo | Weather provider for the weather strip. |
-| Mapbox | Optional static map provider for discovery map imagery. |
+| Google Maps | Optional interactive map provider for exact-coordinate place markers. |
 | Cloudinary | Optional signed upload target. |
 | OpenAI | Reserved/future enhancement for assistant/recommendation narratives; current recommendation logic is deterministic. |
 
@@ -305,7 +305,7 @@ User action
 | Register | `src/app/auth/register/page.tsx` | `src/app/api/auth/register/route.ts` | `src/lib/validation.ts`, `bcryptjs`, Prisma | `User` model |
 | Role protection | protected `/business`, `/admin` pages | protected API routes | `src/middleware.ts`, `src/lib/auth/permissions.ts` | NextAuth JWT role |
 | Discover/filter places | `src/components/discovery/discovery-board.tsx` | `src/app/api/places/route.ts`, `src/app/api/places/[id]/route.ts` | `src/services/place-service.ts` | `Place`, `Category`, `Business`; fallback `src/data/kosovo-data.ts` |
-| Map/location view | `src/components/discovery/map-panel.tsx` | none directly | `src/hooks/use-geolocation.ts` | Browser geolocation, optional Mapbox static image |
+| Map/location view | `src/components/maps/google-places-map.tsx`, `src/components/discovery/map-panel.tsx` | none directly | `src/hooks/use-geolocation.ts`, `src/lib/geo.ts` | Browser geolocation, optional Google Maps script |
 | Save/view/route interaction | `src/components/discovery/place-card.tsx` | `src/app/api/interactions/route.ts` | `src/services/interaction-service.ts`, `src/services/profile-engine.ts` | `UserInteraction`; fallback profile delta |
 | Recommendations | `src/components/home/ai-recommendations.tsx` | `src/app/api/recommendations/route.ts` | `src/services/recommendation-engine.ts`, `src/services/profile-engine.ts`, `src/services/place-service.ts` | `Place`, `UserInteraction`; fallback data |
 | City pulse | `src/components/pulse/pulse-console.tsx`, `src/components/home/pulse-command-center.tsx` | `src/app/api/pulse/route.ts` | `src/services/pulse-engine.ts` | fallback places/events/transport; future interaction streams |
@@ -370,7 +370,7 @@ User action
 ### External Integrations
 
 - Open-Meteo supplies weather.
-- Mapbox can supply static map images.
+- Google Maps can render interactive exact-coordinate place maps.
 - Cloudinary can receive signed uploads.
 - Google OAuth can authenticate users.
 - OpenAI is planned as a narrative/chat upgrade, not required for current deterministic ranking.

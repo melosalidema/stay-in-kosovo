@@ -1,7 +1,7 @@
 "use client";
 
 import { Bike, Bus, Car, CarTaxiFront, Footprints, Leaf, MapPin, Navigation, Route } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,14 @@ import { places } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
 import { formatCurrency } from "@/lib/utils";
 import type { MobilityOption, PlaceDTO, TransportMethod } from "@/types";
+import {
+  ALL_KOSOVO_CITY,
+  filterMobilityPlacesByCity,
+  findMobilityPlaceById,
+  formatMobilityPlaceLabel,
+  getMobilityCityOptions,
+  placeMatchesMobilityCity
+} from "./location-filtering";
 
 const methodIcons = {
   WALKING: Footprints,
@@ -36,14 +44,29 @@ type ApiResponse = {
 export function MobilityPanel() {
   const { t } = useTranslation();
   const labels = useLocalizedLabels();
-  const [from, setFrom] = useState<PlaceDTO>(places[3]);
-  const [to, setTo] = useState<PlaceDTO>(places[1]);
+  const [city, setCity] = useState(ALL_KOSOVO_CITY);
+  const [from, setFrom] = useState<PlaceDTO | undefined>(places[3]);
+  const [to, setTo] = useState<PlaceDTO | undefined>(places[1]);
   const [preference, setPreference] = useState<TransportMethod>("WALKING");
   const [options, setOptions] = useState<MobilityOption[]>([]);
   const [points, setPoints] = useState<ApiResponse["data"]["nearbyTransportPoints"]>([]);
   const [loading, setLoading] = useState(false);
 
+  const cityOptions = useMemo(() => getMobilityCityOptions(places), []);
+  const filteredPlaces = useMemo(() => filterMobilityPlacesByCity(places, city), [city]);
+  const canCalculate = Boolean(from && to && filteredPlaces.length > 0);
+  const routeTitle = from && to ? `${from.title} ${t("common.to").toLowerCase()} ${to.title}` : t("mobility.routePending");
+
+  useEffect(() => {
+    setFrom((current) => (placeMatchesMobilityCity(current, city) ? current : undefined));
+    setTo((current) => (placeMatchesMobilityCity(current, city) ? current : undefined));
+    setOptions([]);
+    setPoints([]);
+  }, [city]);
+
   const calculate = async () => {
+    if (!from || !to) return;
+
     setLoading(true);
     const response = await fetch("/api/mobility", {
       method: "POST",
@@ -81,32 +104,60 @@ export function MobilityPanel() {
           <aside className="h-fit rounded-lg border border-border bg-card p-5 shadow-glass">
             <div className="space-y-4">
               <label className="grid gap-2 text-sm font-medium">
-                {t("common.from")}
-                <Select value={from.id} onValueChange={(id) => setFrom(places.find((place) => place.id === id) ?? places[0])}>
+                {t("common.city")}
+                <Select value={city} onValueChange={setCity}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {places.map((place) => (
-                      <SelectItem key={place.id} value={place.id}>
-                        {place.title}
+                    <SelectItem value={ALL_KOSOVO_CITY}>{t("mobility.allKosovo")}</SelectItem>
+                    {cityOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </label>
               <label className="grid gap-2 text-sm font-medium">
-                {t("common.to")}
-                <Select value={to.id} onValueChange={(id) => setTo(places.find((place) => place.id === id) ?? places[1])}>
+                {t("common.from")}
+                <Select value={from?.id ?? ""} onValueChange={(id) => setFrom(findMobilityPlaceById(filteredPlaces, id))}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={t("mobility.selectOrigin")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {places.map((place) => (
-                      <SelectItem key={place.id} value={place.id}>
-                        {place.title}
+                    {filteredPlaces.length ? (
+                      filteredPlaces.map((place) => (
+                        <SelectItem key={place.id} value={place.id}>
+                          {formatMobilityPlaceLabel(place, t("mobility.unknownCity"))}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-from-locations" disabled>
+                        {t("mobility.noLocationsForCity")}
                       </SelectItem>
-                    ))}
+                    )}
+                  </SelectContent>
+                </Select>
+              </label>
+              <label className="grid gap-2 text-sm font-medium">
+                {t("common.to")}
+                <Select value={to?.id ?? ""} onValueChange={(id) => setTo(findMobilityPlaceById(filteredPlaces, id))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("mobility.selectDestination")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredPlaces.length ? (
+                      filteredPlaces.map((place) => (
+                        <SelectItem key={place.id} value={place.id}>
+                          {formatMobilityPlaceLabel(place, t("mobility.unknownCity"))}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-to-locations" disabled>
+                        {t("mobility.noLocationsForCity")}
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </label>
@@ -125,7 +176,7 @@ export function MobilityPanel() {
                   </SelectContent>
                 </Select>
               </label>
-              <Button className="w-full" size="lg" onClick={calculate} disabled={loading}>
+              <Button className="w-full" size="lg" onClick={calculate} disabled={loading || !canCalculate}>
                 <Navigation className={loading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
                 {t("mobility.calculate")}
               </Button>
@@ -152,7 +203,7 @@ export function MobilityPanel() {
                   />
                 </svg>
                 <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/15 bg-white/12 p-4 backdrop-blur-xl">
-                  <p className="font-semibold">{from.title} {t("common.to").toLowerCase()} {to.title}</p>
+                  <p className="font-semibold">{routeTitle}</p>
                   <p className="mt-1 text-sm text-white/70">
                     {t("mobility.routeVisualization")}
                   </p>

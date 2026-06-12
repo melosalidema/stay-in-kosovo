@@ -1,11 +1,14 @@
 "use client";
 
-import { Activity, AlertTriangle, Building2, Clock3, Compass, RadioTower, Route, Sparkles } from "lucide-react";
+import { AlertTriangle, Building2, Clock3, Compass, RadioTower, Route, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { GooglePlacesMap } from "@/components/maps/google-places-map";
+import { pulseIntensityTone, pulseZoneCardKeyframes, pulseZoneCardStyle } from "@/components/pulse/pulse-zone-card-effects";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { places as allPlaces } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
 import type { DayPart, ExperiencePulseDTO } from "@/types";
 
@@ -26,11 +29,21 @@ export function PulseConsole() {
   const [dayPart, setDayPart] = useState<DayPart>("EVENING");
   const [pulse, setPulse] = useState<ExperiencePulseDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hoveredZoneId, setHoveredZoneId] = useState<string | null>(null);
 
   const query = useMemo(() => {
     const params = new URLSearchParams({ city, vibe, dayPart });
     return params.toString();
   }, [city, vibe, dayPart]);
+
+  const pulseMapPlaces = useMemo(() => {
+    const zoneIds = new Set((pulse?.zones ?? []).map((zone) => zone.id));
+    const activePlaces = zoneIds.size
+      ? allPlaces.filter((place) => zoneIds.has(place.id))
+      : allPlaces.filter((place) => place.city.toLowerCase() === city.toLowerCase());
+
+    return activePlaces.length ? activePlaces : allPlaces;
+  }, [city, pulse]);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,6 +65,7 @@ export function PulseConsole() {
 
   return (
     <section className="section-band">
+      <style>{pulseZoneCardKeyframes}</style>
       <div className="page-shell space-y-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -63,7 +77,7 @@ export function PulseConsole() {
               {t("pulseConsole.title")}
             </h1>
           </div>
-          <div className="grid gap-2 rounded-lg border border-border bg-card p-2 shadow-sm sm:grid-cols-3">
+          <div className="experience-card-pulse grid gap-2 p-2 sm:grid-cols-3">
             <Select value={city} onValueChange={setCity}>
               <SelectTrigger aria-label={t("common.city")}>
                 <SelectValue />
@@ -107,7 +121,7 @@ export function PulseConsole() {
           <div className="space-y-6">
             <div className="grid gap-3 md:grid-cols-3">
               {(pulse?.insights ?? []).map((insight) => (
-                <article key={insight.label} className="rounded-lg border border-border bg-card p-4 shadow-sm">
+                <article key={insight.label} className="experience-card-pulse p-4">
                   <p className="text-sm text-muted-foreground">{insight.label}</p>
                   <p className="mt-2 text-3xl font-bold">{insight.value}</p>
                   <Badge variant={insight.tone} className="mt-3">
@@ -118,55 +132,64 @@ export function PulseConsole() {
               ))}
             </div>
 
-            <div className="rounded-lg border border-border bg-slate-950 p-4 text-white shadow-glass">
-              <div className="relative min-h-[500px] overflow-hidden rounded-md">
-                <div className="map-grid absolute inset-0 bg-gradient-to-br from-slate-950 via-cyan-950 to-rose-950" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(45,212,191,0.24),transparent_30%),radial-gradient(circle_at_76%_64%,rgba(251,113,133,0.24),transparent_28%)]" />
-                {(pulse?.zones ?? []).map((zone, index) => (
-                  <div
-                    key={zone.id}
-                    className="absolute"
-                    style={{
-                      left: `${14 + ((index * 18) % 68)}%`,
-                      top: `${18 + ((index * 16) % 58)}%`
-                    }}
-                  >
-                    <span className="absolute -inset-3 animate-ping rounded-full bg-teal-300/30" />
-                    <span className="relative grid h-12 w-12 place-items-center rounded-full border border-white/20 bg-white/15 text-sm font-bold backdrop-blur-xl">
-                      {zone.intensity}
-                    </span>
-                  </div>
-                ))}
-                <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/15 bg-white/12 p-4 backdrop-blur-xl">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="font-bold">{t("pulseConsole.liveMap", { city: pulse?.city ?? city })}</p>
-                      <p className="mt-1 text-sm text-white/70">{t("pulseConsole.mapText")}</p>
-                    </div>
-                    <Badge variant="glass">
-                      <Activity className="mr-1 h-3.5 w-3.5" />
-                      {loading ? t("common.loading") : labels.availability(pulse?.crowdMode ?? "")}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <GooglePlacesMap
+              places={pulseMapPlaces}
+              title={t("pulseConsole.liveMap", { city: pulse?.city ?? city })}
+              subtitle={loading ? t("common.loading") : `${t("pulseConsole.mapText")} · ${labels.availability(pulse?.crowdMode ?? "")}`}
+              className="min-h-[540px]"
+              variant="card"
+              theme="auto"
+              defaultZoom={city === "Prishtina" ? 11 : 9}
+              fitPadding={64}
+              animatedMarkers
+            />
 
             <div className="grid gap-3 md:grid-cols-2">
               {(pulse?.zones ?? []).map((zone) => (
-                <article key={zone.id} className="rounded-lg border border-border bg-card p-4">
-                  <div className="flex items-start justify-between gap-3">
+                <article
+                  key={zone.id}
+                  style={pulseZoneCardStyle(zone.intensity, hoveredZoneId === zone.id)}
+                  className="experience-card-pulse group relative cursor-default overflow-hidden p-4 transition-[background,background-image,border-color,box-shadow,filter,transform] duration-200 ease-out will-change-transform"
+                  onMouseEnter={() => setHoveredZoneId(zone.id)}
+                  onMouseLeave={() => setHoveredZoneId(null)}
+                  onFocus={() => setHoveredZoneId(zone.id)}
+                  onBlur={() => setHoveredZoneId(null)}
+                  tabIndex={0}
+                >
+                  <span className="pointer-events-none absolute inset-x-0 top-0 z-20 h-1 origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100" />
+                  <span
+                    className="pointer-events-none absolute inset-0 z-0 rounded-lg"
+                    style={{
+                      background:
+                        "radial-gradient(circle at 88% 10%, rgb(var(--surge-rgb) / var(--surge-alpha)), transparent 34%)",
+                      boxShadow: "inset 0 0 0 1px rgb(var(--surge-rgb) / calc(var(--surge-alpha) * 1.4))",
+                      animation: "pulse-card-halo var(--surge-duration) ease-in-out infinite"
+                    }}
+                  />
+                  <div className="relative z-10 flex items-start justify-between gap-3">
                     <div>
                       <p className="font-bold">{zone.title}</p>
                       <p className="mt-1 text-sm text-muted-foreground">{labels.vibe(zone.primaryVibe)} · {zone.city}</p>
                     </div>
-                    <Badge variant={zone.demandLevel === "surging" ? "rose" : zone.demandLevel === "high" ? "amber" : "green"}>
+                    <Badge variant={pulseIntensityTone(zone.intensity)}>
                       {labels.availability(zone.demandLevel)}
                     </Badge>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{zone.summary}</p>
-                  <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-                    <span className="rounded-md bg-muted p-2">
+                  <p className="relative z-10 mt-3 text-sm leading-6 text-muted-foreground">{zone.summary}</p>
+                  <div className="relative z-10 mt-4 grid grid-cols-2 gap-2 text-sm">
+                    <span className="relative overflow-hidden rounded-md bg-muted p-2 transition-colors group-hover:bg-primary/[0.1]">
+                      <span
+                        className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: "rgb(var(--surge-rgb))" }}
+                      />
+                      <span
+                        className="absolute right-1 top-1 h-4 w-4 rounded-full"
+                        style={{
+                          backgroundColor: "rgb(var(--surge-rgb))",
+                          opacity: "var(--surge-alpha)",
+                          animation: "pulse-zone-dot var(--surge-duration) ease-in-out infinite"
+                        }}
+                      />
                       <Compass className="mb-1 h-4 w-4 text-primary" />
                       {zone.intensity}/100
                     </span>
@@ -181,7 +204,7 @@ export function PulseConsole() {
           </div>
 
           <aside className="space-y-4">
-            <div className="rounded-lg border border-border bg-card p-5 shadow-glass">
+            <div className="experience-card-pulse p-5">
               <p className="mb-4 flex items-center gap-2 font-bold">
                 <Sparkles className="h-5 w-5 text-primary" />
                 {t("pulseConsole.topVibes")}
@@ -201,14 +224,14 @@ export function PulseConsole() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-border bg-card p-5 shadow-glass">
+            <div className="experience-card-pulse p-5">
               <p className="mb-4 flex items-center gap-2 font-bold">
                 <Building2 className="h-5 w-5 text-primary" />
                 {t("pulseConsole.supplyGaps")}
               </p>
               <div className="space-y-3">
                 {(pulse?.supplyGaps ?? []).map((gap) => (
-                  <div key={gap.vibe} className="rounded-md bg-muted p-3 text-sm">
+                  <div key={gap.vibe} className="rounded-md border border-border/[0.7] bg-muted/[0.7] p-3 text-sm">
                     <div className="flex items-center justify-between gap-3">
                       <span className="font-semibold">{labels.vibe(gap.vibe)}</span>
                       <span>{gap.supply} live</span>
@@ -219,21 +242,21 @@ export function PulseConsole() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-border bg-card p-5 shadow-glass">
+            <div className="experience-card-pulse p-5">
               <p className="mb-4 flex items-center gap-2 font-bold">
                 <AlertTriangle className="h-5 w-5 text-primary" />
                 {t("pulseConsole.suggestedActions")}
               </p>
               <div className="space-y-2">
                 {(pulse?.suggestedActions ?? []).map((action) => (
-                  <p key={action} className="rounded-md bg-muted p-3 text-sm leading-6 text-muted-foreground">
+                  <p key={action} className="rounded-md border border-border/[0.7] bg-muted/[0.7] p-3 text-sm leading-6 text-muted-foreground">
                     {action}
                   </p>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-lg border border-border bg-card p-5 shadow-glass">
+            <div className="experience-card-pulse p-5">
               <p className="mb-4 flex items-center gap-2 font-bold">
                 <Clock3 className="h-5 w-5 text-primary" />
                 Methodology

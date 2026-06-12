@@ -5,15 +5,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-[background-color,border-color,box-shadow,color,transform] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-glow hover:brightness-110",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        outline: "border border-border bg-background/70 hover:bg-accent hover:text-accent-foreground",
+        default: "bg-primary text-primary-foreground shadow-glow hover:-translate-y-0.5 hover:brightness-105",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/[0.8]",
+        outline: "border border-border bg-background/[0.72] shadow-sm hover:-translate-y-0.5 hover:border-primary/[0.3] hover:bg-accent hover:text-accent-foreground",
         ghost: "hover:bg-accent hover:text-accent-foreground",
-        glass: "border border-white/20 bg-white/12 text-white backdrop-blur-xl hover:bg-white/20",
+        glass: "border border-white/20 bg-white/[0.12] text-white backdrop-blur-xl hover:bg-white/20",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90"
       },
       size: {

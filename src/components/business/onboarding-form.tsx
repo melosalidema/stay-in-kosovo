@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Send } from "lucide-react";
+import { Building2, LocateFixed, Send } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -11,17 +11,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { categories, vibes } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
+import { isCoordinateInsideKosovo } from "@/lib/geo";
 
 export function OnboardingForm() {
   const { t } = useTranslation();
   const labels = useLocalizedLabels();
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
     description: "",
     city: "Prishtina",
     address: "",
+    latitude: "",
+    longitude: "",
     categorySlug: "restaurants",
     vibeTags: ["Local Food"],
     phone: "",
@@ -29,15 +33,69 @@ export function OnboardingForm() {
   });
 
   const submit = async () => {
+    const coordinates = {
+      lat: Number(form.latitude),
+      lng: Number(form.longitude)
+    };
+
+    if (!isCoordinateInsideKosovo(coordinates)) {
+      setStatus(t("business.coordinatesInvalid"));
+      return;
+    }
+
     setLoading(true);
     const response = await fetch("/api/businesses/onboarding", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
+      body: JSON.stringify({
+        ...form,
+        latitude: coordinates.lat,
+        longitude: coordinates.lng
+      })
     });
     const payload = await response.json();
     setStatus(payload.ok ? t("business.submitted") : payload.error);
     setLoading(false);
+  };
+
+  const fillCurrentLocation = () => {
+    setStatus(null);
+
+    if (!navigator.geolocation) {
+      setStatus(t("business.geolocationUnavailable"));
+      return;
+    }
+
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coordinates = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+
+        if (!isCoordinateInsideKosovo(coordinates)) {
+          setStatus(t("business.coordinatesOutside"));
+          setLocationLoading(false);
+          return;
+        }
+
+        setForm((current) => ({
+          ...current,
+          latitude: coordinates.lat.toFixed(7),
+          longitude: coordinates.lng.toFixed(7)
+        }));
+        setLocationLoading(false);
+      },
+      () => {
+        setStatus(t("business.geolocationDenied"));
+        setLocationLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 8000
+      }
+    );
   };
 
   return (
@@ -102,6 +160,40 @@ export function OnboardingForm() {
               {t("common.address")}
               <Input value={form.address} onChange={(event) => setForm({ ...form, address: event.target.value })} />
             </label>
+            <div className="grid gap-3 rounded-lg border border-border bg-muted/45 p-3 md:col-span-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold">{t("business.coordinates")}</p>
+                  <p className="text-xs text-muted-foreground">{t("business.coordinatesHelp")}</p>
+                </div>
+                <Button type="button" variant="outline" size="sm" onClick={fillCurrentLocation} disabled={locationLoading}>
+                  <LocateFixed className={locationLoading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+                  {t("business.useGpsLocation")}
+                </Button>
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="grid gap-2 text-sm font-medium">
+                  {t("business.latitude")}
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.0000001"
+                    value={form.latitude}
+                    onChange={(event) => setForm({ ...form, latitude: event.target.value })}
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium">
+                  {t("business.longitude")}
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.0000001"
+                    value={form.longitude}
+                    onChange={(event) => setForm({ ...form, longitude: event.target.value })}
+                  />
+                </label>
+              </div>
+            </div>
             <label className="grid gap-2 text-sm font-medium">
               {t("common.phone")}
               <Input value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />

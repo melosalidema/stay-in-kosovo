@@ -46,7 +46,7 @@ flowchart LR
   DB[(PostgreSQL<br/>Database)]
   Auth[NextAuth]
   Weather[Open-Meteo]
-  Mapbox[Mapbox<br/>optional]
+  Maps[Google Maps<br/>optional]
   Cloudinary[Cloudinary<br/>optional]
   Google[Google OAuth<br/>optional]
   OpenAI[OpenAI<br/>future optional]
@@ -157,7 +157,7 @@ flowchart LR
   Auth --> DB
   Auth --> Google
   UCWeather --> Weather
-  UCMap --> Mapbox
+  UCMap --> Maps
   UCUpload --> Cloudinary
   UCAssistant -. future .-> OpenAI
   UCRecs -. future explanations .-> OpenAI

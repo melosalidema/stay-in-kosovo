@@ -16,7 +16,7 @@ export function ApplicationFlow() {
   const { t } = useTranslation();
 
   return (
-    <section className="section-band bg-muted/30">
+    <section className="section-band bg-muted/[0.3]">
       <div className="page-shell space-y-6">
         <div>
           <p className="text-sm font-semibold uppercase text-primary">{t("flow.eyebrow")}</p>
@@ -24,8 +24,10 @@ export function ApplicationFlow() {
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {steps.map((step) => (
-            <div key={step.key} className="rounded-lg border border-border bg-card p-5">
-              <step.icon className="mb-4 h-5 w-5 text-primary" />
+            <div key={step.key} className="experience-card-home p-5 hover:-translate-y-0.5 hover:border-primary/[0.24]">
+              <span className="mb-4 grid h-10 w-10 place-items-center rounded-md bg-primary/[0.1] text-primary">
+                <step.icon className="h-5 w-5" />
+              </span>
               <h3 className="font-bold">{t(`flow.steps.${step.key}.title`)}</h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">{t(`flow.steps.${step.key}.text`)}</p>
             </div>

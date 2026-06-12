@@ -64,8 +64,8 @@ export const POST = withApiTiming("POST /api/businesses/onboarding", async funct
             description: parsed.data.description,
             city: parsed.data.city,
             address: parsed.data.address,
-            latitude: 42.6629,
-            longitude: 21.1655,
+            latitude: parsed.data.latitude,
+            longitude: parsed.data.longitude,
             vibeTags: parsed.data.vibeTags,
             atmosphereTags: [],
             transportation: {

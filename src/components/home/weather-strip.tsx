@@ -25,7 +25,7 @@ export function WeatherStrip() {
   if (!weather) return null;
 
   return (
-    <section className="border-y border-border bg-card/60 px-4 py-3">
+    <section className="border-y border-border bg-card/[0.72] px-4 py-3 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 text-sm">
         <span className="flex items-center gap-2 font-semibold">
           <CloudSun className="h-4 w-4 text-primary" />

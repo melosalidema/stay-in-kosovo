@@ -5,11 +5,12 @@ import { PulseCommandCenter } from "@/components/home/pulse-command-center";
 import { TrendingSection } from "@/components/home/trending-section";
 import { VibeSelector } from "@/components/home/vibe-selector";
 import { WeatherStrip } from "@/components/home/weather-strip";
+import { places } from "@/data/kosovo-data";
 
 export default function HomePage() {
   return (
     <>
-      <HeroSection />
+      <HeroSection featuredPlaces={places} />
       <WeatherStrip />
       <PulseCommandCenter />
       <VibeSelector />

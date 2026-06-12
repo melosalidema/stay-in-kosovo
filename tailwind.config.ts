@@ -59,14 +59,18 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)"
       },
       boxShadow: {
-        glow: "0 18px 80px rgba(24, 96, 91, 0.28)",
-        glass: "0 16px 60px rgba(15, 23, 42, 0.16)"
+        glow: "0 16px 56px rgba(23, 93, 88, 0.2)",
+        glass: "0 16px 50px rgba(22, 31, 44, 0.13)",
+        card: "0 10px 30px rgba(22, 31, 44, 0.08)",
+        "card-hover": "0 18px 42px rgba(22, 31, 44, 0.14)",
+        editorial: "0 8px 22px rgba(22, 31, 44, 0.055)",
+        pulse: "0 20px 52px rgba(22, 31, 44, 0.18)"
       },
       backgroundImage: {
         "kosovo-hero":
-          "linear-gradient(135deg, rgba(6, 24, 31, 0.84), rgba(12, 74, 72, 0.42)), url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80')",
+          "linear-gradient(135deg, rgba(8, 23, 30, 0.82), rgba(24, 93, 88, 0.34), rgba(144, 82, 53, 0.16)), url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80')",
         "city-night":
-          "linear-gradient(135deg, rgba(15, 23, 42, 0.72), rgba(190, 24, 93, 0.24)), url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1600&q=80')"
+          "linear-gradient(135deg, rgba(17, 24, 39, 0.76), rgba(31, 93, 87, 0.28), rgba(144, 82, 53, 0.16)), url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1600&q=80')"
       }
     }
   },
