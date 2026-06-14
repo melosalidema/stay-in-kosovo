@@ -7,6 +7,11 @@ let pendingCheck: Promise<boolean> | null = null;
 const reachableCacheMs = Number(process.env.DB_REACHABLE_CACHE_MS ?? 60_000);
 const unavailableCacheMs = Number(process.env.DB_UNAVAILABLE_CACHE_MS ?? 10_000);
 
+export function markDatabaseUnavailable(durationMs = unavailableCacheMs) {
+  unavailableUntil = Date.now() + durationMs;
+  reachableUntil = 0;
+}
+
 export async function isDatabaseReachable(timeoutMs = 250) {
   const databaseUrl = process.env.DATABASE_URL;
 
@@ -36,7 +41,7 @@ export async function isDatabaseReachable(timeoutMs = 250) {
       if (reachable) {
         reachableUntil = Date.now() + reachableCacheMs;
       } else {
-        unavailableUntil = Date.now() + unavailableCacheMs;
+        markDatabaseUnavailable();
       }
       resolve(reachable);
     };

@@ -1,8 +1,8 @@
 import { ExternalLink, MapPin, Navigation, Route, Star } from "lucide-react";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { GooglePlacesMap } from "@/components/maps/google-places-map";
+import { ResilientPlaceImage } from "@/components/places/resilient-place-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { googleMapsDirectionsUrl, googleMapsNavigationUrl, googleMapsSearchUrl } from "@/lib/geo";
@@ -18,25 +18,19 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
 
   if (!place) notFound();
 
-  const heroImage = place.images[0];
-
   return (
     <section className="section-band">
       <div className="page-shell grid gap-6 lg:grid-cols-[minmax(0,1fr)_440px]">
         <article className="overflow-hidden rounded-lg border border-border bg-card shadow-glass">
           <div className="relative aspect-[16/8] min-h-72">
-            {heroImage ? (
-              <Image
-                src={heroImage}
-                alt={place.title}
-                fill
-                sizes="(min-width: 1024px) 760px, 100vw"
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-900 via-slate-950 to-rose-950" />
-            )}
+            <ResilientPlaceImage
+              place={place}
+              fill
+              imageWidth={1600}
+              sizes="(min-width: 1024px) 760px, 100vw"
+              className="object-cover"
+              priority
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
             <div className="absolute bottom-5 left-5 right-5 text-white">
               <div className="mb-3 flex flex-wrap gap-2">

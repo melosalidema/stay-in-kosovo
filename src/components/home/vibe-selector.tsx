@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Music, Mountain, Search, Sparkles, Trees, Utensils, Waves } from "lucide-react";
+import { Building2, Footprints, Landmark, MapPinned, Music, Mountain, PawPrint, Search, Sparkles, Trees, Utensils, Waves } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 
@@ -18,7 +18,14 @@ const icons = {
   Adventure: Mountain,
   "Local Food": Utensils,
   "Hidden Gems": Search,
-  "Family Friendly": Trees
+  "Family Friendly": Trees,
+  Culture: Landmark,
+  "Sacred & Spiritual": Landmark,
+  "Adventure & Trails": Footprints,
+  "Wildlife & Nature": PawPrint,
+  "Living History": Landmark,
+  "Ottoman Heritage": Building2,
+  "City Life": MapPinned
 };
 
 export function VibeSelector() {
@@ -40,9 +47,9 @@ export function VibeSelector() {
           </Button>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
           {vibes.map((vibe, index) => {
-            const Icon = icons[vibe.name];
+            const Icon = icons[vibe.name] ?? Sparkles;
             const active = selectedVibe === vibe.name;
 
             return (

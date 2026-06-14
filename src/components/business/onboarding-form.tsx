@@ -13,9 +13,34 @@ import { categories, vibes } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
 import { isCoordinateInsideKosovo } from "@/lib/geo";
 
+const adventureVibes = new Set(["Adventure", "Adventure & Trails"]);
+const sacredVibes = new Set(["Sacred & Spiritual"]);
+const wildlifeVibes = new Set(["Wildlife & Nature"]);
+
+const descriptionPlaceholders: Record<string, string> = {
+  Adventure: "Describe the trail, difficulty level, and best season...",
+  "Adventure & Trails": "Describe the trail, difficulty level, and best season...",
+  "Sacred & Spiritual": "Describe the spiritual significance and visitor etiquette...",
+  "Hidden Gems": "Tell us why this place is underrated and how to find it...",
+  "Wildlife & Nature": "Describe the habitat, animal encounters, and visitor rules...",
+  "Living History": "Describe the story, architecture, and cultural context...",
+  "Ottoman Heritage": "Describe the historic details, atmosphere, and best time to visit..."
+};
+
+function hexToRgba(hex: string, alpha: number) {
+  const value = hex.replace("#", "");
+  const numeric = Number.parseInt(value, 16);
+  const red = (numeric >> 16) & 255;
+  const green = (numeric >> 8) & 255;
+  const blue = numeric & 255;
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
 export function OnboardingForm() {
   const { t } = useTranslation();
   const labels = useLocalizedLabels();
+  const [selectedVibe, setSelectedVibe] = useState("Local Food");
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
@@ -28,14 +53,47 @@ export function OnboardingForm() {
     longitude: "",
     categorySlug: "restaurants",
     vibeTags: ["Local Food"],
+    trailDifficulty: "",
+    elevationGain: "",
+    dressCode: "",
+    visitingHours: "",
+    animalTypes: "",
+    entryFee: "",
     phone: "",
     instagram: ""
   });
+
+  const selectedVibeMeta = vibes.find((vibe) => vibe.name === selectedVibe) ?? vibes[0];
+  const accentColor = selectedVibeMeta.color;
+  const fieldMode = adventureVibes.has(selectedVibe)
+    ? "adventure"
+    : sacredVibes.has(selectedVibe)
+      ? "sacred"
+      : wildlifeVibes.has(selectedVibe)
+        ? "wildlife"
+        : "standard";
+  const descriptionPlaceholder =
+    descriptionPlaceholders[selectedVibe] ?? t("business.descriptionPlaceholder");
+  const themedPanelStyle = {
+    background: `linear-gradient(135deg, ${hexToRgba(accentColor, 0.14)}, ${hexToRgba(accentColor, 0.04)} 48%, rgba(255, 255, 255, 0.9))`,
+    borderColor: hexToRgba(accentColor, 0.42),
+    boxShadow: `0 18px 48px ${hexToRgba(accentColor, 0.12)}`
+  };
 
   const submit = async () => {
     const coordinates = {
       lat: Number(form.latitude),
       lng: Number(form.longitude)
+    };
+    const submission = {
+      name: form.name,
+      description: form.description,
+      city: form.city,
+      address: form.address,
+      categorySlug: form.categorySlug,
+      vibeTags: form.vibeTags,
+      phone: form.phone,
+      instagram: form.instagram
     };
 
     if (!isCoordinateInsideKosovo(coordinates)) {
@@ -48,7 +106,7 @@ export function OnboardingForm() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        ...form,
+        ...submission,
         latitude: coordinates.lat,
         longitude: coordinates.lng
       })
@@ -112,7 +170,10 @@ export function OnboardingForm() {
           </p>
         </aside>
 
-        <div className="rounded-lg border border-border bg-card p-5 shadow-glass">
+        <div
+          className="rounded-lg border bg-card p-5 shadow-glass transition-[background,border-color,box-shadow] duration-300 ease-in-out"
+          style={themedPanelStyle}
+        >
           <div className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm font-medium md:col-span-2">
               {t("business.businessName")}
@@ -123,7 +184,7 @@ export function OnboardingForm() {
               <Textarea
                 value={form.description}
                 onChange={(event) => setForm({ ...form, description: event.target.value })}
-                placeholder={t("business.descriptionPlaceholder")}
+                placeholder={descriptionPlaceholder}
               />
             </label>
             <label className="grid gap-2 text-sm font-medium">
@@ -206,30 +267,121 @@ export function OnboardingForm() {
               <p className="mb-2 text-sm font-medium">{t("business.vibeTags")}</p>
               <div className="flex flex-wrap gap-2">
                 {vibes.map((vibe) => {
-                  const active = form.vibeTags.includes(vibe.name);
+                  const active = selectedVibe === vibe.name;
                   return (
                     <Button
                       key={vibe.name}
                       type="button"
                       variant={active ? "default" : "outline"}
                       size="sm"
-                      onClick={() =>
-                        setForm({
-                          ...form,
-                          vibeTags: active
-                            ? form.vibeTags.filter((tag) => tag !== vibe.name)
-                            : [...form.vibeTags, vibe.name]
-                        })
+                      className="transition-[background,border-color,color,box-shadow] duration-300 ease-in-out"
+                      style={
+                        active
+                          ? { backgroundColor: vibe.color, borderColor: vibe.color, color: "#ffffff" }
+                          : { borderColor: hexToRgba(vibe.color, 0.34), color: vibe.color }
                       }
+                      onClick={() => {
+                        setSelectedVibe(vibe.name);
+                        setForm({ ...form, vibeTags: [vibe.name] });
+                      }}
                     >
+                      <span aria-hidden="true">{vibe.emoji}</span>
                       {labels.vibe(vibe.name)}
                     </Button>
                   );
                 })}
               </div>
+              <div
+                className="mt-4 rounded-md border p-3 text-sm transition-[background,border-color,opacity] duration-300 ease-in-out"
+                style={{
+                  backgroundColor: hexToRgba(accentColor, 0.1),
+                  borderColor: hexToRgba(accentColor, 0.32)
+                }}
+              >
+                <p className="flex items-center gap-2 font-semibold">
+                  <span aria-hidden="true">{selectedVibeMeta.emoji}</span>
+                  {labels.vibe(selectedVibe)}
+                </p>
+                <p className="mt-1 text-muted-foreground">{labels.vibeDescription(selectedVibe)}</p>
+              </div>
             </div>
+            {fieldMode === "adventure" && (
+              <div
+                className="grid gap-3 rounded-lg border p-3 transition-[background,border-color] duration-300 ease-in-out md:col-span-2 md:grid-cols-2"
+                style={{ backgroundColor: hexToRgba(accentColor, 0.08), borderColor: hexToRgba(accentColor, 0.28) }}
+              >
+                <label className="grid gap-2 text-sm font-medium">
+                  Trail difficulty
+                  <Input
+                    value={form.trailDifficulty}
+                    onChange={(event) => setForm({ ...form, trailDifficulty: event.target.value })}
+                    placeholder="Easy, moderate, or hard"
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium">
+                  Elevation gain
+                  <Input
+                    value={form.elevationGain}
+                    onChange={(event) => setForm({ ...form, elevationGain: event.target.value })}
+                    placeholder="Example: 450 m"
+                  />
+                </label>
+              </div>
+            )}
+            {fieldMode === "sacred" && (
+              <div
+                className="grid gap-3 rounded-lg border p-3 transition-[background,border-color] duration-300 ease-in-out md:col-span-2 md:grid-cols-2"
+                style={{ backgroundColor: hexToRgba(accentColor, 0.08), borderColor: hexToRgba(accentColor, 0.28) }}
+              >
+                <label className="grid gap-2 text-sm font-medium">
+                  Dress code
+                  <Input
+                    value={form.dressCode}
+                    onChange={(event) => setForm({ ...form, dressCode: event.target.value })}
+                    placeholder="Modest clothing, head covering, shoes"
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium">
+                  Visiting hours
+                  <Input
+                    value={form.visitingHours}
+                    onChange={(event) => setForm({ ...form, visitingHours: event.target.value })}
+                    placeholder="Example: 09:00-17:00"
+                  />
+                </label>
+              </div>
+            )}
+            {fieldMode === "wildlife" && (
+              <div
+                className="grid gap-3 rounded-lg border p-3 transition-[background,border-color] duration-300 ease-in-out md:col-span-2 md:grid-cols-2"
+                style={{ backgroundColor: hexToRgba(accentColor, 0.08), borderColor: hexToRgba(accentColor, 0.28) }}
+              >
+                <label className="grid gap-2 text-sm font-medium">
+                  Animal types
+                  <Input
+                    value={form.animalTypes}
+                    onChange={(event) => setForm({ ...form, animalTypes: event.target.value })}
+                    placeholder="Example: rescued brown bears"
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium">
+                  Entry fee
+                  <Input
+                    value={form.entryFee}
+                    onChange={(event) => setForm({ ...form, entryFee: event.target.value })}
+                    placeholder="Example: EUR 2 adult ticket"
+                  />
+                </label>
+              </div>
+            )}
           </div>
-          <Button className="mt-6" size="lg" onClick={submit} disabled={loading}>
+          <Button
+            className="mt-6 text-white transition-[background,box-shadow,opacity] duration-300 ease-in-out hover:opacity-90"
+            size="lg"
+            style={{ backgroundColor: accentColor, boxShadow: `0 12px 30px ${hexToRgba(accentColor, 0.26)}` }}
+            onClick={submit}
+            disabled={loading}
+          >
             <Send className={loading ? "h-4 w-4 animate-pulse" : "h-4 w-4"} />
             {t("business.submitApproval")}
           </Button>

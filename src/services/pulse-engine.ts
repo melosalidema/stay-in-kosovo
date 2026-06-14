@@ -62,7 +62,8 @@ function buildZones(input: PulseInput, candidates: PlaceDTO[]): PulseZone[] {
       const dayPartBoost =
         input.dayPart === "EVENING" && place.vibeTags.includes("Nightlife")
           ? 9
-          : input.dayPart === "MORNING" && place.vibeTags.includes("Adventure")
+          : input.dayPart === "MORNING" &&
+              (place.vibeTags.includes("Adventure") || place.vibeTags.includes("Adventure & Trails"))
             ? 7
             : 0;
       const intensity = clamp(

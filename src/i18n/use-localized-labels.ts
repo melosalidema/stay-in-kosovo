@@ -6,7 +6,12 @@ import { useTranslation } from "react-i18next";
 import "@/i18n/client";
 
 function slug(value: string) {
-  return value.toLowerCase().trim().replace(/\s+/g, "-");
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, " ")
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 export function useLocalizedLabels() {

@@ -1,11 +1,11 @@
 "use client";
 
 import { AlertTriangle, ExternalLink, Loader2, MapPin, Navigation, Route, Star } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { ResilientPlaceImage } from "@/components/places/resilient-place-image";
 import { Button } from "@/components/ui/button";
 import {
   googleMapsDirectionsUrl,
@@ -15,6 +15,7 @@ import {
   KOSOVO_CENTER,
   validatePlacesForKosovoMap
 } from "@/lib/geo";
+import { getPlaceImageCandidates } from "@/lib/place-images";
 import { cn } from "@/lib/utils";
 import {
   type GoogleInfoWindowInstance,
@@ -74,13 +75,46 @@ const darkMapStyles: GoogleMapStyle[] = [
 ];
 
 const categoryColors: Record<string, string> = {
+  accommodations: "#2563eb",
+  attractions: "#06b6d4",
   restaurants: "#ef4444",
   cafes: "#f59e0b",
+  experiences: "#8b5cf6",
+  hotels: "#2563eb",
   nightlife: "#ec4899",
   nature: "#22c55e",
   culture: "#38bdf8",
   events: "#8b5cf6",
-  parks: "#14b8a6"
+  parks: "#14b8a6",
+  shopping: "#f97316",
+  stay: "#2563eb"
+};
+
+const categoryGlyphs: Record<string, string> = {
+  accommodations: "H",
+  attractions: "A",
+  cafes: "C",
+  culture: "A",
+  events: "E",
+  experiences: "E",
+  hotels: "H",
+  nature: "N",
+  nightlife: "M",
+  parks: "N",
+  restaurants: "R",
+  shopping: "S",
+  stay: "H"
+};
+
+const categoryTypeColors: Record<string, string> = {
+  CULTURE: "#38bdf8",
+  EVENT: "#8b5cf6",
+  FOOD: "#ef4444",
+  NATURE: "#22c55e",
+  NIGHTLIFE: "#ec4899",
+  SHOPPING: "#f97316",
+  STAY: "#2563eb",
+  WELLNESS: "#14b8a6"
 };
 
 function resolveUsesDarkMap(theme: MapTheme) {
@@ -153,6 +187,7 @@ function clusterPlaces(places: PlaceDTO[], zoom: number): MarkerGroup[] {
 function markerIcon(
   api: GoogleMapsApi,
   color: string,
+  glyph: string,
   {
     selected,
     pulsing,
@@ -182,7 +217,8 @@ function markerIcon(
       }
       <g transform="translate(8 15)${hovered ? " scale(1.08 1.08) translate(-1.55 -2.9)" : ""}">
         <path d="M21 39C21 39 34 27.2 34 16.8C34 9.8 28.2 4 21 4C13.8 4 8 9.8 8 16.8C8 27.2 21 39 21 39Z" fill="${color}" stroke="white" stroke-width="2.6"/>
-        <circle cx="21" cy="17" r="5.2" fill="white"/>
+        <circle cx="21" cy="17" r="7" fill="white"/>
+        <text x="21" y="20.4" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="9" font-weight="850" fill="${color}">${glyph}</text>
       </g>
     </svg>
   `;
@@ -223,11 +259,24 @@ function fitPlaces(api: GoogleMapsApi, map: GoogleMapInstance, places: PlaceDTO[
   }
 }
 
-function googleMapsEmbedUrl(place: PlaceDTO | undefined, zoom: number) {
-  const coordinates = place?.coordinates ?? KOSOVO_CENTER;
-  const query = encodeURIComponent(`${coordinates.lat},${coordinates.lng}`);
+function getPlaceCenter(places: PlaceDTO[]) {
+  if (!places.length) return KOSOVO_CENTER;
 
-  return `https://www.google.com/maps?q=${query}&z=${zoom}&output=embed`;
+  return {
+    lat: places.reduce((total, place) => total + place.coordinates.lat, 0) / places.length,
+    lng: places.reduce((total, place) => total + place.coordinates.lng, 0) / places.length
+  };
+}
+
+function googleMapsEmbedUrl(place: PlaceDTO | undefined, places: PlaceDTO[], zoom: number) {
+  const coordinates = place?.coordinates ?? getPlaceCenter(places);
+
+  if (place) {
+    const query = encodeURIComponent(`${coordinates.lat},${coordinates.lng}`);
+    return `https://www.google.com/maps?q=${query}&z=${zoom}&output=embed`;
+  }
+
+  return `https://www.google.com/maps/@${coordinates.lat},${coordinates.lng},${zoom}z?output=embed`;
 }
 
 function escapeHtml(value: string) {
@@ -245,9 +294,14 @@ function escapeHtml(value: string) {
 }
 
 function infoWindowContent(place: PlaceDTO, detailsLabel: string) {
-  const image = place.images[0]
-    ? `<img src="${escapeHtml(place.images[0])}" alt="" style="width:74px;height:74px;object-fit:cover;border-radius:10px;flex:0 0 auto;" />`
-    : `<div style="width:74px;height:74px;border-radius:10px;background:#e2e8f0;display:grid;place-items:center;color:#64748b;flex:0 0 auto;">●</div>`;
+  const imageCandidates = getPlaceImageCandidates(place, 320);
+  const imageFallbacks = escapeHtml(JSON.stringify(imageCandidates));
+  const image = imageCandidates[0]
+    ? `<div style="width:74px;height:74px;border-radius:10px;overflow:hidden;flex:0 0 auto;background:#0f172a;">
+         <img src="${escapeHtml(imageCandidates[0])}" data-fallbacks="${imageFallbacks}" data-fallback-index="0" alt="" referrerpolicy="no-referrer" style="width:74px;height:74px;object-fit:cover;display:block;" onerror="var f=JSON.parse(this.dataset.fallbacks||'[]');var i=Number(this.dataset.fallbackIndex||0)+1;if(i<f.length){this.dataset.fallbackIndex=String(i);this.src=f[i];}else{this.style.display='none';this.nextElementSibling.style.display='grid';}" />
+         <div style="width:74px;height:74px;display:none;place-items:center;color:white;background:linear-gradient(135deg,#134e4a,#0f172a,#881337);font-size:11px;font-weight:800;">${escapeHtml(place.city.slice(0, 2).toUpperCase())}</div>
+       </div>`
+    : `<div style="width:74px;height:74px;border-radius:10px;background:linear-gradient(135deg,#134e4a,#0f172a,#881337);display:grid;place-items:center;color:white;flex:0 0 auto;font-size:11px;font-weight:800;">${escapeHtml(place.city.slice(0, 2).toUpperCase())}</div>`;
   const rating =
     place.rating > 0
       ? `<span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#f59e0b1f;color:#92400e;padding:3px 8px;font-size:12px;font-weight:800;">★ ${place.rating.toFixed(1)}</span>`
@@ -518,9 +572,10 @@ export function GooglePlacesMap({
 
       const place = group.places[0];
       const selected = place.id === selectedPlaceId;
-      const color = categoryColors[place.category.slug] ?? "#0f766e";
+      const color = categoryColors[place.category.slug] ?? categoryTypeColors[place.category.type] ?? "#0f766e";
+      const glyph = categoryGlyphs[place.category.slug] ?? place.category.name.slice(0, 1).toUpperCase();
       const getIcon = (hovered: boolean) =>
-        markerIcon(api, color, {
+        markerIcon(api, color, glyph, {
           selected,
           pulsing: animatedMarkers || selected,
           hovered
@@ -593,12 +648,19 @@ export function GooglePlacesMap({
       {status === "fallback" && validPlaces.length > 0 && (
         <iframe
           key={selectedPlace?.id ?? "kosovo"}
-          src={googleMapsEmbedUrl(selectedPlace, selectedPlace ? 14 : defaultZoom)}
+          src={googleMapsEmbedUrl(selectedPlace, validPlaces, selectedPlace ? 14 : defaultZoom)}
           title={fallbackMapTitle}
           className={cn("absolute inset-0 h-full w-full border-0", mapClassName)}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
         />
+      )}
+
+      {status === "fallback" && !selectedPlace && validPlaces.length > 0 && (
+        <div className="pointer-events-none absolute bottom-4 left-4 right-4 rounded-lg border border-white/15 bg-slate-950/80 p-3 text-white shadow-glass backdrop-blur-xl sm:right-auto sm:max-w-sm">
+          <p className="text-sm font-semibold">{t("googleMap.staticFallbackTitle", { count: validPlaces.length })}</p>
+          <p className="mt-1 text-xs leading-5 text-white/72">{t("googleMap.staticFallbackText")}</p>
+        </div>
       )}
 
       {status === "loading" && (
@@ -639,19 +701,14 @@ export function GooglePlacesMap({
       {selectedPlace && (
         <div className={cn("absolute bottom-4 left-4 right-4 rounded-lg border p-3 shadow-glass backdrop-blur-xl", detailPanelClassName)}>
           <div className="flex gap-3">
-            {selectedPlace.images[0] ? (
-              <Image
-                src={selectedPlace.images[0]}
-                alt={selectedPlace.title}
-                width={96}
-                height={80}
-                className="h-20 w-24 shrink-0 rounded-md object-cover"
-              />
-            ) : (
-              <div className="grid h-20 w-24 shrink-0 place-items-center rounded-md bg-muted">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-              </div>
-            )}
+            <ResilientPlaceImage
+              place={selectedPlace}
+              width={96}
+              height={80}
+              imageWidth={320}
+              className="h-20 w-24 shrink-0 rounded-md object-cover"
+              fallbackClassName="h-20 w-24 shrink-0 rounded-md"
+            />
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">

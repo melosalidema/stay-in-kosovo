@@ -26,11 +26,13 @@ export function AiRecommendations() {
   const location = useAppStore((state) => state.location);
   const [items, setItems] = useState<RecommendationResult[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setError(false);
 
     fetch("/api/recommendations", {
       method: "POST",
@@ -47,9 +49,19 @@ export function AiRecommendations() {
         limit: 3
       })
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to load recommendations.");
+        return response.json();
+      })
       .then((payload: ApiResponse) => {
         if (!cancelled) setItems(payload.data.recommendations);
+      })
+      .catch((requestError) => {
+        console.warn("[Stay Kosovo recommendations] Unable to load recommendations:", requestError);
+        if (!cancelled) {
+          setItems([]);
+          setError(true);
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -83,20 +95,29 @@ export function AiRecommendations() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          {loading
-            ? Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-80 rounded-lg" />)
-            : items.map((item) => (
-                <div key={item.place.id} className="space-y-3">
-                  <PlaceCard place={item.place} compact surface="home" />
-                  <div className="experience-card-home p-3 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">{t("aiRecommendations.score")}</span>
-                      <span className="text-primary">{item.score}</span>
-                    </div>
-                    <p className="mt-2 text-xs text-muted-foreground">{item.reasons.join(" · ")}</p>
+          {loading ? (
+            Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-80 rounded-lg" />)
+          ) : error || !items.length ? (
+            <div className="experience-card-home p-5 md:col-span-3">
+              <p className="font-semibold">{t(error ? "aiRecommendations.errorTitle" : "aiRecommendations.emptyTitle")}</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {t(error ? "aiRecommendations.errorText" : "aiRecommendations.emptyText")}
+              </p>
+            </div>
+          ) : (
+            items.map((item) => (
+              <div key={item.place.id} className="space-y-3">
+                <PlaceCard place={item.place} compact surface="home" />
+                <div className="experience-card-home p-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">{t("aiRecommendations.score")}</span>
+                    <span className="text-primary">{item.score}</span>
                   </div>
+                  <p className="mt-2 text-xs text-muted-foreground">{item.reasons.join(" · ")}</p>
                 </div>
-              ))}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </section>

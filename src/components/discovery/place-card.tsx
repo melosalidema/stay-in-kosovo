@@ -1,16 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Clock, Heart, MapPin, Route, Star, Wallet } from "lucide-react";
-import Image from "next/image";
+import { Clock, ExternalLink, Heart, MapPin, Route, Star, Wallet } from "lucide-react";
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { ResilientPlaceImage } from "@/components/places/resilient-place-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { discoveryPlaceCardStyle, homePulseCardStyle } from "@/components/ui/experience-card-effects";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
+import { googleMapsDirectionsUrl } from "@/lib/geo";
 import { formatCurrency } from "@/lib/utils";
 import { useAppStore } from "@/store/app-store";
 import type { PlaceDTO } from "@/types";
@@ -22,11 +24,15 @@ type PlaceCardSurface = "discovery" | "home";
 export function PlaceCard({
   place,
   compact = false,
-  surface = "discovery"
+  surface = "discovery",
+  selected = false,
+  onSelect
 }: {
   place: PlaceDTO;
   compact?: boolean;
   surface?: PlaceCardSurface;
+  selected?: boolean;
+  onSelect?: (place: PlaceDTO) => void;
 }) {
   const { t } = useTranslation();
   const labels = useLocalizedLabels();
@@ -80,8 +86,9 @@ export function PlaceCard({
         className={
           surface === "home"
             ? "experience-card-home group relative overflow-hidden bg-card/[0.92]"
-            : "experience-card-discovery editorial-card group relative overflow-hidden bg-card/[0.96]"
+            : `experience-card-discovery editorial-card group relative overflow-hidden bg-card/[0.96] ${selected ? "ring-2 ring-primary/45" : ""}`
         }
+        onClick={() => onSelect?.(place)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onFocus={() => setHovered(true)}
@@ -90,10 +97,10 @@ export function PlaceCard({
       >
         <span className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px origin-left scale-x-0 bg-primary/[0.45] transition-transform duration-300 group-hover:scale-x-100" />
         <div className="experience-media relative z-10 aspect-[16/10]">
-          <Image
-            src={place.images[0]}
-            alt={place.title}
+          <ResilientPlaceImage
+            place={place}
             fill
+            imageWidth={compact ? 640 : 1200}
             sizes={compact ? "320px" : "(min-width: 1024px) 420px, 100vw"}
             className="experience-image"
           />
@@ -109,7 +116,8 @@ export function PlaceCard({
             size="icon"
             variant="glass"
             className="absolute right-3 top-3"
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               toggleSavedPlace(place);
               track("SAVE");
             }}
@@ -156,6 +164,23 @@ export function PlaceCard({
                   : t("placeCard.taxi")}
             </span>
           </div>
+
+          {!compact && (
+            <div className="grid grid-cols-2 gap-2">
+              <Button asChild variant="outline" size="sm" className="px-2 text-xs" onClick={(event) => event.stopPropagation()}>
+                <Link href={`/discover/${place.slug}`}>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  {t("googleMap.details")}
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="px-2 text-xs" onClick={(event) => event.stopPropagation()}>
+                <a href={googleMapsDirectionsUrl(place.coordinates)} target="_blank" rel="noreferrer" onClick={() => track("ROUTE_REQUEST")}>
+                  <Route className="h-3.5 w-3.5" />
+                  {t("googleMap.directions")}
+                </a>
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.article>

@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 
 import { places as fallbackPlaces } from "@/data/kosovo-data";
+import { isDatabaseReachable, markDatabaseUnavailable } from "@/lib/database-availability";
 import { timeStep } from "@/lib/performance";
 import { prisma } from "@/lib/prisma";
 import { safeJson } from "@/lib/utils";
@@ -132,11 +133,11 @@ function filterFallback(filters: PlaceFilters) {
         matchesTransport
       );
     })
-    .slice(0, filters.limit ?? 20);
+    .slice(0, filters.limit ?? 50);
 }
 
 export async function getPlaces(filters: PlaceFilters = {}) {
-  if (!process.env.DATABASE_URL) {
+  if (!process.env.DATABASE_URL || !(await isDatabaseReachable())) {
     return filterFallback(filters);
   }
 
@@ -145,7 +146,7 @@ export async function getPlaces(filters: PlaceFilters = {}) {
   if (cached && cached.expiresAt > Date.now()) return cached.data;
 
   const inFlight = placeListInFlight.get(cacheKey);
-  if (inFlight) return timeStep("places.cacheWait", () => inFlight);
+  if (inFlight) return timeStep("places.cacheWait", () => inFlight.catch(() => filterFallback(filters)));
 
   const loadPlaces = (async () => {
     const where: Prisma.PlaceWhereInput = {
@@ -181,7 +182,7 @@ export async function getPlaces(filters: PlaceFilters = {}) {
           }
         },
         orderBy: [{ popularityScore: "desc" }, { rating: "desc" }],
-        take: filters.limit ?? 20
+        take: filters.limit ?? 50
       })
     );
 
@@ -207,8 +208,11 @@ export async function getPlaces(filters: PlaceFilters = {}) {
     placeListCache.set(cacheKey, { expiresAt: Date.now() + placeCacheTtlMs, data });
     return data;
   } catch (error) {
+    markDatabaseUnavailable();
     console.warn("Falling back to static place data:", error);
-    return filterFallback(filters);
+    const fallback = filterFallback(filters);
+    placeListCache.set(cacheKey, { expiresAt: Date.now() + Math.min(placeCacheTtlMs, 10_000), data: fallback });
+    return fallback;
   } finally {
     placeListInFlight.delete(cacheKey);
   }
@@ -217,7 +221,7 @@ export async function getPlaces(filters: PlaceFilters = {}) {
 export async function getPlaceBySlugOrId(slugOrId: string) {
   const fallback = fallbackPlaces.find((place) => place.slug === slugOrId || place.id === slugOrId);
 
-  if (!process.env.DATABASE_URL) {
+  if (!process.env.DATABASE_URL || !(await isDatabaseReachable())) {
     return fallback ?? null;
   }
 
@@ -225,7 +229,7 @@ export async function getPlaceBySlugOrId(slugOrId: string) {
   if (cached && cached.expiresAt > Date.now()) return cached.data;
 
   const inFlight = placeByIdInFlight.get(slugOrId);
-  if (inFlight) return timeStep("places.cacheWait", () => inFlight);
+  if (inFlight) return timeStep("places.cacheWait", () => inFlight.catch(() => fallback ?? null));
 
   const loadPlace = (async () => {
     const place = await timeStep("places.findByIdOrSlug", () =>
@@ -257,6 +261,7 @@ export async function getPlaceBySlugOrId(slugOrId: string) {
     placeByIdCache.set(slugOrId, { expiresAt: Date.now() + placeCacheTtlMs, data });
     return data;
   } catch {
+    markDatabaseUnavailable();
     return fallback ?? null;
   } finally {
     placeByIdInFlight.delete(slugOrId);

@@ -1,11 +1,12 @@
 "use client";
 
-import { Filter, RefreshCw, Search, SlidersHorizontal } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Filter, RefreshCw, Search, SlidersHorizontal, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { MapPanel } from "@/components/discovery/map-panel";
 import { PlaceCard } from "@/components/discovery/place-card";
+import type { MapSelectionSource } from "@/components/maps/google-places-map";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,8 @@ export function DiscoveryBoard() {
   const [loading, setLoading] = useState(true);
   const [relaxedFallback, setRelaxedFallback] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+  const placeCardRefs = useRef<Map<string, HTMLElement>>(new Map());
   const debouncedQuery = useDebounce(filters.q);
   const cityOptions = useMemo(() => getPlaceCityOptions(fallbackPlaces), []);
   const invalidCityRecords = useMemo(() => validatePlaceCityAssignments(fallbackPlaces), []);
@@ -48,6 +51,20 @@ export function DiscoveryBoard() {
       filters.openNow ||
       filters.rating ||
       filters.transport
+  );
+  const activeFilters = useMemo(
+    () =>
+      [
+        debouncedQuery ? { key: "q", label: debouncedQuery, clear: () => setFilters({ q: "" }) } : null,
+        filters.city ? { key: "city", label: filters.city, clear: () => setFilters({ city: "" }) } : null,
+        filters.category ? { key: "category", label: labels.category(filters.category), clear: () => setFilters({ category: "" }) } : null,
+        filters.vibe ? { key: "vibe", label: labels.vibe(filters.vibe), clear: () => setFilters({ vibe: "" }) } : null,
+        filters.budget ? { key: "budget", label: `${t("common.budget")} ${filters.budget}`, clear: () => setFilters({ budget: 0 }) } : null,
+        filters.openNow ? { key: "openNow", label: t("common.openNow"), clear: () => setFilters({ openNow: false }) } : null,
+        filters.rating ? { key: "rating", label: `${t("common.rating")} ${filters.rating}+`, clear: () => setFilters({ rating: 0 }) } : null,
+        filters.transport ? { key: "transport", label: labels.transport(filters.transport), clear: () => setFilters({ transport: "" }) } : null
+      ].filter((filter): filter is { key: string; label: string; clear: () => void } => Boolean(filter)),
+    [debouncedQuery, filters, labels, setFilters, t]
   );
 
   const queryString = useMemo(() => {
@@ -115,6 +132,28 @@ export function DiscoveryBoard() {
       cancelled = true;
     };
   }, [queryString]);
+
+  useEffect(() => {
+    setSelectedPlaceId((current) => (current && mapPlaces.some((place) => place.id === current) ? current : null));
+  }, [mapPlaces]);
+
+  const setPlaceCardRef = (placeId: string, element: HTMLElement | null) => {
+    if (element) {
+      placeCardRefs.current.set(placeId, element);
+    } else {
+      placeCardRefs.current.delete(placeId);
+    }
+  };
+
+  const selectPlace = (place: PlaceDTO, source: MapSelectionSource | "card") => {
+    setSelectedPlaceId(place.id);
+
+    if (source === "marker") {
+      window.setTimeout(() => {
+        placeCardRefs.current.get(place.id)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 80);
+    }
+  };
 
   return (
     <section className="section-band">
@@ -236,6 +275,21 @@ export function DiscoveryBoard() {
               {t("discover.resetFilters")}
             </Button>
           </div>
+          {activeFilters.length > 0 && (
+            <div className="flex flex-wrap gap-2 border-t border-border pt-3 lg:col-span-6">
+              {activeFilters.map((filter) => (
+                <button
+                  key={filter.key}
+                  type="button"
+                  onClick={filter.clear}
+                  className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1 text-xs font-semibold text-primary transition hover:bg-primary/[0.14]"
+                >
+                  {filter.label}
+                  <X className="h-3 w-3" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {(relaxedFallback || loadError) && (
@@ -244,12 +298,20 @@ export function DiscoveryBoard() {
           </div>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_440px]">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_440px]">
           <div className="grid gap-5 sm:grid-cols-2">
             {loading ? (
               Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-[360px] rounded-lg bg-muted/[0.7]" />)
             ) : places.length ? (
-              places.map((place) => <PlaceCard key={place.id} place={place} />)
+              places.map((place) => (
+                <div key={place.id} ref={(element) => setPlaceCardRef(place.id, element)}>
+                  <PlaceCard
+                    place={place}
+                    selected={selectedPlaceId === place.id}
+                    onSelect={(selectedPlace) => selectPlace(selectedPlace, "card")}
+                  />
+                </div>
+              ))
             ) : (
               <div className="experience-card-discovery p-8 text-center sm:col-span-2">
                 <p className="font-bold">{t("discover.emptyTitle")}</p>
@@ -257,7 +319,11 @@ export function DiscoveryBoard() {
               </div>
             )}
           </div>
-          <MapPanel places={mapPlaces} />
+          <MapPanel
+            places={mapPlaces}
+            selectedPlaceId={selectedPlaceId}
+            onSelectedPlaceChange={(place, source) => selectPlace(place, source)}
+          />
         </div>
       </div>
     </section>

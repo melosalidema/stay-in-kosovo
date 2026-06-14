@@ -12,7 +12,9 @@ describe("recommendPlaces", () => {
       transportPreference: "CAR"
     });
 
-    expect(results[0].place.slug).toBe("rugova-canyon");
+    expect(results[0].place.city).toBe("Peja");
+    expect(results[0].place.category.slug).toBe("nature");
+    expect(results[0].place.vibeTags).toContain("Adventure");
     expect(results[0].score).toBeGreaterThan(70);
     expect(results[0].reasons.join(" ")).toContain("Adventure");
   });

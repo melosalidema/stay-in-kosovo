@@ -8,13 +8,13 @@ import { GooglePlacesMap, type MapSelectionSource } from "@/components/maps/goog
 import { pulseIntensityTone, pulseZoneCardKeyframes, pulseZoneCardStyle } from "@/components/pulse/pulse-zone-card-effects";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { places as allPlaces } from "@/data/kosovo-data";
+import { places as allPlaces, vibes as experienceVibes } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
 import { cn } from "@/lib/utils";
 import type { DayPart, ExperiencePulseDTO } from "@/types";
 
 const cities = ["Prishtina", "Prizren", "Peja", "Gjakova", "Brezovica"];
-const vibes = ["Chill", "Nightlife", "Romantic", "Adventure", "Local Food", "Hidden Gems", "Family Friendly"];
+const vibes = experienceVibes.map((vibe) => vibe.name);
 const dayParts: DayPart[] = ["MORNING", "AFTERNOON", "EVENING", "LATE_NIGHT"];
 
 type ApiPayload = {

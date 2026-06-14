@@ -15,13 +15,13 @@ const cityCenters: Record<string, Coordinates> = {
 
 function startHourFor(vibe: string) {
   if (vibe === "Nightlife" || vibe === "Romantic") return 17;
-  if (vibe === "Adventure") return 8;
+  if (vibe === "Adventure" || vibe === "Adventure & Trails") return 8;
   return 10;
 }
 
 function estimatePlaceCost(priceLevel: number, vibe: string) {
   const base = priceLevel * 7;
-  const multiplier = vibe === "Nightlife" ? 1.35 : vibe === "Adventure" ? 1.15 : 1;
+  const multiplier = vibe === "Nightlife" ? 1.35 : vibe === "Adventure" || vibe === "Adventure & Trails" ? 1.15 : 1;
   return Math.round(base * multiplier);
 }
 
@@ -96,7 +96,7 @@ export function generateItinerary(input: ItineraryInput): ItineraryDTO {
     input.title ??
     (input.vibe === "Nightlife"
       ? `Perfect Evening in ${input.city}`
-      : input.vibe === "Adventure"
+      : input.vibe === "Adventure" || input.vibe === "Adventure & Trails"
         ? `One Day Nature Trip from ${input.city}`
         : `${input.vibe} Day in ${input.city}`);
 

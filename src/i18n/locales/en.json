@@ -88,9 +88,9 @@
     "cityPulse": "City pulse",
     "useLocation": "Use my location",
     "stats": {
-      "signals": "live signals",
+      "signals": "mapped places",
       "vibes": "vibe modes",
-      "layers": "service layers"
+      "layers": "cities covered"
     }
   },
   "mapPreview": {
@@ -130,7 +130,11 @@
     "badge": "AI recommendations",
     "title": "Ranked for {{vibe}} right now.",
     "description": "The scoring engine blends vibe, distance, quality, budget, hidden-gem signal, mobility, context, and learned interaction preferences.",
-    "score": "AI score"
+    "score": "AI score",
+    "emptyTitle": "No recommendations available",
+    "emptyText": "Try another vibe or open Discover to browse all Kosovo places.",
+    "errorTitle": "Recommendations are temporarily unavailable",
+    "errorText": "The discovery catalog is still available while the recommendation service recovers."
   },
   "trending": {
     "badge": "Trending in Kosovo",
@@ -202,6 +206,8 @@
     "clusterTitle": "{{count}} places",
     "emptyTitle": "No valid Kosovo coordinates",
     "emptyText": "Places without numeric coordinates inside Kosovo are not rendered as map markers.",
+    "staticFallbackTitle": "{{count}} places loaded",
+    "staticFallbackText": "Add a Google Maps JavaScript API key to show every stored place as an interactive marker.",
     "unavailableTitle": "Google Maps unavailable",
     "unavailableText": "{{message}} Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to enable the interactive map.",
     "invalidSkipped": "{{count}} invalid coordinate record skipped"
@@ -366,7 +372,13 @@
       "local-food": "Local Food",
       "hidden-gems": "Hidden Gems",
       "family-friendly": "Family Friendly",
-      "culture": "Culture"
+      "culture": "Culture",
+      "sacred-spiritual": "Sacred & Spiritual",
+      "adventure-trails": "Adventure & Trails",
+      "wildlife-nature": "Wildlife & Nature",
+      "living-history": "Living History",
+      "ottoman-heritage": "Ottoman Heritage",
+      "city-life": "City Life"
     },
     "vibeDescriptions": {
       "chill": "Quiet cafes, parks, easy walks, and calm views.",
@@ -375,7 +387,14 @@
       "adventure": "Mountains, canyons, ski routes, and high-energy plans.",
       "local-food": "Traditional kitchens, modern bistros, and food tours.",
       "hidden-gems": "Less obvious spots with strong local signal.",
-      "family-friendly": "Daytime, accessible, safer routes, and easy pacing."
+      "family-friendly": "Daytime, accessible, safer routes, and easy pacing.",
+      "culture": "Museums, landmarks, architecture, and local identity.",
+      "sacred-spiritual": "Monasteries, mosques, churches, and reflective heritage spaces.",
+      "adventure-trails": "Hikes, caves, waterfalls, and outdoor routes for active travelers.",
+      "wildlife-nature": "Ethical animal encounters, protected landscapes, and nature-led day trips.",
+      "living-history": "Museums, memorials, bazaars, and places where Kosovo's past stays visible.",
+      "ottoman-heritage": "Ottoman-era bazaars, hammams, mosques, bridges, and old-town textures.",
+      "city-life": "Squares, boulevards, cafes, and social urban gathering points."
     },
     "categories": {
       "restaurants": "Restaurants",
@@ -384,7 +403,9 @@
       "nature": "Nature",
       "culture": "Culture",
       "events": "Events",
-      "parks": "Parks"
+      "parks": "Parks",
+      "hotels": "Hotels",
+      "shopping": "Shopping"
     },
     "transport": {
       "WALKING": "Walking",

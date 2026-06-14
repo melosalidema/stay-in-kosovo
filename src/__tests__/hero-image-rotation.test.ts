@@ -11,7 +11,8 @@ describe("buildHeroImageRotation", () => {
     expect(rotation.length).toBeGreaterThan(1);
     expect(rotation).toHaveLength(uniqueSources.size);
     expect(rotation.some((image) => image.label === events[0].title)).toBe(true);
-    expect(rotation.every((image) => image.src.startsWith("https://images.unsplash.com/"))).toBe(true);
+    expect(rotation.every((image) => image.src.startsWith("https://"))).toBe(true);
+    expect(rotation.some((image) => image.src.includes("upload.wikimedia.org") || image.src.includes("images.weserv.nl"))).toBe(true);
   });
 
   it("falls back safely when no source images exist", () => {

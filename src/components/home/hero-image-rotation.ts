@@ -1,3 +1,5 @@
+import { getPlaceImageSrc } from "@/lib/place-images";
+
 export type HeroImageSource = {
   title: string;
   city?: string;
@@ -19,7 +21,7 @@ export function buildHeroImageRotation(sources: HeroImageSource[]): HeroImage[] 
     (source.images ?? [])
       .filter((src): src is string => Boolean(src))
       .map((src) => ({
-        src,
+        src: getPlaceImageSrc(src, 1800),
         label: source.title,
         city: source.city ?? ""
       }))

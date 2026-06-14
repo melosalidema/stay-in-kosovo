@@ -10,7 +10,18 @@ import { places } from "@/data/kosovo-data";
 
 describe("place city options", () => {
   it("builds unique city options from the real place dataset", () => {
-    expect(getPlaceCityOptions(places)).toEqual(["Prishtina", "Prizren", "Peja", "Brezovica", "Gjakova"]);
+    expect(getPlaceCityOptions(places)).toEqual([
+      "Prishtina",
+      "Prizren",
+      "Peja",
+      "Brezovica",
+      "Gjakova",
+      "Gjilan",
+      "Ferizaj",
+      "Podujeva",
+      "Mitrovica",
+      "Kacanik"
+    ]);
   });
 
   it("supports All Kosovo and city-specific filtering", () => {

@@ -46,7 +46,10 @@ function scoreContext(input: RecommendationInput, place: PlaceDTO) {
   let score = 0.68;
 
   if (input.dayPart === "MORNING") {
-    score += place.category.slug === "cafes" || place.vibeTags.includes("Adventure") ? 0.18 : 0;
+    score +=
+      place.category.slug === "cafes" || place.vibeTags.includes("Adventure") || place.vibeTags.includes("Adventure & Trails")
+        ? 0.18
+        : 0;
     score -= place.vibeTags.includes("Nightlife") ? 0.16 : 0;
   }
 

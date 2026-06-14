@@ -8,13 +8,24 @@ import { Button } from "@/components/ui/button";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { cn } from "@/lib/utils";
 import type { PlaceDTO } from "@/types";
+import type { MapSelectionSource } from "@/components/maps/google-places-map";
 
-export function MapPanel({ places, className }: { places: PlaceDTO[]; className?: string }) {
+export function MapPanel({
+  places,
+  className,
+  selectedPlaceId,
+  onSelectedPlaceChange
+}: {
+  places: PlaceDTO[];
+  className?: string;
+  selectedPlaceId?: string | null;
+  onSelectedPlaceChange?: (place: PlaceDTO, source: MapSelectionSource) => void;
+}) {
   const { t } = useTranslation();
   const { requestLocation, loading } = useGeolocation();
 
   return (
-    <section className={cn("experience-card-discovery order-first overflow-hidden bg-card/[0.92] lg:sticky lg:top-24 lg:order-none", className)}>
+    <section className={cn("experience-card-discovery order-first self-start overflow-hidden bg-card/[0.92] lg:sticky lg:top-24 lg:order-none", className)}>
       <div className="flex items-center justify-between border-b border-border p-4">
         <div>
           <h2 className="text-sm font-bold">{t("mapPanel.title")}</h2>
@@ -29,11 +40,13 @@ export function MapPanel({ places, className }: { places: PlaceDTO[]; className?
         places={places}
         title={t("mapPanel.eventHeatmap")}
         subtitle={t("mapPanel.demand")}
-        className="min-h-[360px] rounded-none border-0 shadow-none sm:min-h-[460px]"
+        className="h-[360px] min-h-0 rounded-none border-0 shadow-none sm:h-[460px] lg:h-[calc(100vh-8rem)] lg:min-h-[420px] lg:max-h-[620px]"
         variant="card"
         theme="auto"
         defaultZoom={11}
         fitPadding={54}
+        selectedPlaceId={selectedPlaceId}
+        onSelectedPlaceChange={onSelectedPlaceChange}
       />
     </section>
   );

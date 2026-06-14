@@ -27,10 +27,15 @@ export function HeroSection({ featuredPlaces, featuredEvents = [] }: HeroSection
   const heroImages = useMemo(() => {
     return buildHeroImageRotation([...featuredPlaces, ...featuredEvents]);
   }, [featuredEvents, featuredPlaces]);
+  const cityCount = useMemo(() => new Set(featuredPlaces.map((place) => place.city).filter(Boolean)).size, [featuredPlaces]);
+  const vibeCount = useMemo(
+    () => new Set(featuredPlaces.flatMap((place) => place.vibeTags)).size,
+    [featuredPlaces]
+  );
   const heroStats = [
-    { id: "signals", value: "312+", label: t("hero.stats.signals"), intensity: 99 },
-    { id: "vibes", value: "7", label: t("hero.stats.vibes"), intensity: 84 },
-    { id: "layers", value: "9", label: t("hero.stats.layers"), intensity: 78 }
+    { id: "signals", value: String(featuredPlaces.length), label: t("hero.stats.signals"), intensity: 99 },
+    { id: "vibes", value: String(vibeCount), label: t("hero.stats.vibes"), intensity: 84 },
+    { id: "layers", value: String(cityCount), label: t("hero.stats.layers"), intensity: 78 }
   ];
 
   useEffect(() => {

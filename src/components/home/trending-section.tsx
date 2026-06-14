@@ -1,17 +1,21 @@
 "use client";
 
 import { CalendarDays, Flame, MapPin } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 
+import { ResilientPlaceImage } from "@/components/places/resilient-place-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { events, places } from "@/data/kosovo-data";
+import { events, places as fallbackPlaces } from "@/data/kosovo-data";
+import type { PlaceDTO } from "@/types";
 
-export function TrendingSection() {
+export function TrendingSection({ places = fallbackPlaces }: { places?: PlaceDTO[] }) {
   const { t } = useTranslation();
-  const trending = [...places].sort((a, b) => b.popularityScore - a.popularityScore).slice(0, 4);
+  const trending = [...places]
+    .filter((place) => place.category.type !== "EVENT")
+    .sort((a, b) => b.popularityScore - a.popularityScore)
+    .slice(0, 4);
 
   return (
     <section className="section-band bg-background">
@@ -32,23 +36,29 @@ export function TrendingSection() {
         <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
           <div className="grid gap-4 sm:grid-cols-2">
             {trending.map((place) => (
-              <Link
-                href={`/discover?place=${place.slug}`}
-                key={place.id}
-                className="experience-card-home group grid grid-cols-[116px_1fr] overflow-hidden hover:-translate-y-0.5 hover:border-primary/[0.24]"
-              >
-                <div className="experience-media min-h-32">
-                  <Image src={place.images[0]} alt={place.title} fill sizes="140px" className="experience-image" />
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold leading-tight transition-colors group-hover:text-primary">{place.title}</h3>
-                  <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {place.city}
-                  </p>
-                  <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{place.description}</p>
-                </div>
-              </Link>
+                <Link
+                  href={`/discover?place=${place.slug}`}
+                  key={place.id}
+                  className="experience-card-home group grid grid-cols-[116px_1fr] overflow-hidden hover:-translate-y-0.5 hover:border-primary/[0.24]"
+                >
+                  <div className="experience-media min-h-32">
+                    <ResilientPlaceImage
+                      place={place}
+                      fill
+                      imageWidth={640}
+                      sizes="140px"
+                      className="experience-image"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-bold leading-tight transition-colors group-hover:text-primary">{place.title}</h3>
+                    <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {place.city}
+                    </p>
+                    <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{place.description}</p>
+                  </div>
+                </Link>
             ))}
           </div>
 

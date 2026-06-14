@@ -84,9 +84,9 @@
     "cityPulse": "Pulsi i qytetit",
     "useLocation": "Përdor vendndodhjen time",
     "stats": {
-      "signals": "sinjale live",
+      "signals": "vende në hartë",
       "vibes": "modalitete atmosfere",
-      "layers": "shtresa shërbimi"
+      "layers": "qytete të mbuluara"
     }
   },
   "mapPreview": {
@@ -126,7 +126,11 @@
     "badge": "Rekomandime AI",
     "title": "Të renditura për {{vibe}} tani.",
     "description": "Motori kombinon atmosferën, distancën, cilësinë, buxhetin, sinjalin hidden-gem, mobilitetin, kontekstin dhe preferencat e mësuara.",
-    "score": "Pikë AI"
+    "score": "Pikë AI",
+    "emptyTitle": "Nuk ka rekomandime",
+    "emptyText": "Provo një atmosferë tjetër ose hap Discover për të parë të gjitha vendet në Kosovë.",
+    "errorTitle": "Rekomandimet përkohësisht nuk janë të disponueshme",
+    "errorText": "Katalogu i zbulimit mbetet i disponueshëm ndërsa shërbimi i rekomandimeve rikuperohet."
   },
   "trending": {
     "badge": "Në trend në Kosovë",
@@ -198,6 +202,8 @@
     "clusterTitle": "{{count}} vende",
     "emptyTitle": "Nuk ka koordinata të vlefshme në Kosovë",
     "emptyText": "Vendet pa koordinata numerike brenda Kosovës nuk shfaqen si markerë.",
+    "staticFallbackTitle": "{{count}} vende të ngarkuara",
+    "staticFallbackText": "Shto një çelës Google Maps JavaScript API për t'i shfaqur të gjitha vendet e ruajtura si markerë interaktivë.",
     "unavailableTitle": "Google Maps nuk është i disponueshëm",
     "unavailableText": "{{message}} Shto NEXT_PUBLIC_GOOGLE_MAPS_API_KEY për hartën interaktive.",
     "invalidSkipped": "{{count}} rekord me koordinata të pavlefshme u anashkalua"
@@ -362,7 +368,13 @@
       "local-food": "Ushqim lokal",
       "hidden-gems": "Thesare të fshehura",
       "family-friendly": "Për familje",
-      "culture": "Kulturë"
+      "culture": "Kulturë",
+      "sacred-spiritual": "Të shenjta dhe shpirtërore",
+      "adventure-trails": "Aventurë dhe shtigje",
+      "wildlife-nature": "Kafshë dhe natyrë",
+      "living-history": "Histori e gjallë",
+      "ottoman-heritage": "Trashëgimi osmane",
+      "city-life": "Jetë qyteti"
     },
     "categories": {
       "restaurants": "Restorante",
@@ -371,7 +383,9 @@
       "nature": "Natyrë",
       "culture": "Kulturë",
       "events": "Evente",
-      "parks": "Parqe"
+      "parks": "Parqe",
+      "hotels": "Hotele",
+      "shopping": "Pazar"
     },
     "transport": {
       "WALKING": "Ecje",
@@ -423,7 +437,14 @@
       "adventure": "Male, kanione, rrugë skijimi dhe plane energjike.",
       "local-food": "Kuzhina tradicionale, bistro moderne dhe ture ushqimi.",
       "hidden-gems": "Vende më pak të dukshme me sinjal të fortë lokal.",
-      "family-friendly": "Ditë, aksesueshmëri, rrugë më të sigurta dhe ritëm i lehtë."
+      "family-friendly": "Ditë, aksesueshmëri, rrugë më të sigurta dhe ritëm i lehtë.",
+      "culture": "Muze, monumente, arkitekturë dhe identitet lokal.",
+      "sacred-spiritual": "Manastire, xhami, kisha dhe hapësira trashëgimie për reflektim.",
+      "adventure-trails": "Ecje, shpella, ujëvara dhe rrugë natyrore për udhëtarë aktivë.",
+      "wildlife-nature": "Takime etike me kafshë, peizazhe të mbrojtura dhe dalje në natyrë.",
+      "living-history": "Muze, memoriale, pazare dhe vende ku e kaluara e Kosovës mbetet e dukshme.",
+      "ottoman-heritage": "Pazare, hamame, xhami, ura dhe tekstura të qyteteve të vjetra osmane.",
+      "city-life": "Sheshe, bulevarde, kafene dhe pika urbane ku njerëzit mblidhen."
     }
   },
   "geo": {

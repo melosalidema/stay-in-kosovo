@@ -9,13 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { vibes as experienceVibes } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
 import { formatCurrency } from "@/lib/utils";
 import { useAppStore } from "@/store/app-store";
 import type { ItineraryDTO, TransportMethod } from "@/types";
 
 const cities = ["Prishtina", "Prizren", "Peja", "Gjakova", "Brezovica"];
-const vibes = ["Chill", "Nightlife", "Romantic", "Adventure", "Local Food", "Hidden Gems", "Family Friendly"];
+const vibes = experienceVibes.map((vibe) => vibe.name);
 const transports: TransportMethod[] = ["WALKING", "TAXI", "BUS", "BIKE", "CAR"];
 
 export function ItineraryBuilder() {

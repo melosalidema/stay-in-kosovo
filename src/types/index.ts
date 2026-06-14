@@ -7,7 +7,14 @@ export type VibeName =
   | "Adventure"
   | "Local Food"
   | "Hidden Gems"
-  | "Family Friendly";
+  | "Family Friendly"
+  | "Culture"
+  | "Sacred & Spiritual"
+  | "Adventure & Trails"
+  | "Wildlife & Nature"
+  | "Living History"
+  | "Ottoman Heritage"
+  | "City Life";
 
 export type TransportMethod = "WALKING" | "TAXI" | "BUS" | "BIKE" | "CAR";
 export type DayPart = "MORNING" | "AFTERNOON" | "EVENING" | "LATE_NIGHT";
@@ -43,6 +50,7 @@ export type PlaceDTO = {
   category: CategoryDTO;
   coordinates: Coordinates;
   priceLevel: number;
+  openingHours?: string;
   rating: number;
   reviewCount: number;
   avgStayMinutes: number;

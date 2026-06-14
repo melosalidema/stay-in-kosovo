@@ -18,7 +18,7 @@ export const placeFilterSchema = z.object({
   openNow: z.coerce.boolean().optional(),
   rating: z.coerce.number().min(0).max(5).optional(),
   transport: z.string().optional(),
-  limit: z.coerce.number().min(1).max(50).default(20)
+  limit: z.coerce.number().min(1).max(50).default(50)
 });
 
 export const recommendationSchema = z.object({
