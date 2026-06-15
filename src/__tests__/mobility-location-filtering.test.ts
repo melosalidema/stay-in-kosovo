@@ -10,7 +10,18 @@ import { places } from "@/data/kosovo-data";
 
 describe("mobility location filtering", () => {
   it("builds city options from the place dataset in source order", () => {
-    expect(getMobilityCityOptions(places)).toEqual(["Prishtina", "Prizren", "Peja", "Brezovica", "Gjakova"]);
+    expect(getMobilityCityOptions(places)).toEqual([
+      "Prishtina",
+      "Prizren",
+      "Peja",
+      "Brezovica",
+      "Gjakova",
+      "Gjilan",
+      "Ferizaj",
+      "Podujeva",
+      "Mitrovica",
+      "Kacanik"
+    ]);
   });
 
   it("filters from and to locations to the selected city", () => {

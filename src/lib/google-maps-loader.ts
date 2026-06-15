@@ -41,6 +41,11 @@ export type GoogleLatLngBounds = {
   extend: (position: Coordinates) => void;
 };
 
+export type GoogleLatLngInstance = {
+  lat: () => number;
+  lng: () => number;
+};
+
 export type GoogleMapInstance = {
   addListener: (eventName: string, handler: () => void) => GoogleMapListener;
   fitBounds: (bounds: GoogleLatLngBounds, padding?: number) => void;
@@ -52,9 +57,17 @@ export type GoogleMapInstance = {
 
 export type GoogleMarkerInstance = {
   addListener: (eventName: string, handler: () => void) => GoogleMapListener;
-  setIcon: (icon: unknown) => void;
+  addEventListener?: (eventName: "gmp-click", handler: EventListener) => void;
+  content?: Node | null;
+  map?: GoogleMapInstance | null;
+  setIcon?: (icon: unknown) => void;
+  setMap?: (map: GoogleMapInstance | null) => void;
+  setZIndex?: (zIndex: number) => void;
+  zIndex?: number | null;
+};
+
+export type GooglePolylineInstance = {
   setMap: (map: GoogleMapInstance | null) => void;
-  setZIndex: (zIndex: number) => void;
 };
 
 export type GoogleInfoWindowInstance = {
@@ -77,17 +90,83 @@ export type GoogleMarkerOptions = {
   zIndex?: number;
 };
 
+export type GoogleAdvancedMarkerOptions = {
+  position: Coordinates;
+  map: GoogleMapInstance;
+  title?: string;
+  content?: Node;
+  gmpClickable?: boolean;
+  zIndex?: number;
+};
+
+export type GooglePolylineOptions = {
+  path: Coordinates[];
+  map?: GoogleMapInstance;
+  strokeColor?: string;
+  strokeOpacity?: number;
+  strokeWeight?: number;
+  zIndex?: number;
+};
+
+export type GoogleDirectionsLeg = {
+  distance?: { value: number; text: string };
+  duration?: { value: number; text: string };
+};
+
+export type GoogleDirectionsRoute = {
+  bounds?: GoogleLatLngBounds;
+  legs: GoogleDirectionsLeg[];
+  overview_path: GoogleLatLngInstance[];
+  overview_polyline?: {
+    points: string;
+  };
+  summary?: string;
+  warnings?: string[];
+};
+
+export type GoogleDirectionsResult = {
+  routes: GoogleDirectionsRoute[];
+};
+
+export type GoogleDirectionsRequest = {
+  origin: Coordinates;
+  destination: Coordinates;
+  travelMode: string;
+  provideRouteAlternatives?: boolean;
+};
+
+export type GoogleDirectionsServiceInstance = {
+  route: (
+    request: GoogleDirectionsRequest,
+    callback: (result: GoogleDirectionsResult | null, status: string) => void
+  ) => void;
+};
+
 export type GoogleMapsApi = {
   maps: {
     event: {
       clearInstanceListeners: (instance: GoogleMarkerInstance) => void;
     };
+    DirectionsService: new () => GoogleDirectionsServiceInstance;
     LatLngBounds: new () => GoogleLatLngBounds;
     InfoWindow: new (options?: { content?: string | Node; maxWidth?: number }) => GoogleInfoWindowInstance;
     Map: new (element: HTMLElement, options: GoogleMapOptions) => GoogleMapInstance;
     Marker: new (options: GoogleMarkerOptions) => GoogleMarkerInstance;
+    marker?: {
+      AdvancedMarkerElement: new (options: GoogleAdvancedMarkerOptions) => GoogleMarkerInstance;
+    };
     Point: new (x: number, y: number) => unknown;
+    Polyline: new (options: GooglePolylineOptions) => GooglePolylineInstance;
     Size: new (width: number, height: number) => unknown;
+    TravelMode: {
+      BICYCLING: string;
+      DRIVING: string;
+      TRANSIT: string;
+      WALKING: string;
+    };
+    importLibrary?: (libraryName: "marker") => Promise<{
+      AdvancedMarkerElement?: new (options: GoogleAdvancedMarkerOptions) => GoogleMarkerInstance;
+    }>;
   };
 };
 
@@ -100,6 +179,17 @@ declare global {
 
 let mapsApiPromise: Promise<GoogleMapsApi> | null = null;
 
+async function ensureMarkerLibrary(api: GoogleMapsApi) {
+  if (api.maps.marker?.AdvancedMarkerElement || !api.maps.importLibrary) return api;
+
+  const markerLibrary = await api.maps.importLibrary("marker");
+  if (markerLibrary.AdvancedMarkerElement) {
+    api.maps.marker = { AdvancedMarkerElement: markerLibrary.AdvancedMarkerElement };
+  }
+
+  return api;
+}
+
 export function loadGoogleMaps(apiKey: string | undefined) {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("Google Maps can only load in the browser."));
@@ -110,7 +200,7 @@ export function loadGoogleMaps(apiKey: string | undefined) {
   }
 
   if (window.google?.maps) {
-    return Promise.resolve(window.google);
+    return ensureMarkerLibrary(window.google);
   }
 
   if (mapsApiPromise) return mapsApiPromise;
@@ -120,7 +210,7 @@ export function loadGoogleMaps(apiKey: string | undefined) {
 
     window.__stayKosovoGoogleMapsInit = () => {
       if (window.google?.maps) {
-        resolve(window.google);
+        ensureMarkerLibrary(window.google).then(resolve).catch(reject);
       } else {
         reject(new Error("Google Maps loaded without the maps API."));
       }
@@ -132,6 +222,8 @@ export function loadGoogleMaps(apiKey: string | undefined) {
     const params = new URLSearchParams({
       key: apiKey,
       v: "weekly",
+      libraries: "marker",
+      loading: "async",
       callback: "__stayKosovoGoogleMapsInit"
     });
 

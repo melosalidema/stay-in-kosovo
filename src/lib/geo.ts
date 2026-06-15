@@ -380,3 +380,39 @@ export function googleMapsDirectionsUrl(coordinates: Coordinates) {
 export function googleMapsNavigationUrl(coordinates: Coordinates) {
   return `https://www.google.com/maps/dir/?api=1&destination=${coordinates.lat},${coordinates.lng}&travelmode=driving`;
 }
+
+export type GoogleMapsRoutePoint = Coordinates;
+
+export type GoogleMapsRouteMode = "driving" | "walking" | "bicycling" | "transit";
+
+function coordinatesParam(coordinates: Coordinates) {
+  return `${coordinates.lat},${coordinates.lng}`;
+}
+
+export function googleMapsRouteUrl({
+  origin,
+  destination,
+  waypoints = [],
+  travelMode
+}: {
+  origin: GoogleMapsRoutePoint;
+  destination: GoogleMapsRoutePoint;
+  waypoints?: GoogleMapsRoutePoint[];
+  travelMode?: GoogleMapsRouteMode;
+}) {
+  const params = new URLSearchParams({
+    api: "1",
+    origin: coordinatesParam(origin),
+    destination: coordinatesParam(destination)
+  });
+
+  if (waypoints.length) {
+    params.set("waypoints", waypoints.map(coordinatesParam).join("|"));
+  }
+
+  if (travelMode) {
+    params.set("travelmode", travelMode);
+  }
+
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+}

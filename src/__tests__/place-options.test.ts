@@ -28,8 +28,9 @@ describe("place city options", () => {
     expect(filterPlacesByCity(places, ALL_KOSOVO_CITY)).toHaveLength(places.length);
 
     const prizrenPlaces = filterPlacesByCity(places, "Prizren");
+    const datasetPrizrenPlaces = places.filter((place) => place.city === "Prizren");
 
-    expect(prizrenPlaces).toHaveLength(2);
+    expect(prizrenPlaces).toHaveLength(datasetPrizrenPlaces.length);
     expect(prizrenPlaces.every((place) => place.city === "Prizren")).toBe(true);
     expect(prizrenPlaces.map((place) => place.slug)).toContain("prizren-fortress");
   });

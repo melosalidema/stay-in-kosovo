@@ -15,5 +15,10 @@ describe("mobility engine", () => {
     expect(options[0].method).toBe("WALKING");
     expect(options[0].durationMinutes).toBeGreaterThan(0);
     expect(options[0].routePoints).toHaveLength(3);
+    expect(options[0].route.source).toBe("simulated");
+    expect(options[0].route.points).toEqual(options[0].routePoints);
+    expect(options[0].route.polyline).toEqual(expect.any(String));
+    expect(options[0].route.polyline.length).toBeGreaterThan(0);
+    expect(options[0].route.distanceMeters).toBeGreaterThan(0);
   });
 });

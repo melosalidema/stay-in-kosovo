@@ -131,6 +131,19 @@ export type MobilityRequest = {
   city?: string;
 };
 
+export type MobilityRoute = {
+  source: "google" | "simulated";
+  polyline: string;
+  points: Coordinates[];
+  distanceMeters: number;
+  durationSeconds: number;
+  bounds?: {
+    northeast: Coordinates;
+    southwest: Coordinates;
+  };
+  summary?: string;
+};
+
 export type MobilityOption = {
   method: TransportMethod;
   label: string;
@@ -140,6 +153,7 @@ export type MobilityOption = {
   carbonScore: number;
   availability: "high" | "medium" | "low";
   routePoints: Coordinates[];
+  route: MobilityRoute;
   reason: string;
 };
 
@@ -149,6 +163,7 @@ export type ItineraryInput = {
   city: string;
   budget: number;
   durationHours: number;
+  durationDays?: number;
   interests: string[];
   vibe: string;
   transportPreference: TransportMethod;
@@ -157,6 +172,7 @@ export type ItineraryInput = {
 
 export type ItineraryStopDTO = {
   order: number;
+  day: number;
   startTime: string;
   durationMinutes: number;
   travelMinutes: number;
@@ -173,6 +189,8 @@ export type ItineraryDTO = {
   vibe: string;
   budget: number;
   durationHours: number;
+  durationDays: number;
+  plannedMinutes: number;
   totalCost: number;
   aiRationale: string;
   routeSummary: {

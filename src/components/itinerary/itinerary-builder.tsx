@@ -1,7 +1,7 @@
 "use client";
 
-import { CalendarClock, Euro, MapPinned, Route, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { CalendarClock, ExternalLink, Euro, MapPinned, Route, Sparkles } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
@@ -9,15 +9,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { vibes as experienceVibes } from "@/data/kosovo-data";
+import { places, vibes as experienceVibes } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
+import { googleMapsRouteUrl } from "@/lib/geo";
+import { getPlaceCityOptions } from "@/lib/place-options";
 import { formatCurrency } from "@/lib/utils";
 import { useAppStore } from "@/store/app-store";
 import type { ItineraryDTO, TransportMethod } from "@/types";
 
-const cities = ["Prishtina", "Prizren", "Peja", "Gjakova", "Brezovica"];
 const vibes = experienceVibes.map((vibe) => vibe.name);
 const transports: TransportMethod[] = ["WALKING", "TAXI", "BUS", "BIKE", "CAR"];
+const durationPresets = [
+  { labelKey: "itinerary.fullDay", hours: 8, days: 1 },
+  { labelKey: "itinerary.twoDays", hours: 16, days: 2 },
+  { labelKey: "itinerary.threeDays", hours: 24, days: 3 },
+  { labelKey: "itinerary.fiveDays", hours: 40, days: 5 }
+];
 
 export function ItineraryBuilder() {
   const { t } = useTranslation();
@@ -27,6 +34,29 @@ export function ItineraryBuilder() {
   const location = useAppStore((state) => state.location);
   const [itinerary, setItinerary] = useState<ItineraryDTO | null>(null);
   const [loading, setLoading] = useState(false);
+  const cities = useMemo(() => getPlaceCityOptions(places), []);
+  const googleMapsUrl = useMemo(() => {
+    if (!itinerary || itinerary.stops.length < 1) return null;
+
+    const firstStop = itinerary.stops[0];
+    const lastStop = itinerary.stops[itinerary.stops.length - 1];
+    const origin = firstStop.mobility.route.points[0] ?? firstStop.mobility.routePoints[0] ?? firstStop.place.coordinates;
+    const destination = lastStop.place.coordinates;
+    const waypoints = itinerary.stops.slice(0, -1).map((stop) => stop.place.coordinates);
+
+    return googleMapsRouteUrl({
+      origin,
+      destination,
+      waypoints,
+      travelMode: itinerary.routeSummary.preferredMethod === "WALKING"
+        ? "walking"
+        : itinerary.routeSummary.preferredMethod === "BIKE"
+          ? "bicycling"
+          : itinerary.routeSummary.preferredMethod === "BUS"
+            ? "transit"
+            : "driving"
+    });
+  }, [itinerary]);
 
   const generate = async () => {
     setLoading(true);
@@ -99,15 +129,32 @@ export function ItineraryBuilder() {
                 />
               </label>
               <label className="grid gap-2 text-sm font-medium">
-                {t("common.hours")}
+                {t("itinerary.customHours")}
                 <Input
                   type="number"
                   min={2}
-                  max={72}
+                  max={240}
                   value={draft.durationHours}
-                  onChange={(event) => setDraft({ durationHours: Number(event.target.value) })}
+                  onChange={(event) => setDraft({ durationHours: Number(event.target.value), durationDays: undefined })}
                 />
               </label>
+            </div>
+            <div className="grid gap-2 text-sm font-medium">
+              {t("itinerary.planLength")}
+              <div className="grid grid-cols-2 gap-2">
+                {durationPresets.map((preset) => (
+                  <Button
+                    key={preset.labelKey}
+                    type="button"
+                    variant={draft.durationHours === preset.hours && draft.durationDays === preset.days ? "default" : "outline"}
+                    className="justify-start"
+                    onClick={() => setDraft({ durationHours: preset.hours, durationDays: preset.days })}
+                  >
+                    <CalendarClock className="h-4 w-4" />
+                    {t(preset.labelKey)}
+                  </Button>
+                ))}
+              </div>
             </div>
             <label className="grid gap-2 text-sm font-medium">
               {t("common.interests")}
@@ -157,8 +204,16 @@ export function ItineraryBuilder() {
                     </Badge>
                     <h2 className="text-3xl font-bold tracking-normal">{itinerary.title}</h2>
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{itinerary.description}</p>
+                    {googleMapsUrl && (
+                      <Button asChild className="mt-4 w-full sm:w-auto" variant="outline">
+                        <a href={googleMapsUrl} target="_blank" rel="noreferrer">
+                          <ExternalLink className="h-4 w-4" />
+                          {t("common.openInGoogleMaps")}
+                        </a>
+                      </Button>
+                    )}
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                  <div className="grid grid-cols-2 gap-2 text-center text-sm md:grid-cols-4">
                     <div className="rounded-md bg-muted p-3">
                       <Euro className="mx-auto mb-1 h-4 w-4 text-primary" />
                       {formatCurrency(itinerary.totalCost)}
@@ -166,6 +221,10 @@ export function ItineraryBuilder() {
                     <div className="rounded-md bg-muted p-3">
                       <CalendarClock className="mx-auto mb-1 h-4 w-4 text-primary" />
                       {itinerary.durationHours}h
+                    </div>
+                    <div className="rounded-md bg-muted p-3">
+                      <CalendarClock className="mx-auto mb-1 h-4 w-4 text-primary" />
+                      {t("itinerary.days", { count: itinerary.durationDays })}
                     </div>
                     <div className="rounded-md bg-muted p-3">
                       <Route className="mx-auto mb-1 h-4 w-4 text-primary" />
@@ -180,6 +239,7 @@ export function ItineraryBuilder() {
                   <article key={stop.order} className="grid gap-4 rounded-lg border border-border bg-card p-4 md:grid-cols-[96px_1fr]">
                     <div className="rounded-md bg-primary/10 p-3 text-center text-primary">
                       <p className="text-xs font-semibold">{t("itinerary.stop", { order: stop.order })}</p>
+                      {itinerary.durationDays > 1 && <p className="mt-1 text-xs text-primary/75">{t("itinerary.day", { day: stop.day })}</p>}
                       <p className="mt-1 text-xl font-bold">{stop.startTime}</p>
                     </div>
                     <div className="min-w-0">

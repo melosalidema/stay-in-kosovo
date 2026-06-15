@@ -49,11 +49,7 @@ export function getPlaceImageSrc(src?: string | null, width = 1200) {
     }
 
     if (url.hostname === WIKIMEDIA_UPLOAD_HOST) {
-      const proxyUrl = new URL(`https://${WIKIMEDIA_IMAGE_PROXY_HOST}/`);
-      proxyUrl.searchParams.set("url", url.href);
-      proxyUrl.searchParams.set("w", String(width));
-      proxyUrl.searchParams.set("output", "jpg");
-      return proxyUrl.toString();
+      return url.href;
     }
   } catch {
     return src;

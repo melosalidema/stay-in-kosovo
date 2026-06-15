@@ -1,4 +1,7 @@
+import { loadEnvConfig } from "@next/env";
 import { z } from "zod";
+
+loadEnvConfig(process.cwd());
 
 const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),

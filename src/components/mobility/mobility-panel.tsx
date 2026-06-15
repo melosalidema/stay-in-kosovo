@@ -1,14 +1,16 @@
 "use client";
 
-import { Bike, Bus, Car, CarTaxiFront, Footprints, Leaf, MapPin, Navigation, Route } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { AlertTriangle, Bike, Bus, Car, CarTaxiFront, ExternalLink, Footprints, Leaf, Navigation, Route } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { MobilityRouteMap } from "@/components/mobility/mobility-route-map";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { places } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
+import { googleMapsRouteUrl } from "@/lib/geo";
 import { formatCurrency } from "@/lib/utils";
 import type { MobilityOption, PlaceDTO, TransportMethod } from "@/types";
 import {
@@ -51,38 +53,78 @@ export function MobilityPanel() {
   const [options, setOptions] = useState<MobilityOption[]>([]);
   const [points, setPoints] = useState<ApiResponse["data"]["nearbyTransportPoints"]>([]);
   const [loading, setLoading] = useState(false);
+  const [routeError, setRouteError] = useState<string | null>(null);
 
   const cityOptions = useMemo(() => getMobilityCityOptions(places), []);
   const filteredPlaces = useMemo(() => filterMobilityPlacesByCity(places, city), [city]);
-  const canCalculate = Boolean(from && to && filteredPlaces.length > 0);
-  const routeTitle = from && to ? `${from.title} ${t("common.to").toLowerCase()} ${to.title}` : t("mobility.routePending");
+  const canCalculate = Boolean(from && to && from.id !== to.id && filteredPlaces.length > 0);
+  const activeRoute = options[0]?.route;
+  const googleMapsUrl = useMemo(() => {
+    if (!from || !to || !activeRoute) return null;
+
+    return googleMapsRouteUrl({
+      origin: from.coordinates,
+      destination: to.coordinates,
+      travelMode: preference === "WALKING" ? "walking" : preference === "BIKE" ? "bicycling" : preference === "BUS" ? "transit" : "driving"
+    });
+  }, [activeRoute, from, preference, to]);
 
   useEffect(() => {
     setFrom((current) => (placeMatchesMobilityCity(current, city) ? current : undefined));
     setTo((current) => (placeMatchesMobilityCity(current, city) ? current : undefined));
     setOptions([]);
     setPoints([]);
+    setRouteError(null);
   }, [city]);
 
-  const calculate = async () => {
-    if (!from || !to) return;
+  const calculate = useCallback(async (signal?: AbortSignal) => {
+    if (!from || !to || from.id === to.id) {
+      setOptions([]);
+      setPoints([]);
+      setRouteError(from && to && from.id === to.id ? t("mobility.sameLocationError") : null);
+      return;
+    }
 
     setLoading(true);
-    const response = await fetch("/api/mobility", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: from.coordinates,
-        to: to.coordinates,
-        preference,
-        city: to.city
-      })
-    });
-    const payload: ApiResponse = await response.json();
-    setOptions(payload.data.options);
-    setPoints(payload.data.nearbyTransportPoints);
-    setLoading(false);
-  };
+    setRouteError(null);
+
+    try {
+      const response = await fetch("/api/mobility", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal,
+        body: JSON.stringify({
+          from: from.coordinates,
+          to: to.coordinates,
+          preference,
+          city: to.city
+        })
+      });
+      const payload: ApiResponse = await response.json();
+
+      if (!response.ok || !payload.ok) {
+        throw new Error("Mobility request failed.");
+      }
+
+      setOptions(payload.data.options);
+      setPoints(payload.data.nearbyTransportPoints);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+
+      setOptions([]);
+      setPoints([]);
+      setRouteError(t("mobility.routeRequestError"));
+    } finally {
+      setLoading(false);
+    }
+  }, [from, preference, t, to]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void calculate(controller.signal);
+
+    return () => controller.abort();
+  }, [calculate]);
 
   return (
     <section className="section-band">
@@ -128,7 +170,7 @@ export function MobilityPanel() {
                   <SelectContent>
                     {filteredPlaces.length ? (
                       filteredPlaces.map((place) => (
-                        <SelectItem key={place.id} value={place.id}>
+                        <SelectItem key={place.id} value={place.id} disabled={place.id === to?.id}>
                           {formatMobilityPlaceLabel(place, t("mobility.unknownCity"))}
                         </SelectItem>
                       ))
@@ -149,7 +191,7 @@ export function MobilityPanel() {
                   <SelectContent>
                     {filteredPlaces.length ? (
                       filteredPlaces.map((place) => (
-                        <SelectItem key={place.id} value={place.id}>
+                        <SelectItem key={place.id} value={place.id} disabled={place.id === from?.id}>
                           {formatMobilityPlaceLabel(place, t("mobility.unknownCity"))}
                         </SelectItem>
                       ))
@@ -176,40 +218,29 @@ export function MobilityPanel() {
                   </SelectContent>
                 </Select>
               </label>
-              <Button className="w-full" size="lg" onClick={calculate} disabled={loading || !canCalculate}>
+              <Button className="w-full" size="lg" onClick={() => void calculate()} disabled={loading || !canCalculate}>
                 <Navigation className={loading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
                 {t("mobility.calculate")}
               </Button>
+              {googleMapsUrl && (
+                <Button asChild className="w-full" variant="outline">
+                  <a href={googleMapsUrl} target="_blank" rel="noreferrer">
+                    <ExternalLink className="h-4 w-4" />
+                    {t("common.openInGoogleMaps")}
+                  </a>
+                </Button>
+              )}
+              {routeError && (
+                <p className="flex items-start gap-2 rounded-md border border-destructive/25 bg-destructive/10 p-3 text-sm text-destructive">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                  {routeError}
+                </p>
+              )}
             </div>
           </aside>
 
           <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
-            <div className="rounded-lg border border-border bg-slate-950 p-4 text-white shadow-glass">
-              <div className="relative min-h-[520px] overflow-hidden rounded-md">
-                <div className="map-grid absolute inset-0 bg-gradient-to-br from-slate-950 via-teal-950 to-rose-950" />
-                <div className="absolute left-[18%] top-[36%] rounded-full bg-primary p-3 shadow-glow">
-                  <MapPin className="h-5 w-5" />
-                </div>
-                <div className="absolute right-[18%] top-[52%] rounded-full bg-rose-500 p-3 shadow-glow">
-                  <MapPin className="h-5 w-5" />
-                </div>
-                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  <path
-                    d="M 20 40 C 36 28, 48 60, 80 56"
-                    fill="none"
-                    stroke="rgba(45, 212, 191, 0.85)"
-                    strokeWidth="1.2"
-                    strokeDasharray="3 2"
-                  />
-                </svg>
-                <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/15 bg-white/12 p-4 backdrop-blur-xl">
-                  <p className="font-semibold">{routeTitle}</p>
-                  <p className="mt-1 text-sm text-white/70">
-                    {t("mobility.routeVisualization")}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <MobilityRouteMap from={from} to={to} route={activeRoute} />
 
             <div className="space-y-4">
               {options.length ? (

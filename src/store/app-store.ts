@@ -51,6 +51,7 @@ export const useAppStore = create<AppState>()(
         city: "Prishtina",
         budget: 60,
         durationHours: 5,
+        durationDays: 1,
         interests: ["food", "culture"],
         vibe: "Local Food",
         transportPreference: "WALKING"

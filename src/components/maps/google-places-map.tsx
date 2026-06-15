@@ -21,6 +21,7 @@ import {
   type GoogleInfoWindowInstance,
   type GoogleMapInstance,
   type GoogleMapsApi,
+  type GoogleMarkerOptions,
   type GoogleMapStyle,
   type GoogleMarkerInstance,
   loadGoogleMaps
@@ -185,7 +186,6 @@ function clusterPlaces(places: PlaceDTO[], zoom: number): MarkerGroup[] {
 }
 
 function markerIcon(
-  api: GoogleMapsApi,
   color: string,
   glyph: string,
   {
@@ -223,28 +223,74 @@ function markerIcon(
     </svg>
   `;
 
-  return {
-    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new api.maps.Size(size, size),
-    anchor: new api.maps.Point(size / 2, (size * 54) / 58),
-    labelOrigin: new api.maps.Point(size / 2, (size * 32) / 58)
-  };
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = svg.trim();
+  return wrapper;
 }
 
-function clusterIcon(api: GoogleMapsApi, size: number) {
+function clusterIcon(size: number, count: number) {
   const svg = `
     <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - 3}" fill="#0f766e" fill-opacity="0.92" stroke="white" stroke-width="3"/>
       <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - 9}" fill="#14b8a6" fill-opacity="0.35"/>
+      <text x="${size / 2}" y="${size / 2 + 5}" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="800" fill="white">${count}</text>
     </svg>
   `;
 
-  return {
-    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new api.maps.Size(size, size),
-    anchor: new api.maps.Point(size / 2, size / 2),
-    labelOrigin: new api.maps.Point(size / 2, size / 2 + 1)
-  };
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = svg.trim();
+  return wrapper;
+}
+
+function detachMarker(marker: GoogleMarkerInstance) {
+  if (marker.setMap) {
+    marker.setMap(null);
+    return;
+  }
+
+  marker.map = null;
+}
+
+function setMarkerZIndex(marker: GoogleMarkerInstance, zIndex: number) {
+  if (marker.setZIndex) {
+    marker.setZIndex(zIndex);
+    return;
+  }
+
+  marker.zIndex = zIndex;
+}
+
+function setMarkerContent(marker: GoogleMarkerInstance, content: Node) {
+  if (marker.setIcon) {
+    marker.setIcon(content);
+    return;
+  }
+
+  marker.content = content;
+}
+
+function createMapMarker(api: GoogleMapsApi, options: GoogleMarkerOptions) {
+  if (api.maps.marker?.AdvancedMarkerElement) {
+    return new api.maps.marker.AdvancedMarkerElement({
+      position: options.position,
+      map: options.map,
+      title: options.title,
+      content: options.icon instanceof Node ? options.icon : undefined,
+      gmpClickable: true,
+      zIndex: options.zIndex
+    });
+  }
+
+  return new api.maps.Marker(options);
+}
+
+function addMarkerClickListener(marker: GoogleMarkerInstance, handler: () => void) {
+  if (marker.addEventListener) {
+    marker.addEventListener("gmp-click", handler);
+    return;
+  }
+
+  marker.addListener("click", handler);
 }
 
 function fitPlaces(api: GoogleMapsApi, map: GoogleMapInstance, places: PlaceDTO[], fitPadding: number) {
@@ -346,6 +392,7 @@ export function GooglePlacesMap({
   const { t } = useTranslation();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+  const resolvedMapId = mapId || "DEMO_MAP_ID";
   const containerRef = useRef<HTMLDivElement | null>(null);
   const apiRef = useRef<GoogleMapsApi | null>(null);
   const mapRef = useRef<GoogleMapInstance | null>(null);
@@ -448,8 +495,8 @@ export function GooglePlacesMap({
             latLngBounds: KOSOVO_BOUNDS,
             strictBounds: false
           },
-          styles: usesDarkMap ? darkMapStyles : lightMapStyles,
-          ...(mapId ? { mapId } : {}),
+          ...(!resolvedMapId ? { styles: usesDarkMap ? darkMapStyles : lightMapStyles } : {}),
+          ...(resolvedMapId ? { mapId: resolvedMapId } : {}),
           backgroundColor: usesDarkMap ? "#0f172a" : "#dbeafe",
           clickableIcons: false,
           fullscreenControl: true,
@@ -475,7 +522,7 @@ export function GooglePlacesMap({
     return () => {
       cancelled = true;
     };
-  }, [apiKey, defaultZoom, mapId, theme]);
+  }, [apiKey, defaultZoom, resolvedMapId, theme]);
 
   useEffect(() => {
     if (status !== "ready" || !mapRef.current) return;
@@ -493,7 +540,7 @@ export function GooglePlacesMap({
     const updateStyles = () => {
       const usesDarkMap = resolveUsesDarkMap(theme);
       map.setOptions({
-        styles: usesDarkMap ? darkMapStyles : lightMapStyles,
+        ...(!resolvedMapId ? { styles: usesDarkMap ? darkMapStyles : lightMapStyles } : {}),
         backgroundColor: usesDarkMap ? "#0f172a" : "#dbeafe"
       });
     };
@@ -511,7 +558,7 @@ export function GooglePlacesMap({
       observer.disconnect();
       media.removeEventListener("change", updateStyles);
     };
-  }, [status, theme]);
+  }, [resolvedMapId, status, theme]);
 
   useEffect(() => {
     const api = apiRef.current;
@@ -543,7 +590,7 @@ export function GooglePlacesMap({
 
     markerRefs.current.forEach((marker) => {
       api.maps.event.clearInstanceListeners(marker);
-      marker.setMap(null);
+      detachMarker(marker);
     });
     markerRefs.current = [];
     markerByPlaceIdRef.current.clear();
@@ -551,21 +598,15 @@ export function GooglePlacesMap({
     for (const group of markerGroups) {
       if (group.isCluster) {
         const size = Math.min(58, 42 + group.places.length);
-        const marker = new api.maps.Marker({
+        const marker = createMapMarker(api, {
           position: group.position,
           map,
           title: t("googleMap.clusterTitle", { count: group.places.length }),
-          icon: clusterIcon(api, size),
-          label: {
-            text: String(group.places.length),
-            color: "#ffffff",
-            fontSize: "13px",
-            fontWeight: "800"
-          },
+          icon: clusterIcon(size, group.places.length),
           zIndex: 10
         });
 
-        marker.addListener("click", () => fitPlaces(api, map, group.places, 72));
+        addMarkerClickListener(marker, () => fitPlaces(api, map, group.places, 72));
         markerRefs.current.push(marker);
         continue;
       }
@@ -575,12 +616,12 @@ export function GooglePlacesMap({
       const color = categoryColors[place.category.slug] ?? categoryTypeColors[place.category.type] ?? "#0f766e";
       const glyph = categoryGlyphs[place.category.slug] ?? place.category.name.slice(0, 1).toUpperCase();
       const getIcon = (hovered: boolean) =>
-        markerIcon(api, color, glyph, {
+        markerIcon(color, glyph, {
           selected,
           pulsing: animatedMarkers || selected,
           hovered
         });
-      const marker = new api.maps.Marker({
+      const marker = createMapMarker(api, {
         position: place.coordinates,
         map,
         title: place.title,
@@ -589,14 +630,14 @@ export function GooglePlacesMap({
       });
 
       marker.addListener("mouseover", () => {
-        marker.setIcon(getIcon(true));
-        marker.setZIndex(30);
+        setMarkerContent(marker, getIcon(true));
+        setMarkerZIndex(marker, 30);
       });
       marker.addListener("mouseout", () => {
-        marker.setIcon(getIcon(false));
-        marker.setZIndex(selected ? 20 : 12);
+        setMarkerContent(marker, getIcon(false));
+        setMarkerZIndex(marker, selected ? 20 : 12);
       });
-      marker.addListener("click", () => {
+      addMarkerClickListener(marker, () => {
         selectPlace(place, "marker");
         focusPlace(place);
         openInfoWindow(place);
@@ -619,7 +660,7 @@ export function GooglePlacesMap({
 
       markerRefs.current.forEach((marker) => {
         api.maps.event.clearInstanceListeners(marker);
-        marker.setMap(null);
+        detachMarker(marker);
       });
       markerRefs.current = [];
       markerByPlaceId.clear();
