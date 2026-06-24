@@ -1,5 +1,4 @@
 import { transportPoints } from "@/data/kosovo-data";
-import { env } from "@/lib/env";
 import { clamp } from "@/lib/utils";
 import type { Coordinates, MobilityOption, MobilityRequest, MobilityRoute, TransportMethod } from "@/types";
 
@@ -167,7 +166,7 @@ function secondsFromGoogleDuration(duration: string | undefined) {
 }
 
 async function fetchGoogleRoute(request: MobilityRequest, method: TransportMethod): Promise<MobilityRoute | null> {
-  const apiKey = env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) return null;
 

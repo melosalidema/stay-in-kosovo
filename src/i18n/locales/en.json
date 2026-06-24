@@ -57,7 +57,7 @@
   "nav": {
     "pulse": "Pulse",
     "discover": "Discover",
-    "itinerary": "Itinerary",
+    "itinerary": "AI Agentic Planning",
     "mobility": "Mobility",
     "business": "Business",
     "admin": "Admin",
@@ -90,8 +90,11 @@
     "useLocation": "Use my location",
     "stats": {
       "signals": "mapped places",
+      "signalsTip": "Number of places currently tracked across Kosovo",
       "vibes": "vibe modes",
-      "layers": "cities covered"
+      "vibesTip": "Different mood categories you can explore by",
+      "layers": "cities covered",
+      "layersTip": "Cities with active pulse data and place coverage"
     }
   },
   "mapPreview": {
@@ -117,7 +120,14 @@
     "mode": "{{value}} mode",
     "note": "Pulse scores feed recommendations, itinerary timing, mobility messaging, and business supply prompts.",
     "emptyTitle": "No pulse zones available",
-    "emptyText": "Choose All Kosovo or another city to view live experience signals."
+    "emptyText": "Choose All Kosovo or another city to view live experience signals.",
+    "liveScoreTip": "Overall city activity score based on demand, supply, events, and mobility data",
+    "transportLabel": "Transport",
+    "transportTip": "Average reliability of public transport across the selected city",
+    "crowdLabel": "Crowds",
+    "crowdTip": "Estimated crowd level based on demand patterns and time of day",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details"
   },
   "vibesSection": {
     "eyebrow": "Discover your vibe",
@@ -143,32 +153,21 @@
     "eventHeatmap": "Event heatmap"
   },
   "flow": {
-    "eyebrow": "Complete application flow",
-    "title": "From first open to business analytics.",
+    "eyebrow": "How it works",
+    "title": "Three steps to your perfect Kosovo experience.",
+    "getStarted": "Get started",
     "steps": {
-      "location": {
-        "title": "Location",
-        "text": "The app requests location and falls back to Prishtina center when permission is denied."
+      "vibe": {
+        "title": "Pick your vibe",
+        "text": "Choose from 14 mood-based filters like Adventure, Nightlife, or Local Food to shape your journey."
       },
-      "recommendations": {
-        "title": "Recommendations",
-        "text": "Vibe and filter intent are sent to the scoring API for ranked places and reasons."
+      "ai": {
+        "title": "Get smart picks",
+        "text": "Our scoring engine blends vibe, distance, quality, budget, and context into ranked recommendations."
       },
-      "mobility": {
-        "title": "Mobility",
-        "text": "Route options estimate duration, cost, carbon score, and transport availability."
-      },
-      "itinerary": {
-        "title": "Itinerary",
-        "text": "Ranked places become a timed route with stops, costs, and travel segments."
-      },
-      "business": {
-        "title": "Business Signal",
-        "text": "Saves, views, check-ins, reviews, and route requests update business analytics."
-      },
-      "personalization": {
-        "title": "Personalization",
-        "text": "Interactions can tune future recommendations through user preference vectors."
+      "explore": {
+        "title": "Go explore",
+        "text": "Browse the discovery map, plan itineraries, compare mobility routes, and track your saved places."
       }
     }
   },
@@ -199,7 +198,7 @@
   },
   "googleMap": {
     "label": "Interactive Kosovo places map",
-    "loading": "Loading Google Maps",
+    "loading": "Loading interactive map",
     "details": "Details",
     "open": "Open map",
     "directions": "Directions",
@@ -208,9 +207,9 @@
     "emptyTitle": "No valid Kosovo coordinates",
     "emptyText": "Places without numeric coordinates inside Kosovo are not rendered as map markers.",
     "staticFallbackTitle": "{{count}} places loaded",
-    "staticFallbackText": "Add a Google Maps JavaScript API key to show every stored place as an interactive marker.",
-    "unavailableTitle": "Google Maps unavailable",
-    "unavailableText": "{{message}} Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to enable the interactive map.",
+    "staticFallbackText": "OpenStreetMap tiles power the interactive map. The data is loaded from the local catalogue.",
+    "unavailableTitle": "Interactive map unavailable",
+    "unavailableText": "{{message}} The map provider could not be reached right now.",
     "invalidSkipped": "{{count}} invalid coordinate record skipped"
   },
   "placeCard": {
@@ -233,9 +232,9 @@
     "success": "Review submitted and ready for moderation analytics."
   },
   "itinerary": {
-    "badge": "AI itinerary builder",
-    "title": "Build a smart day in Kosovo.",
-    "description": "The engine ranks places, estimates mobility, assigns time blocks, and keeps the plan inside budget.",
+    "badge": "AI Agentic Planning",
+    "title": "AI Agentic Planning — build a smart day in Kosovo.",
+    "description": "The AI agent ranks places, estimates mobility, assigns time blocks, and keeps the plan inside budget.",
     "interestsPlaceholder": "food, culture, music",
     "planLength": "Plan length",
     "customHours": "Flexible hours",
@@ -246,7 +245,7 @@
     "days": "{{count}} day",
     "days_plural": "{{count}} days",
     "day": "Day {{day}}",
-    "generate": "Generate itinerary",
+    "generate": "Generate AI plan",
     "generatedRoute": "Generated route",
     "stop": "Stop {{order}}",
     "stay": "{{minutes}} min stay",

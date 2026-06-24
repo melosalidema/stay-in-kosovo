@@ -1,9 +1,11 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { Filter, RefreshCw, Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { CategoryLegend } from "@/components/discovery/category-legend";
 import { MapPanel } from "@/components/discovery/map-panel";
 import { PlaceCard } from "@/components/discovery/place-card";
 import type { MapSelectionSource } from "@/components/maps/google-places-map";
@@ -37,11 +39,15 @@ export function DiscoveryBoard() {
   const [relaxedFallback, setRelaxedFallback] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const placeCardRefs = useRef<Map<string, HTMLElement>>(new Map());
   const debouncedQuery = useDebounce(filters.q);
   const cityOptions = useMemo(() => getPlaceCityOptions(fallbackPlaces), []);
   const invalidCityRecords = useMemo(() => validatePlaceCityAssignments(fallbackPlaces), []);
   const mapPlaces = places.length ? places : fallbackPlaces;
+  const filteredPlaces = selectedCategory
+    ? mapPlaces.filter((place) => place.category.slug === selectedCategory)
+    : mapPlaces;
   const hasActiveFilters = Boolean(
     debouncedQuery ||
       filters.city ||
@@ -298,32 +304,46 @@ export function DiscoveryBoard() {
           </div>
         )}
 
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_440px]">
-          <div className="grid gap-5 sm:grid-cols-2">
-            {loading ? (
-              Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-[360px] rounded-lg bg-muted/[0.7]" />)
-            ) : places.length ? (
-              places.map((place) => (
-                <div key={place.id} ref={(element) => setPlaceCardRef(place.id, element)}>
-                  <PlaceCard
-                    place={place}
-                    selected={selectedPlaceId === place.id}
-                    onSelect={(selectedPlace) => selectPlace(selectedPlace, "card")}
-                  />
-                </div>
-              ))
-            ) : (
-              <div className="experience-card-discovery p-8 text-center sm:col-span-2">
-                <p className="font-bold">{t("discover.emptyTitle")}</p>
-                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{t("discover.emptyText")}</p>
-              </div>
-            )}
-          </div>
+        <div className="space-y-6">
           <MapPanel
             places={mapPlaces}
             selectedPlaceId={selectedPlaceId}
             onSelectedPlaceChange={(place, source) => selectPlace(place, source)}
           />
+          <CategoryLegend
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {loading ? (
+              Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-[360px] rounded-lg bg-muted/[0.7]" />)
+            ) : filteredPlaces.length ? (
+              <AnimatePresence mode="popLayout">
+                {filteredPlaces.map((place) => (
+                  <motion.div
+                    key={place.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.92 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    ref={(element) => setPlaceCardRef(place.id, element)}
+                  >
+                    <PlaceCard
+                      place={place}
+                      selected={selectedPlaceId === place.id}
+                      onSelect={(selectedPlace) => selectPlace(selectedPlace, "card")}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            ) : (
+              <div className="experience-card-discovery p-8 text-center sm:col-span-2 lg:col-span-3">
+                <p className="font-bold">{t("discover.emptyTitle")}</p>
+                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{t("discover.emptyText")}</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </section>

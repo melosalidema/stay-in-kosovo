@@ -57,7 +57,7 @@
   "nav": {
     "pulse": "Pulsi",
     "discover": "Zbulo",
-    "itinerary": "Itinerari",
+    "itinerary": "AI Agentic Planning",
     "mobility": "Mobiliteti",
     "business": "Biznesi",
     "admin": "Admin",
@@ -86,8 +86,11 @@
     "useLocation": "Përdor vendndodhjen time",
     "stats": {
       "signals": "vende në hartë",
+      "signalsTip": "Numri i vendeve që gjurmohen aktualisht në Kosovë",
       "vibes": "modalitete atmosfere",
-      "layers": "qytete të mbuluara"
+      "vibesTip": "Kategori të ndryshme humori sipas të cilave mund të eksplorosh",
+      "layers": "qytete të mbuluara",
+      "layersTip": "Qytete me të dhëna aktive pulsi dhe mbulim vendesh"
     }
   },
   "mapPreview": {
@@ -113,7 +116,14 @@
     "mode": "modalitet {{value}}",
     "note": "Pikët e pulsit ushqejnë rekomandimet, kohëzimin e itinerarit, mesazhet e mobilitetit dhe sinjalet e ofertës për biznese.",
     "emptyTitle": "Nuk ka zona pulsi",
-    "emptyText": "Zgjidh gjithë Kosovën ose një qytet tjetër për të parë sinjalet live të përvojave."
+    "emptyText": "Zgjidh gjithë Kosovën ose një qytet tjetër për të parë sinjalet live të përvojave.",
+    "liveScoreTip": "Pikë e përgjithshme e aktivitetit të qytetit bazuar në kërkesë, ofertë, evente dhe të dhëna mobiliteti",
+    "transportLabel": "Transport",
+    "transportTip": "Besueshmëria mesatare e transportit publik në qytetin e zgjedhur",
+    "crowdLabel": "Turma",
+    "crowdTip": "Niveli i vlerësuar i turmave sipas modeleve të kërkesës dhe kohës së ditës",
+    "showDetails": "Shfaq detajet",
+    "hideDetails": "Fshih detajet"
   },
   "vibesSection": {
     "eyebrow": "Zbulo atmosferën tënde",
@@ -139,32 +149,21 @@
     "eventHeatmap": "Hartë nxehtësie eventesh"
   },
   "flow": {
-    "eyebrow": "Rrjedha e plotë e aplikacionit",
-    "title": "Nga hapja e parë te analitika e biznesit.",
+    "eyebrow": "Si funksionon",
+    "title": "Tre hapa për përvojën tënde perfekte në Kosovë.",
+    "getStarted": "Fillo",
     "steps": {
-      "location": {
-        "title": "Vendndodhja",
-        "text": "Aplikacioni kërkon vendndodhjen dhe kalon te qendra e Prishtinës kur leja refuzohet."
+      "vibe": {
+        "title": "Zgjidh atmosferën",
+        "text": "Zgjidh nga 14 filtra të bazuar në humor si Aventurë, Jetë Nate ose Ushqim Lokal për të formuar rrugëtimin tënd."
       },
-      "recommendations": {
-        "title": "Rekomandimet",
-        "text": "Qëllimi i atmosferës dhe filtrave dërgohet te API-ja e pikëzimit për vende të renditura dhe arsye."
+      "ai": {
+        "title": "Merre sugjerimet",
+        "text": "Motori ynë kombinon atmosferën, distancën, cilësinë, buxhetin dhe kontekstin në rekomandime të renditura."
       },
-      "mobility": {
-        "title": "Mobiliteti",
-        "text": "Opsionet e rrugës vlerësojnë kohën, koston, karbonin dhe disponueshmërinë e transportit."
-      },
-      "itinerary": {
-        "title": "Itinerari",
-        "text": "Vendet e renditura bëhen një rrugë me orare, ndalesa, kosto dhe segmente udhëtimi."
-      },
-      "business": {
-        "title": "Sinjali i biznesit",
-        "text": "Ruajtjet, shikimet, check-in, recensionet dhe kërkesat e rrugës përditësojnë analitikën."
-      },
-      "personalization": {
-        "title": "Personalizimi",
-        "text": "Ndërveprimet mund të përmirësojnë rekomandimet përmes vektorëve të preferencave."
+      "explore": {
+        "title": "Shko eksploro",
+        "text": "Shfleto hartën e zbulimit, planifiko itinerare, krahaso rrugët e mobilitetit dhe ndiq vendet e ruajtura."
       }
     }
   },
@@ -194,8 +193,8 @@
     "natureCalm": "Natyrë: qetë"
   },
   "googleMap": {
-    "label": "Hartë interaktive e vendeve në Kosovë",
-    "loading": "Duke ngarkuar Google Maps",
+    "label": "Hartë interaktive e vendeve të Kosovës",
+    "loading": "Duke u ngarkuar harta interaktive",
     "details": "Detaje",
     "open": "Hap hartën",
     "directions": "Drejtime",
@@ -204,9 +203,9 @@
     "emptyTitle": "Nuk ka koordinata të vlefshme në Kosovë",
     "emptyText": "Vendet pa koordinata numerike brenda Kosovës nuk shfaqen si markerë.",
     "staticFallbackTitle": "{{count}} vende të ngarkuara",
-    "staticFallbackText": "Shto një çelës Google Maps JavaScript API për t'i shfaqur të gjitha vendet e ruajtura si markerë interaktivë.",
-    "unavailableTitle": "Google Maps nuk është i disponueshëm",
-    "unavailableText": "{{message}} Shto NEXT_PUBLIC_GOOGLE_MAPS_API_KEY për hartën interaktive.",
+    "staticFallbackText": "Tiles-et e OpenStreetMap mundësojnë hartën interaktive. Të dhënat vijnë nga katalogu lokal.",
+    "unavailableTitle": "Harta interaktive nuk është e disponueshme",
+    "unavailableText": "{{message}} Ofruesi i hartës nuk u arrit dot tani.",
     "invalidSkipped": "{{count}} rekord me koordinata të pavlefshme u anashkalua"
   },
   "placeCard": {

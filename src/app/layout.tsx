@@ -5,6 +5,8 @@ import "./globals.css";
 import { ChatAssistant } from "@/components/assistant/chat-assistant";
 import { Footer } from "@/components/layout/footer";
 import { FloatingNavbar } from "@/components/layout/floating-navbar";
+import { ScrollProgress } from "@/components/layout/scroll-progress";
+import { StickyBottomNav } from "@/components/layout/sticky-bottom-nav";
 import { Providers } from "@/app/providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -38,10 +40,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
+          <ScrollProgress />
           <FloatingNavbar />
-          <main className="min-h-screen pt-20">{children}</main>
+          <main className="min-h-screen pt-20 pb-14 lg:pb-0">{children}</main>
           <Footer />
           <ChatAssistant />
+          <StickyBottomNav />
         </Providers>
       </body>
     </html>

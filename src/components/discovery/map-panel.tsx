@@ -25,7 +25,7 @@ export function MapPanel({
   const { requestLocation, loading } = useGeolocation();
 
   return (
-    <section className={cn("experience-card-discovery order-first self-start overflow-hidden bg-card/[0.92] lg:sticky lg:top-24 lg:order-none", className)}>
+    <section className={cn("experience-card-discovery isolate overflow-hidden bg-card/[0.92]", className)}>
       <div className="flex items-center justify-between border-b border-border p-4">
         <div>
           <h2 className="text-sm font-bold">{t("mapPanel.title")}</h2>

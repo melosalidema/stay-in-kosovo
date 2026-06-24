@@ -3,20 +3,28 @@
 import { CalendarDays, Compass, LayoutDashboard, LogOut, Map, Menu, Moon, Route, Sparkles, Sun, UserRound } from "lucide-react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { ComponentType, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { cn } from "@/lib/utils";
+import type { UserRole } from "@/types";
 
-const links = [
+type NavItem = {
+  href: string;
+  labelKey: string;
+  icon: ComponentType<{ className?: string }>;
+  roles?: UserRole[];
+};
+
+const links: NavItem[] = [
   { href: "/pulse", labelKey: "nav.pulse", icon: Sparkles },
   { href: "/discover", labelKey: "nav.discover", icon: Compass },
   { href: "/itinerary", labelKey: "nav.itinerary", icon: CalendarDays },
   { href: "/mobility", labelKey: "nav.mobility", icon: Route },
-  { href: "/business", labelKey: "nav.business", icon: LayoutDashboard },
-  { href: "/admin", labelKey: "nav.admin", icon: Map }
+  { href: "/business", labelKey: "nav.business", icon: LayoutDashboard, roles: ["BUSINESS_OWNER"] },
+  { href: "/admin", labelKey: "nav.admin", icon: Map, roles: ["ADMIN"] }
 ];
 
 export function FloatingNavbar() {
@@ -24,6 +32,15 @@ export function FloatingNavbar() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(false);
+
+  const role = session?.user?.role;
+
+  const visibleLinks = useMemo(
+    () => links.filter((link) => !link.roles || (role ? link.roles.includes(role) : false)),
+    [role]
+  );
+
+  const accountHref = role === "ADMIN" ? "/admin" : role === "BUSINESS_OWNER" ? "/business" : "/";
 
   useEffect(() => {
     const stored = window.localStorage.getItem("stay-kosovo-theme");
@@ -53,7 +70,7 @@ export function FloatingNavbar() {
         </Link>
 
         <div className="hidden items-center gap-1 lg:flex">
-          {links.map((link) => (
+          {visibleLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -73,7 +90,7 @@ export function FloatingNavbar() {
           {session ? (
             <>
               <Button asChild variant="outline" size="sm">
-                <Link href="/business">
+                <Link href={accountHref}>
                   <UserRound className="h-4 w-4" />
                   {session.user?.name ?? t("common.account")}
                 </Link>
@@ -104,7 +121,7 @@ export function FloatingNavbar() {
           open ? "block" : "hidden"
         )}
       >
-        {links.map((link) => (
+        {visibleLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
@@ -123,7 +140,7 @@ export function FloatingNavbar() {
           {session ? (
             <>
               <Button asChild className="min-w-32 flex-1">
-                <Link href="/business" onClick={() => setOpen(false)}>
+                <Link href={accountHref} onClick={() => setOpen(false)}>
                   <UserRound className="h-4 w-4" />
                   {t("common.account")}
                 </Link>

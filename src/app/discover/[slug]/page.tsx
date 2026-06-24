@@ -1,4 +1,4 @@
-import { ExternalLink, MapPin, Navigation, Route, Star } from "lucide-react";
+import { ExternalLink, MapPin, Route, Star } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { GooglePlacesMap } from "@/components/maps/google-places-map";
@@ -60,23 +60,17 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
 
             <p className="max-w-3xl text-base leading-7 text-muted-foreground">{place.description}</p>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Button asChild variant="outline">
-                <a href={googleMapsSearchUrl(place.coordinates)} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-4 w-4" />
-                  Open in Google Maps
-                </a>
-              </Button>
-              <Button asChild>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild variant="default">
                 <a href={googleMapsDirectionsUrl(place.coordinates)} target="_blank" rel="noreferrer">
                   <Route className="h-4 w-4" />
                   Get directions
                 </a>
               </Button>
               <Button asChild variant="outline">
-                <a href={googleMapsNavigationUrl(place.coordinates)} target="_blank" rel="noreferrer">
-                  <Navigation className="h-4 w-4" />
-                  Navigate here
+                <a href={googleMapsSearchUrl(place.coordinates)} target="_blank" rel="noreferrer">
+                  <ExternalLink className="h-4 w-4" />
+                  View in Google Maps
                 </a>
               </Button>
             </div>

@@ -13,7 +13,7 @@ export default withAuth(
     }
 
     if (pathname.startsWith("/business")) {
-      if (role !== "BUSINESS_OWNER" && role !== "ADMIN") {
+      if (role !== "BUSINESS_OWNER") {
         return NextResponse.redirect(new URL("/auth/login?next=/business", request.url));
       }
     }
