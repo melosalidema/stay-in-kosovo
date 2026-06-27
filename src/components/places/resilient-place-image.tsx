@@ -3,7 +3,7 @@
 import Image, { type ImageProps } from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
-import { getPlaceImageCandidates, shouldBypassNextImageOptimization } from "@/lib/place-images";
+import { getPlaceImageCandidates, placeImageLoader, shouldBypassNextImageOptimization } from "@/lib/place-images";
 import { cn } from "@/lib/utils";
 import type { PlaceDTO } from "@/types";
 
@@ -52,6 +52,7 @@ export function ResilientPlaceImage({
       src={src}
       alt={alt ?? place.title}
       className={className}
+      loader={placeImageLoader}
       unoptimized={imageProps.unoptimized ?? shouldBypassNextImageOptimization(src)}
       onError={() => {
         setCandidateIndex((index) => Math.min(index + 1, candidates.length));

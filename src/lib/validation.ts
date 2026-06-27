@@ -2,6 +2,15 @@ import { z } from "zod";
 
 import { isCoordinateInsideKosovo } from "@/lib/geo";
 
+const httpUrl = z.string().url().refine((val) => {
+  try {
+    const url = new URL(val);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}, "URL must use http or https protocol.");
+
 export const coordinatesSchema = z
   .object({
     lat: z.number(),
@@ -18,7 +27,8 @@ export const placeFilterSchema = z.object({
   openNow: z.coerce.boolean().optional(),
   rating: z.coerce.number().min(0).max(5).optional(),
   transport: z.string().optional(),
-  limit: z.coerce.number().min(1).max(50).default(50)
+  cursor: z.string().optional(),
+  take: z.coerce.number().min(1).max(100).default(50)
 });
 
 export const recommendationSchema = z.object({
@@ -64,7 +74,7 @@ export const reviewSchema = z.object({
   crowdLevel: z.string().min(2),
   musicVibe: z.string().optional(),
   localPopularity: z.string().optional(),
-  photos: z.array(z.string().url()).default([])
+  photos: z.array(httpUrl).default([])
 });
 
 export const businessOnboardingSchema = z.object({
@@ -86,8 +96,7 @@ export const businessOnboardingSchema = z.object({
 export const registerSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
-  password: z.string().min(8),
-  role: z.enum(["USER", "BUSINESS_OWNER"]).default("USER")
+  password: z.string().min(8)
 });
 
 export const pulseSchema = z.object({
@@ -104,5 +113,12 @@ export const interactionSchema = z.object({
   city: z.string().optional(),
   vibe: z.string().optional(),
   weight: z.number().min(0.1).max(5).optional(),
-  metadata: z.record(z.unknown()).optional()
+  metadata: z
+    .object({
+      transportPreference: z.enum(["WALKING", "TAXI", "BUS", "BIKE", "CAR"]).optional()
+    })
+    .refine((obj) => Object.keys(obj).length <= 5, {
+      message: "Metadata must have at most 5 keys."
+    })
+    .optional()
 });

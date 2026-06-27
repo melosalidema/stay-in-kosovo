@@ -1,23 +1,23 @@
 import { fail, ok } from "@/lib/api-response";
+import { validateBody } from "@/lib/api-validate";
 import { requireRole } from "@/lib/auth/permissions";
+import { csrfProtect } from "@/lib/csrf";
 import { timeStep, withApiTiming } from "@/lib/performance";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { businessOnboardingSchema } from "@/lib/validation";
 
 export const POST = withApiTiming("POST /api/businesses/onboarding", async function POST(request: Request) {
-  const session = await timeStep("auth.requireRole", () => requireRole(["BUSINESS_OWNER", "ADMIN"]));
+  const csrfError = await csrfProtect(request);
+  if (csrfError) return csrfError;
 
-  if (!session) {
-    return fail("Only business owners can create business profiles.", 403);
-  }
+  const session = await timeStep("auth.requireRole", () => requireRole(["BUSINESS_OWNER", "ADMIN"], "Only business owners can create business profiles."));
 
-  const body = await timeStep("request.json", () => request.json().catch(() => null));
-  const parsed = await timeStep("validate", () => businessOnboardingSchema.safeParse(body));
+  if (session instanceof Response) return session;
 
-  if (!parsed.success) {
-    return fail("Invalid business onboarding payload.", 422, parsed.error.flatten());
-  }
+  const parsed = await validateBody(request, businessOnboardingSchema, "Invalid business onboarding payload.");
+
+  if (!parsed.ok) return parsed.error;
 
   if (!process.env.DATABASE_URL) {
     return ok({

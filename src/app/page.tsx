@@ -1,6 +1,7 @@
 import { ApplicationFlow } from "@/components/home/application-flow";
 import { ExploreSection } from "@/components/home/explore-section";
 import { HeroSection } from "@/components/home/hero-section";
+import { OnboardingTour } from "@/components/home/onboarding-tour";
 import { PulseCommandCenter } from "@/components/home/pulse-command-center";
 import { WeatherStrip } from "@/components/home/weather-strip";
 import { events } from "@/data/kosovo-data";
@@ -12,6 +13,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <OnboardingTour />
       <HeroSection featuredPlaces={homepageMapPlaces} featuredEvents={events} />
       <WeatherStrip />
       <ApplicationFlow />

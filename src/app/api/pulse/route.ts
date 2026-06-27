@@ -1,26 +1,21 @@
-import { cacheHeaders, fail, ok } from "@/lib/api-response";
+import { cacheHeaders, ok } from "@/lib/api-response";
+import { validateBody, validateQuery } from "@/lib/api-validate";
 import { timeStep, withApiTiming } from "@/lib/performance";
 import { pulseSchema } from "@/lib/validation";
 import { generateExperiencePulse } from "@/services/pulse-engine";
 
 export const GET = withApiTiming("GET /api/pulse", async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const parsed = await timeStep("validate", () => pulseSchema.safeParse(Object.fromEntries(searchParams.entries())));
+  const parsed = await validateQuery(request, pulseSchema, "Invalid pulse filters.");
 
-  if (!parsed.success) {
-    return fail("Invalid pulse filters.", 422, parsed.error.flatten());
-  }
+  if (!parsed.ok) return parsed.error;
 
   return ok(await timeStep("pulse.generate", () => generateExperiencePulse(parsed.data)), { headers: cacheHeaders(30) });
 });
 
 export const POST = withApiTiming("POST /api/pulse", async function POST(request: Request) {
-  const body = await timeStep("request.json", () => request.json().catch(() => null));
-  const parsed = await timeStep("validate", () => pulseSchema.safeParse(body ?? {}));
+  const parsed = await validateBody(request, pulseSchema, "Invalid pulse request.");
 
-  if (!parsed.success) {
-    return fail("Invalid pulse request.", 422, parsed.error.flatten());
-  }
+  if (!parsed.ok) return parsed.error;
 
   return ok(await timeStep("pulse.generate", () => generateExperiencePulse(parsed.data)));
 });

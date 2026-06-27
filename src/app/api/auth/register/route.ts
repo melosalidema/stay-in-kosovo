@@ -1,26 +1,24 @@
 import bcrypt from "bcryptjs";
 
 import { fail, ok } from "@/lib/api-response";
+import { validateBody } from "@/lib/api-validate";
 import { timeStep, withApiTiming } from "@/lib/performance";
 import { prisma } from "@/lib/prisma";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
 import { registerSchema } from "@/lib/validation";
 
 export const POST = withApiTiming("POST /api/auth/register", async function POST(request: Request) {
-  const limited = rateLimit(getClientKey(request, "auth-register"), 8, 60_000);
+  const limited = await rateLimit(getClientKey(request, "auth-register"), 8, 60_000);
 
   if (!limited.allowed) {
     return fail("Too many registration attempts. Please wait a moment.", 429);
   }
 
-  const body = await timeStep("request.json", () => request.json().catch(() => null));
-  const parsed = await timeStep("validate", () => registerSchema.safeParse(body));
+  const parsed = await validateBody(request, registerSchema, "Invalid registration payload.");
 
-  if (!parsed.success) {
-    return fail("Invalid registration payload.", 422, parsed.error.flatten());
-  }
+  if (!parsed.ok) return parsed.error;
 
-  const { name, email, password, role } = parsed.data;
+  const { name, email, password } = parsed.data;
   const normalizedEmail = email.toLowerCase();
   const existing = await timeStep("user.findByEmail", () => prisma.user.findUnique({ where: { email: normalizedEmail } }));
 
@@ -35,7 +33,7 @@ export const POST = withApiTiming("POST /api/auth/register", async function POST
         name,
         email: normalizedEmail,
         hashedPassword,
-        role
+        role: "USER"
       },
       select: {
         id: true,

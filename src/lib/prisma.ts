@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
+import { logger } from "@/lib/logger";
 import { startEventLoopMonitor } from "@/lib/performance";
 
 const globalForPrisma = globalThis as unknown as {
@@ -37,7 +38,7 @@ export const prisma =
 if (process.env.PERF_LOGS === "1" && !globalForPrisma.prismaQueryLoggingAttached) {
   (prisma as unknown as PrismaQueryLogger).$on("query", (event) => {
     const query = event.query.replace(/\s+/g, " ").slice(0, 320);
-    console.warn(`[perf] prisma query durationMs=${event.duration} query="${query}" params=${event.params}`);
+    logger.debug({ durationMs: event.duration, query, params: event.params }, "prisma query");
   });
   globalForPrisma.prismaQueryLoggingAttached = true;
 }

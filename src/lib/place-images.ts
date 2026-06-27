@@ -81,3 +81,30 @@ export function shouldBypassNextImageOptimization(src?: string | null) {
     return false;
   }
 }
+
+type ImageLoaderArgs = {
+  src: string;
+  width: number;
+  quality?: number;
+};
+
+const UNSPLASH_HOST = "images.unsplash.com";
+
+export function placeImageLoader({ src, width, quality }: ImageLoaderArgs): string {
+  try {
+    const url = new URL(src);
+
+    if (url.hostname === UNSPLASH_HOST) {
+      const targetWidth = Math.min(width, 1920);
+      url.searchParams.set("w", String(targetWidth));
+      url.searchParams.set("q", String(quality ?? 80));
+      url.searchParams.set("auto", "format");
+      url.searchParams.set("fit", "crop");
+      return url.href;
+    }
+  } catch {
+    // src is not a valid URL — fall through to return as-is
+  }
+
+  return src;
+}

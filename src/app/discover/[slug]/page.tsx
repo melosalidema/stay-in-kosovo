@@ -2,10 +2,11 @@ import { ExternalLink, MapPin, Route, Star } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { GooglePlacesMap } from "@/components/maps/google-places-map";
+import { PlaceImageCarousel } from "@/components/places/place-image-carousel";
 import { ResilientPlaceImage } from "@/components/places/resilient-place-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { googleMapsDirectionsUrl, googleMapsNavigationUrl, googleMapsSearchUrl } from "@/lib/geo";
+import { googleMapsDirectionsUrl, googleMapsSearchUrl } from "@/lib/geo";
 import { getPlaceBySlugOrId } from "@/services/place-service";
 
 type PlaceDetailPageProps = {
@@ -23,15 +24,21 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
       <div className="page-shell grid gap-6 lg:grid-cols-[minmax(0,1fr)_440px]">
         <article className="overflow-hidden rounded-lg border border-border bg-card shadow-glass">
           <div className="relative aspect-[16/8] min-h-72">
-            <ResilientPlaceImage
-              place={place}
-              fill
-              imageWidth={1600}
-              sizes="(min-width: 1024px) 760px, 100vw"
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+            {place.images.length > 1 ? (
+              <PlaceImageCarousel place={place} />
+            ) : (
+              <>
+                <ResilientPlaceImage
+                  place={place}
+                  fill
+                  imageWidth={1600}
+                  sizes="(min-width: 1024px) 760px, 100vw"
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+              </>
+            )}
             <div className="absolute bottom-5 left-5 right-5 text-white">
               <div className="mb-3 flex flex-wrap gap-2">
                 <Badge variant="glass">{place.category.name}</Badge>

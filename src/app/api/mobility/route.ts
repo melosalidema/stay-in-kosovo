@@ -1,22 +1,20 @@
 import { fail, ok } from "@/lib/api-response";
+import { validateBody } from "@/lib/api-validate";
 import { timeStep, withApiTiming } from "@/lib/performance";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
 import { mobilitySchema } from "@/lib/validation";
 import { calculateMobilityOptionsWithGoogleRoutes, getNearbyTransportPoints } from "@/services/mobility-engine";
 
 export const POST = withApiTiming("POST /api/mobility", async function POST(request: Request) {
-  const limited = rateLimit(getClientKey(request, "mobility"), 60, 60_000);
+  const limited = await rateLimit(getClientKey(request, "mobility"), 60, 60_000);
 
   if (!limited.allowed) {
     return fail("Mobility rate limit reached.", 429);
   }
 
-  const body = await timeStep("request.json", () => request.json().catch(() => null));
-  const parsed = await timeStep("validate", () => mobilitySchema.safeParse(body));
+  const parsed = await validateBody(request, mobilitySchema, "Invalid mobility request.");
 
-  if (!parsed.success) {
-    return fail("Invalid mobility request.", 422, parsed.error.flatten());
-  }
+  if (!parsed.ok) return parsed.error;
 
   return ok({
     options: await timeStep("mobility.calculate", () => calculateMobilityOptionsWithGoogleRoutes(parsed.data)),

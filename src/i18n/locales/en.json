@@ -61,7 +61,13 @@
     "mobility": "Mobility",
     "business": "Business",
     "admin": "Admin",
-    "menu": "Open menu"
+    "menu": "Open menu",
+    "close": "Close menu",
+    "mobileMenu": "Mobile navigation",
+    "darkModeOn": "Dark mode is on",
+    "lightModeOn": "Light mode is on",
+    "primaryActions": "Primary actions",
+    "home": "Home"
   },
   "offline": {
     "message": "Offline mode is active. Saved places and itinerary draft stay available locally."
@@ -489,5 +495,18 @@
       "18-this-week": "+18 this week",
       "cache-hit-rate-74": "cache hit rate 74%"
     }
+  },
+  "onboarding": {
+    "title": "Welcome to Stay in Kosovo",
+    "label": "Quick tour",
+    "skip": "Skip",
+    "next": "Next",
+    "finish": "Start exploring",
+    "step1Title": "Discover Kosovo places",
+    "step1Text": "Search and filter cafes, museums, hikes, and hidden gems across Kosovo by vibe, budget, and transport.",
+    "step2Title": "Check the live Pulse",
+    "step2Text": "See real-time demand, crowd levels, and supply gaps by city so you know what is worth doing next.",
+    "step3Title": "Plan with AI Agentic Planning",
+    "step3Text": "Generate a smart day plan that ranks places, estimates mobility, and keeps you inside budget."
   }
 }

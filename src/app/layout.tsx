@@ -5,8 +5,9 @@ import "./globals.css";
 import { ChatAssistant } from "@/components/assistant/chat-assistant";
 import { Footer } from "@/components/layout/footer";
 import { FloatingNavbar } from "@/components/layout/floating-navbar";
+import { MobileActionBar } from "@/components/layout/mobile-action-bar";
 import { ScrollProgress } from "@/components/layout/scroll-progress";
-import { StickyBottomNav } from "@/components/layout/sticky-bottom-nav";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { Providers } from "@/app/providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -42,10 +43,11 @@ export default function RootLayout({
         <Providers>
           <ScrollProgress />
           <FloatingNavbar />
-          <main className="min-h-screen pt-20 pb-14 lg:pb-0">{children}</main>
+          <main className="min-h-screen pt-20 pb-20 sm:pb-0">{children}</main>
           <Footer />
           <ChatAssistant />
-          <StickyBottomNav />
+          <ScrollToTop />
+          <MobileActionBar />
         </Providers>
       </body>
     </html>

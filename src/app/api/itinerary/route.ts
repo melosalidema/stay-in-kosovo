@@ -1,7 +1,10 @@
 import { Prisma } from "@prisma/client";
 
 import { fail, ok } from "@/lib/api-response";
+import { validateBody } from "@/lib/api-validate";
 import { getCurrentSession } from "@/lib/auth/permissions";
+import { csrfProtect } from "@/lib/csrf";
+import { logger } from "@/lib/logger";
 import { timeStep, withApiTiming } from "@/lib/performance";
 import { prisma } from "@/lib/prisma";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
@@ -33,18 +36,18 @@ export const GET = withApiTiming("GET /api/itinerary", async function GET() {
 });
 
 export const POST = withApiTiming("POST /api/itinerary", async function POST(request: Request) {
-  const limited = rateLimit(getClientKey(request, "itinerary"), 20, 60_000);
+  const csrfError = await csrfProtect(request);
+  if (csrfError) return csrfError;
+
+  const limited = await rateLimit(getClientKey(request, "itinerary"), 20, 60_000);
 
   if (!limited.allowed) {
     return fail("Itinerary generation rate limit reached.", 429);
   }
 
-  const body = await timeStep("request.json", () => request.json().catch(() => null));
-  const parsed = await timeStep("validate", () => itinerarySchema.safeParse(body));
+  const parsed = await validateBody(request, itinerarySchema, "Invalid itinerary request.");
 
-  if (!parsed.success) {
-    return fail("Invalid itinerary request.", 422, parsed.error.flatten());
-  }
+  if (!parsed.ok) return parsed.error;
 
   const session = await timeStep("auth.session", () => getCurrentSession());
   const itinerary = await timeStep("itinerary.generate", () => generateItinerary({ ...parsed.data, userId: session?.user?.id }));
@@ -85,7 +88,7 @@ export const POST = withApiTiming("POST /api/itinerary", async function POST(req
       );
       persistedId = created.id;
     } catch (error) {
-      console.warn("Generated itinerary was not persisted:", error);
+      logger.warn({ error }, "Generated itinerary was not persisted");
     }
   }
 

@@ -159,7 +159,26 @@ function buildInsights(zones: PulseZone[], liveScore: number, transport: readonl
   ];
 }
 
+const pulseCache = new Map<string, { expiresAt: number; data: ExperiencePulseDTO }>();
+const pulseCacheTtlMs = Number(process.env.PULSE_CACHE_TTL_MS ?? 30_000);
+
+function stablePulseKey(input: PulseInput) {
+  return JSON.stringify({
+    city: input.city ?? "",
+    vibe: input.vibe ?? "",
+    dayPart: input.dayPart ?? "",
+    location: input.location ? `${input.location.lat.toFixed(3)},${input.location.lng.toFixed(3)}` : ""
+  });
+}
+
 export function generateExperiencePulse(input: PulseInput = {}): ExperiencePulseDTO {
+  const cacheKey = stablePulseKey(input);
+  const cached = pulseCache.get(cacheKey);
+
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
   const requestedCity = input.city?.trim() || "Prishtina";
   const allKosovoMode = requestedCity === ALL_KOSOVO_CITY;
   const city = allKosovoMode ? ALL_KOSOVO_PULSE_CITY : requestedCity;
@@ -174,7 +193,7 @@ export function generateExperiencePulse(input: PulseInput = {}): ExperiencePulse
     : transportPoints.filter((point) => point.city.toLowerCase() === city.toLowerCase());
   const sortedTransport = [...cityTransport].sort((a, b) => b.reliabilityScore - a.reliabilityScore);
 
-  return {
+  const result: ExperiencePulseDTO = {
     city,
     generatedAt: new Date().toISOString(),
     liveScore: Math.round(liveScore),
@@ -200,4 +219,8 @@ export function generateExperiencePulse(input: PulseInput = {}): ExperiencePulse
       "Keep business boost separated from organic quality so paid visibility cannot dominate poor user experience."
     ]
   };
+
+  pulseCache.set(cacheKey, { expiresAt: Date.now() + pulseCacheTtlMs, data: result });
+
+  return result;
 }

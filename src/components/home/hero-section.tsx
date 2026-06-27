@@ -1,14 +1,15 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, LocateFixed, RadioTower, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import { KosovoPulseMap } from "@/components/home/kosovo-pulse-map";
 import { Button } from "@/components/ui/button";
+import { CountUp } from "@/components/ui/count-up";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import type { EventDTO, PlaceDTO } from "@/types";
@@ -57,12 +58,16 @@ export function HeroSection({ featuredPlaces, featuredEvents = [] }: HeroSection
 
   const firstPlace = featuredPlaces[0] ?? featuredEvents[0];
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
+
   return (
-    <section className="relative overflow-hidden bg-slate-950 px-4 py-20 text-white sm:px-6 lg:px-8">
-      <div className="absolute inset-0">
+    <section ref={sectionRef} className="relative overflow-hidden bg-slate-950 px-4 py-20 text-white sm:px-6 lg:px-8">
+      <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <Image src={HERO_IMAGE} alt="" fill priority sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(8,23,30,0.82),rgba(24,93,88,0.34),rgba(144,82,53,0.16))]" />
-      </div>
+      </motion.div>
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950/18 via-slate-950/8 to-background" />
 
       <div className="relative mx-auto grid max-w-7xl gap-8 py-12 lg:min-h-[72svh] lg:grid-cols-[1fr_460px] lg:items-center">
@@ -122,7 +127,7 @@ export function HeroSection({ featuredPlaces, featuredEvents = [] }: HeroSection
                 tabIndex={0}
               >
                 <span className="pointer-events-none absolute inset-x-0 top-0 z-20 h-1 origin-left scale-x-0 bg-teal-200 transition-transform duration-300 group-hover:scale-x-100" />
-                <p className="relative z-10 text-2xl font-bold">{stat.value}</p>
+                <p className="relative z-10 text-2xl font-bold"><CountUp value={stat.value} /></p>
                 <p className="relative z-10 flex items-center text-xs text-white/70">
                   {stat.label}
                   <Tooltip text={stat.tooltip} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Clock, ExternalLink, Heart, MapPin, Route, Star, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -13,7 +13,7 @@ import { discoveryPlaceCardStyle, homePulseCardStyle } from "@/components/ui/exp
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
 import { googleMapsDirectionsUrl } from "@/lib/geo";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useAppStore } from "@/store/app-store";
 import type { PlaceDTO } from "@/types";
 
@@ -37,9 +37,39 @@ export function PlaceCard({
   const { t } = useTranslation();
   const labels = useLocalizedLabels();
   const viewTracked = useRef(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
+  const [savedAnimate, setSavedAnimate] = useState(false);
   const saved = useAppStore((state) => state.savedPlaceIds.includes(place.id));
   const toggleSavedPlace = useAppStore((state) => state.toggleSavedPlace);
+
+  const handleToggleSave = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    toggleSavedPlace(place.id);
+    track("SAVE");
+    setSavedAnimate(true);
+    setTimeout(() => setSavedAnimate(false), 400);
+  };
+
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [4, -4]), { stiffness: 300, damping: 30 });
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-4, 4]), { stiffness: 300, damping: 30 });
+
+  const handleMouseMove = (event: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const xVal = (event.clientX - rect.left) / rect.width - 0.5;
+    const yVal = (event.clientY - rect.top) / rect.height - 0.5;
+    x.set(xVal);
+    y.set(yVal);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+    setHovered(false);
+  };
 
   const track = (type: "VIEW" | "SAVE" | "ROUTE_REQUEST") => {
     if (type === "VIEW") {
@@ -80,17 +110,24 @@ export function PlaceCard({
       transition={{ duration: 0.28 }}
       onViewportEnter={() => track("VIEW")}
       viewport={{ once: true, amount: 0.35 }}
+      style={{ perspective: 800 }}
     >
+      <motion.div
+        style={{ rotateX, rotateY }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
       <Card
+        ref={cardRef}
         style={surface === "home" ? homePulseCardStyle(place.popularityScore, hovered) : discoveryPlaceCardStyle(place, hovered)}
         className={
           surface === "home"
-            ? "experience-card-home group relative overflow-hidden bg-card/[0.92]"
-            : `experience-card-discovery editorial-card group relative overflow-hidden bg-card/[0.96] ${selected ? "ring-2 ring-primary/45" : ""}`
+            ? "experience-card-home card-shimmer group relative overflow-hidden bg-card/[0.92]"
+            : `experience-card-discovery editorial-card card-shimmer group relative overflow-hidden bg-card/[0.96] ${selected ? "ring-2 ring-primary/45" : ""}`
         }
         onClick={() => onSelect?.(place)}
+        onMouseMove={handleMouseMove}
         onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseLeave={handleMouseLeave}
         onFocus={() => setHovered(true)}
         onBlur={() => setHovered(false)}
         tabIndex={0}
@@ -116,14 +153,10 @@ export function PlaceCard({
             size="icon"
             variant="glass"
             className="absolute right-3 top-3"
-            onClick={(event) => {
-              event.stopPropagation();
-              toggleSavedPlace(place);
-              track("SAVE");
-            }}
+            onClick={handleToggleSave}
             aria-label={saved ? t("placeCard.removeSaved") : t("placeCard.save")}
           >
-            <Heart className={saved ? "h-4 w-4 fill-rose-400 text-rose-400" : "h-4 w-4"} />
+            <Heart className={cn(saved ? "h-4 w-4 fill-rose-400 text-rose-400" : "h-4 w-4", savedAnimate && "heart-bounce")} />
           </Button>
         </div>
         <CardContent className="relative z-10 space-y-4 p-4">
@@ -183,6 +216,7 @@ export function PlaceCard({
           )}
         </CardContent>
       </Card>
+      </motion.div>
     </motion.article>
   );
 }

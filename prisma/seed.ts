@@ -1,15 +1,26 @@
+import crypto from "node:crypto";
+
 import { Prisma, PrismaClient, Role, TransportType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+function generateStrongPassword(): string {
+  return crypto.randomBytes(24).toString("base64url");
+}
+
 const image = (id: string) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;
 
 async function main() {
-  const password = await bcrypt.hash("Password123!", 12);
+  const adminPassword = generateStrongPassword();
+  const ownerPassword = generateStrongPassword();
+  const touristPassword = generateStrongPassword();
+  const password = await bcrypt.hash(touristPassword, 12);
+  const adminHashed = await bcrypt.hash(adminPassword, 12);
+  const ownerHashed = await bcrypt.hash(ownerPassword, 12);
 
-  const [tourist, owner, admin] = await Promise.all([
+  const [tourist, owner, adminUser] = await Promise.all([
     prisma.user.upsert({
       where: { email: "tourist@staykosovo.dev" },
       update: {},
@@ -32,7 +43,7 @@ async function main() {
       create: {
         name: "Driton Business",
         email: "owner@staykosovo.dev",
-        hashedPassword: password,
+        hashedPassword: ownerHashed,
         role: Role.BUSINESS_OWNER,
         homeCity: "Prizren"
       }
@@ -43,12 +54,19 @@ async function main() {
       create: {
         name: "Stay Kosovo Admin",
         email: "admin@staykosovo.dev",
-        hashedPassword: password,
+        hashedPassword: adminHashed,
         role: Role.ADMIN,
         homeCity: "Prishtina"
       }
     })
   ]);
+
+  console.log("=".repeat(50));
+  console.log("Seeded account credentials (store these securely):");
+  console.log(`  Tourist (USER):          tourist@staykosovo.dev / ${touristPassword}`);
+  console.log(`  Business Owner (OWNER):  owner@staykosovo.dev / ${ownerPassword}`);
+  console.log(`  Admin (ADMIN):           admin@staykosovo.dev / ${adminPassword}`);
+  console.log("=".repeat(50));
 
   const categories = await Promise.all(
     [
@@ -918,7 +936,7 @@ async function main() {
     )
   );
 
-  console.log(`Seeded Stay in Kosovo data for ${tourist.email}, ${owner.email}, and ${admin.email}.`);
+  console.log(`Seeded Stay in Kosovo data for ${tourist.email}, ${owner.email}, and ${adminUser.email}.`);
 }
 
 main()

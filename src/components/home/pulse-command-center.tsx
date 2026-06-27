@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { Activity, ArrowUpRight, RadioTower, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -31,7 +32,13 @@ export function PulseCommandCenter() {
   const cityLabel = city === ALL_KOSOVO_CITY ? t("common.allKosovo") : city;
 
   return (
-    <section className="section-band !py-10">
+    <motion.section
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="section-band !py-10"
+    >
       <div className="page-shell space-y-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -112,24 +119,42 @@ export function PulseCommandCenter() {
             </div>
           </div>
 
-          {showDetails && (
-            <div className="mt-5 grid gap-3 border-t border-border pt-5 sm:grid-cols-2 lg:grid-cols-4">
-              {pulse.topVibes.slice(0, 4).map((vibe) => (
-                <div key={vibe.vibe} className="rounded-md border border-border bg-muted/[0.4] p-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>{labels.vibe(vibe.vibe)}</span>
-                    <span className="font-mono font-bold">{vibe.score}</span>
-                  </div>
-                  <div className="mt-2 h-1.5 rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-primary/60"
-                      style={{ width: `${vibe.score}%` }}
-                    />
-                  </div>
+          <AnimatePresence initial={false}>
+            {showDetails && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="mt-5 grid gap-3 border-t border-border pt-5 sm:grid-cols-2 lg:grid-cols-4">
+                  {pulse.topVibes.slice(0, 4).map((vibe) => (
+                    <motion.div
+                      key={vibe.vibe}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="rounded-md border border-border bg-muted/[0.4] p-3"
+                    >
+                      <div className="flex items-center justify-between text-sm">
+                        <span>{labels.vibe(vibe.vibe)}</span>
+                        <span className="font-mono font-bold">{vibe.score}</span>
+                      </div>
+                      <div className="mt-2 h-1.5 rounded-full bg-muted">
+                        <motion.div
+                          className="h-full rounded-full bg-primary/60"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${vibe.score}%` }}
+                          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                        />
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="mt-4 flex justify-center">
             <Button
@@ -149,6 +174,6 @@ export function PulseCommandCenter() {
           {t("pulseHome.note")}
         </p>
       </div>
-    </section>
+    </motion.section>
   );
 }

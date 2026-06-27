@@ -1,6 +1,6 @@
-import { act, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import type { ImgHTMLAttributes } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { HeroSection } from "@/components/home/hero-section";
 import { places } from "@/data/kosovo-data";
@@ -39,33 +39,29 @@ vi.mock("react-i18next", () => ({
   })
 }));
 
-describe("HeroSection image rotation", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it("advances the visible hero background every five seconds", () => {
+describe("HeroSection", () => {
+  it("renders the hero background image and first place", () => {
     render(<HeroSection featuredPlaces={places.slice(0, 2)} />);
 
-    expect(screen.getByText("1/4")).toBeInTheDocument();
-    expect(screen.getByText("Germia Park")).toBeInTheDocument();
+    expect(screen.getByTestId("hero-background-image")).toBeInTheDocument();
+    expect(screen.getByText("hero.eyebrow")).toBeInTheDocument();
+    expect(screen.getByText("hero.title")).toBeInTheDocument();
+    expect(screen.getByText("hero.description")).toBeInTheDocument();
+    expect(screen.getByText("hero.exploreNow")).toBeInTheDocument();
+    expect(screen.getByText(places[0].title)).toBeInTheDocument();
+  });
 
-    act(() => {
-      vi.advanceTimersByTime(5000);
-    });
+  it("renders hero stats based on featured places", () => {
+    render(<HeroSection featuredPlaces={places.slice(0, 2)} />);
 
-    expect(screen.getByText("2/4")).toBeInTheDocument();
-    expect(screen.getByText("Germia Park")).toBeInTheDocument();
+    expect(screen.getByText("hero.stats.signals")).toBeInTheDocument();
+    expect(screen.getByText("hero.stats.vibes")).toBeInTheDocument();
+    expect(screen.getByText("hero.stats.layers")).toBeInTheDocument();
+  });
 
-    act(() => {
-      vi.advanceTimersByTime(5000);
-    });
+  it("shows pulse map", () => {
+    render(<HeroSection featuredPlaces={places.slice(0, 2)} />);
 
-    expect(screen.getByText("3/4")).toBeInTheDocument();
-    expect(screen.getByText("Soma Book Station")).toBeInTheDocument();
+    expect(screen.getByTestId("kosovo-pulse-map")).toBeInTheDocument();
   });
 });

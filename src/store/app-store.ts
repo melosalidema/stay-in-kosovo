@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import type { Coordinates, ItineraryInput, PlaceDTO, TransportMethod } from "@/types";
+import type { Coordinates, ItineraryInput, TransportMethod } from "@/types";
 
 type Filters = {
   q: string;
@@ -26,7 +26,7 @@ type AppState = {
   setFilters: (filters: Partial<Filters>) => void;
   resetFilters: () => void;
   setLocation: (location: Coordinates) => void;
-  toggleSavedPlace: (place: PlaceDTO) => void;
+  toggleSavedPlace: (placeId: string) => void;
   setItineraryDraft: (draft: Partial<ItineraryInput>) => void;
 };
 
@@ -67,12 +67,12 @@ export const useAppStore = create<AppState>()(
         })),
       resetFilters: () => set({ filters: defaultFilters }),
       setLocation: (location) => set({ location }),
-      toggleSavedPlace: (place) => {
+      toggleSavedPlace: (placeId) => {
         const saved = get().savedPlaceIds;
         set({
-          savedPlaceIds: saved.includes(place.id)
-            ? saved.filter((id) => id !== place.id)
-            : [...saved, place.id]
+          savedPlaceIds: saved.includes(placeId)
+            ? saved.filter((id) => id !== placeId)
+            : [...saved, placeId]
         });
       },
       setItineraryDraft: (draft) =>

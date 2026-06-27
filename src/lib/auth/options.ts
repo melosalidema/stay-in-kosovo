@@ -4,8 +4,10 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
+import { generateCsrfToken } from "@/lib/csrf";
 import { timeStep } from "@/lib/performance";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
 type UserWithRole = {
   id: string;
@@ -14,6 +16,9 @@ type UserWithRole = {
   image?: string | null;
   role?: "USER" | "BUSINESS_OWNER" | "ADMIN";
 };
+
+const AUTH_LOGIN_LIMIT = Number(process.env.AUTH_LOGIN_LIMIT ?? 10);
+const AUTH_LOGIN_WINDOW_MS = Number(process.env.AUTH_LOGIN_WINDOW_MS ?? 60_000);
 
 const providers = [
   CredentialsProvider({
@@ -28,6 +33,12 @@ const providers = [
 
       if (!email || !password) {
         return null;
+      }
+
+      const limited = await rateLimit(`auth-login:${email}`, AUTH_LOGIN_LIMIT, AUTH_LOGIN_WINDOW_MS);
+
+      if (!limited.allowed) {
+        throw new Error("Too many login attempts. Please wait a moment and try again.");
       }
 
       const user = await timeStep("auth.userLookup", () => prisma.user.findUnique({ where: { email } }));
@@ -77,6 +88,7 @@ export const authOptions: NextAuthOptions = {
         const appUser = user as UserWithRole;
         token.role = appUser.role ?? "USER";
         token.id = appUser.id;
+        token.csrfToken = generateCsrfToken();
       }
 
       return token;
@@ -85,6 +97,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = String(token.id ?? token.sub);
         session.user.role = (token.role as UserWithRole["role"]) ?? "USER";
+        session.user.csrfToken = token.csrfToken;
       }
 
       return session;

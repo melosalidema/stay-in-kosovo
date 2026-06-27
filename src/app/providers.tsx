@@ -14,7 +14,7 @@ function OfflineBanner() {
   if (online) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 rounded-md border border-amber-300/40 bg-amber-100 px-4 py-3 text-sm text-amber-900 shadow-lg dark:bg-amber-950 dark:text-amber-100">
+    <div className="fixed inset-x-3 bottom-20 z-50 rounded-md border border-amber-300/40 bg-amber-100 px-4 py-3 text-sm text-amber-900 shadow-lg sm:bottom-3 dark:bg-amber-950 dark:text-amber-100">
       {t("offline.message")}
     </div>
   );

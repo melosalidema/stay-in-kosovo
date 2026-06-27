@@ -19,7 +19,7 @@ if (!i18n.isInitialized) {
     fallbackLng: fallbackLanguage,
     supportedLngs: Object.keys(resources),
     interpolation: {
-      escapeValue: false
+      escapeValue: true
     },
     returnNull: false,
     saveMissing: false,

@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getAdminMetrics } from "@/services/analytics-service";
 import type { DashboardMetric } from "@/types";
 
 type AdminData = {
@@ -18,6 +17,13 @@ type AdminData = {
   };
 };
 
+const fallbackMetrics: DashboardMetric[] = [
+  { label: "Pending businesses", value: "12", delta: "4 need document review", tone: "amber" },
+  { label: "Flagged reviews", value: "8", delta: "2 high priority", tone: "rose" },
+  { label: "Approved places", value: "284", delta: "+18 this week", tone: "green" },
+  { label: "API health", value: "99.8%", delta: "cache hit rate 74%", tone: "blue" }
+];
+
 function textKey(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
@@ -25,7 +31,7 @@ function textKey(value: string) {
 export function AdminConsole() {
   const { t } = useTranslation();
   const [data, setData] = useState<AdminData>({
-    metrics: getAdminMetrics(),
+    metrics: fallbackMetrics,
     queues: {
       businesses: [
         { id: "biz-queue-1", name: "Rugova Zipline Tours", city: "Peja", status: "PENDING" },

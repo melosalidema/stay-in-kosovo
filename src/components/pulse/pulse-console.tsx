@@ -1,13 +1,15 @@
 "use client";
 
-import { AlertTriangle, Building2, Clock3, Compass, MapPin, RadioTower, Route, Sparkles } from "lucide-react";
+import { AlertTriangle, Building2, Clock3, Compass, MapPin, RadioTower, RefreshCw, Route, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { GooglePlacesMap, type MapSelectionSource } from "@/components/maps/google-places-map";
 import { pulseIntensityTone, pulseZoneCardKeyframes, pulseZoneCardStyle } from "@/components/pulse/pulse-zone-card-effects";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { places as allPlaces, vibes as experienceVibes } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
 import { cn } from "@/lib/utils";
@@ -30,6 +32,8 @@ export function PulseConsole() {
   const [dayPart, setDayPart] = useState<DayPart>("EVENING");
   const [pulse, setPulse] = useState<ExperiencePulseDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [hoveredZoneId, setHoveredZoneId] = useState<string | null>(null);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const zoneCardRefs = useRef<Map<string, HTMLElement>>(new Map());
@@ -38,6 +42,11 @@ export function PulseConsole() {
     const params = new URLSearchParams({ city, vibe, dayPart });
     return params.toString();
   }, [city, vibe, dayPart]);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    setRefreshKey((value) => value + 1);
+  }, []);
 
   const pulseZoneIds = useMemo(() => new Set((pulse?.zones ?? []).map((zone) => zone.id)), [pulse]);
 
@@ -76,13 +85,16 @@ export function PulseConsole() {
         if (!cancelled) setPulse(payload.data);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setRefreshing(false);
+        }
       });
 
     return () => {
       cancelled = true;
     };
-  }, [query]);
+  }, [query, refreshKey]);
 
   return (
     <section className="section-band">
@@ -97,6 +109,10 @@ export function PulseConsole() {
             <h1 className="max-w-3xl text-3xl font-bold tracking-normal sm:text-4xl">
               {t("pulseConsole.title")}
             </h1>
+            <Button variant="outline" size="sm" className="mt-3" onClick={handleRefresh} disabled={refreshing} aria-label={t("common.refresh")}>
+              <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} aria-hidden="true" />
+              {t("common.refresh")}
+            </Button>
           </div>
           <div className="experience-card-pulse grid gap-2 p-2 sm:grid-cols-3">
             <Select value={city} onValueChange={setCity}>
@@ -141,16 +157,25 @@ export function PulseConsole() {
         <div className="grid gap-6 xl:grid-cols-[1fr_390px]">
           <div className="space-y-6">
             <div className="grid gap-3 md:grid-cols-3">
-              {(pulse?.insights ?? []).map((insight) => (
-                <article key={insight.label} className="experience-card-pulse p-4">
-                  <p className="text-sm text-muted-foreground">{insight.label}</p>
-                  <p className="mt-2 text-3xl font-bold">{insight.value}</p>
-                  <Badge variant={insight.tone} className="mt-3">
-                    {insight.tone}
-                  </Badge>
-                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{insight.detail}</p>
-                </article>
-              ))}
+              {loading && !pulse
+                ? Array.from({ length: 3 }).map((_, index) => (
+                    <article key={`insight-skeleton-${index}`} className="experience-card-pulse p-4">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="mt-3 h-8 w-16" />
+                      <Skeleton className="mt-3 h-5 w-14 rounded-full" />
+                      <Skeleton className="mt-3 h-12 w-full" />
+                    </article>
+                  ))
+                : (pulse?.insights ?? []).map((insight) => (
+                    <article key={insight.label} className="experience-card-pulse p-4">
+                      <p className="text-sm text-muted-foreground">{insight.label}</p>
+                      <p className="mt-2 text-3xl font-bold">{insight.value}</p>
+                      <Badge variant={insight.tone} className="mt-3">
+                        {insight.tone}
+                      </Badge>
+                      <p className="mt-3 text-sm leading-6 text-muted-foreground">{insight.detail}</p>
+                    </article>
+                  ))}
             </div>
 
             <GooglePlacesMap
@@ -169,7 +194,15 @@ export function PulseConsole() {
             />
 
             <div className="grid gap-3 md:grid-cols-2">
-              {(pulse?.zones ?? []).map((zone) => (
+              {loading && !pulse
+                ? Array.from({ length: 4 }).map((_, index) => (
+                    <article key={`zone-skeleton-${index}`} className="experience-card-pulse p-4">
+                      <Skeleton className="h-5 w-40" />
+                      <Skeleton className="mt-2 h-4 w-28" />
+                      <Skeleton className="mt-4 h-16 w-full" />
+                    </article>
+                  ))
+                : (pulse?.zones ?? []).map((zone) => (
                 <article
                   key={zone.id}
                   ref={(element) => setZoneCardRef(zone.id, element)}

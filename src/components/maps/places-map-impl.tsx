@@ -4,6 +4,7 @@ import L, { type Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { AlertTriangle, ExternalLink, Loader2, MapPin, Navigation, Route, Star } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AttributionControl,
@@ -288,52 +289,66 @@ function buildDivIcon(html: string, size: [number, number]) {
   });
 }
 
-function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => {
-    const entities: Record<string, string> = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "\"": "&quot;",
-      "'": "&#39;"
-    };
+function MapPopupContent({ place, detailsLabel }: { place: PlaceDTO; detailsLabel: string }) {
+  const candidates = getPlaceImageCandidates(place, 320);
+  const [imgIndex, setImgIndex] = useState(0);
+  const [imgError, setImgError] = useState(false);
+  const src = candidates[imgIndex];
 
-    return entities[character];
-  });
-}
+  useEffect(() => {
+    setImgIndex(0);
+    setImgError(false);
+  }, [place.id]);
 
-function popupHtml(place: PlaceDTO, detailsLabel: string) {
-  const imageCandidates = getPlaceImageCandidates(place, 320);
-  const imageFallbacks = escapeHtml(JSON.stringify(imageCandidates));
-  const image = imageCandidates[0]
-    ? `<div style="width:74px;height:74px;border-radius:10px;overflow:hidden;flex:0 0 auto;background:#0f172a;">
-         <img src="${escapeHtml(imageCandidates[0])}" data-fallbacks="${imageFallbacks}" data-fallback-index="0" alt="" referrerpolicy="no-referrer" style="width:74px;height:74px;object-fit:cover;display:block;" onerror="var f=JSON.parse(this.dataset.fallbacks||'[]');var i=Number(this.dataset.fallbackIndex||0)+1;if(i<f.length){this.dataset.fallbackIndex=String(i);this.src=f[i];}else{this.style.display='none';this.nextElementSibling.style.display='grid';}" />
-         <div style="width:74px;height:74px;display:none;place-items:center;color:white;background:linear-gradient(135deg,#134e4a,#0f172a,#881337);font-size:11px;font-weight:800;">${escapeHtml(place.city.slice(0, 2).toUpperCase())}</div>
-       </div>`
-    : `<div style="width:74px;height:74px;border-radius:10px;background:linear-gradient(135deg,#134e4a,#0f172a,#881337);display:grid;place-items:center;color:white;flex:0 0 auto;font-size:11px;font-weight:800;">${escapeHtml(place.city.slice(0, 2).toUpperCase())}</div>`;
-  const rating =
-    place.rating > 0
-      ? `<span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#f59e0b1f;color:#92400e;padding:3px 8px;font-size:12px;font-weight:800;">★ ${place.rating.toFixed(1)}</span>`
-      : "";
-
-  return `
-    <div style="width:292px;max-width:292px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0f172a;">
-      <div style="display:flex;gap:12px;align-items:flex-start;">
-        ${image}
-        <div style="min-width:0;flex:1;">
-          <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
-            <div style="min-width:0;">
-              <p style="margin:0;font-size:15px;line-height:1.25;font-weight:850;color:#0f172a;">${escapeHtml(place.title)}</p>
-              <p style="margin:5px 0 0;font-size:12px;line-height:1.35;color:#475569;">${escapeHtml(place.city)} · ${escapeHtml(place.category.name)}</p>
+  return (
+    <div className="w-[292px] max-w-[292px] font-sans text-slate-900">
+      <div className="flex gap-3 items-start">
+        <div className="h-[74px] w-[74px] shrink-0 overflow-hidden rounded-lg bg-slate-900">
+          {src && !imgError ? (
+            <Image
+              src={src}
+              alt={place.title}
+              width={74}
+              height={74}
+              className="h-full w-full object-cover"
+              onError={() => {
+                if (imgIndex < candidates.length - 1) {
+                  setImgIndex((i) => i + 1);
+                } else {
+                  setImgError(true);
+                }
+              }}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-teal-900 via-slate-950 to-rose-950 text-xs font-extrabold text-white/80">
+              {place.city.slice(0, 2).toUpperCase()}
             </div>
-            ${rating}
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="m-0 text-[15px] font-extrabold leading-tight text-slate-900">{place.title}</p>
+              <p className="m-0 mt-1 text-xs leading-tight text-slate-500">{place.city} · {place.category.name}</p>
+            </div>
+            {place.rating > 0 && (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-500/12 px-2 py-0.5 text-xs font-extrabold text-amber-800">
+                <Star className="h-3 w-3 fill-current" />
+                {place.rating.toFixed(1)}
+              </span>
+            )}
           </div>
-          <p style="margin:8px 0 0;font-size:12px;line-height:1.55;color:#475569;">${escapeHtml(place.description)}</p>
+          <p className="m-0 mt-2 text-xs leading-relaxed text-slate-500 line-clamp-2">{place.description}</p>
         </div>
       </div>
-      <a href="/discover/${escapeHtml(place.slug)}" style="margin-top:12px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#0f766e;color:white;text-decoration:none;font-size:12px;font-weight:800;padding:8px 11px;">${escapeHtml(detailsLabel)}</a>
+      <Link
+        href={`/discover/${place.slug}`}
+        className="mt-3 inline-flex items-center justify-center rounded-lg bg-teal-700 px-3 py-2 text-xs font-extrabold text-white no-underline hover:bg-teal-600"
+      >
+        {detailsLabel}
+      </Link>
     </div>
-  `;
+  );
 }
 
 type MapBridgeProps = {
@@ -600,9 +615,7 @@ export function PlacesMapImpl({
                     autoPan
                     maxWidth={324}
                   >
-                    <div
-                      dangerouslySetInnerHTML={{ __html: popupHtml(place, t("googleMap.details")) }}
-                    />
+                    <MapPopupContent place={place} detailsLabel={t("googleMap.details")} />
                   </Popup>
                 </Marker>
               );

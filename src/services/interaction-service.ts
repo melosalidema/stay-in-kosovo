@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 
 import { places } from "@/data/kosovo-data";
 import { isDatabaseReachable } from "@/lib/database-availability";
+import { logger } from "@/lib/logger";
 import { timeStep } from "@/lib/performance";
 import { prisma } from "@/lib/prisma";
 import { clamp } from "@/lib/utils";
@@ -77,7 +78,7 @@ export async function trackInteraction(input: InteractionInput, userId?: string)
       message: "Interaction stored. Recommendation, business analytics, and badge systems can consume it."
     };
   } catch (error) {
-    console.warn("Interaction persistence unavailable, using prototype response:", error);
+    logger.warn({ error }, "Interaction persistence unavailable, using prototype response");
 
     return {
       persisted: false,

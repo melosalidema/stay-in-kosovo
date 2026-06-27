@@ -1,23 +1,23 @@
-import { cacheHeaders, fail, ok } from "@/lib/api-response";
+import { cacheHeaders, ok } from "@/lib/api-response";
+import { validateQuery } from "@/lib/api-validate";
 import { timeStep, withApiTiming } from "@/lib/performance";
 import { placeFilterSchema } from "@/lib/validation";
 import { getPlaces } from "@/services/place-service";
 
 export const GET = withApiTiming("GET /api/places", async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const parsed = await timeStep("validate", () => placeFilterSchema.safeParse(Object.fromEntries(searchParams.entries())));
+  const parsed = await validateQuery(request, placeFilterSchema, "Invalid place filters.");
 
-  if (!parsed.success) {
-    return fail("Invalid place filters.", 422, parsed.error.flatten());
-  }
+  if (!parsed.ok) return parsed.error;
 
-  const data = await timeStep("places.get", () => getPlaces(parsed.data));
+  const { places, cursor, hasMore } = await timeStep("places.get", () => getPlaces(parsed.data));
 
   return ok(
     {
-      places: data,
+      places,
       filters: parsed.data,
-      total: data.length
+      total: places.length,
+      cursor,
+      hasMore
     },
     { headers: cacheHeaders(45) }
   );

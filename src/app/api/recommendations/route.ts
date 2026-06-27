@@ -1,4 +1,5 @@
 import { fail, ok } from "@/lib/api-response";
+import { validateBody } from "@/lib/api-validate";
 import { getCurrentSession } from "@/lib/auth/permissions";
 import { timeStep, withApiTiming } from "@/lib/performance";
 import { prisma } from "@/lib/prisma";
@@ -21,25 +22,22 @@ function hasSessionCookie(request: Request) {
 }
 
 export const POST = withApiTiming("POST /api/recommendations", async function POST(request: Request) {
-  const limited = rateLimit(getClientKey(request, "recommendations"), 40, 60_000);
+  const limited = await rateLimit(getClientKey(request, "recommendations"), 40, 60_000);
 
   if (!limited.allowed) {
     return fail("Recommendation rate limit reached.", 429);
   }
 
-  const body = await timeStep("request.json", () => request.json().catch(() => null));
-  const parsed = await timeStep("validate", () => recommendationSchema.safeParse(body));
+  const parsed = await validateBody(request, recommendationSchema, "Invalid recommendation request.");
 
-  if (!parsed.success) {
-    return fail("Invalid recommendation request.", 422, parsed.error.flatten());
-  }
+  if (!parsed.ok) return parsed.error;
 
-  const candidates = await timeStep("places.get", () =>
+  const { places: candidates } = await timeStep("places.get", () =>
     getPlaces({
       city: parsed.data.city,
       budget: parsed.data.budget,
       openNow: parsed.data.openNow,
-      limit: 50
+      take: 50
     })
   );
 
@@ -71,7 +69,7 @@ export const POST = withApiTiming("POST /api/recommendations", async function PO
               placeId: interaction.placeId ?? undefined,
               eventId: interaction.eventId ?? undefined,
               weight: interaction.weight,
-              metadata
+              metadata: metadata as InteractionInput["metadata"]
             } satisfies InteractionInput;
           }),
           candidates

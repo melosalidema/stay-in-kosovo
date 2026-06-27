@@ -1,6 +1,8 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { monitorEventLoopDelay } from "node:perf_hooks";
 
+import { logger } from "@/lib/logger";
+
 type TimingStep = {
   name: string;
   durationMs: number;
@@ -31,7 +33,7 @@ function sanitizeServerTimingName(name: string) {
 
 function logSlowStep(route: string, step: TimingStep) {
   if (!perfLogsEnabled || step.durationMs < slowStepMs) return;
-  console.warn(`[perf] slow step route=${route} step=${step.name} durationMs=${step.durationMs}`);
+  logger.warn({ route, step: step.name, durationMs: step.durationMs }, "slow step");
 }
 
 function logRoute(context: TimingContext, totalMs: number) {
@@ -41,7 +43,7 @@ function logRoute(context: TimingContext, totalMs: number) {
     .map((step) => `${step.name}:${step.durationMs.toFixed(1)}ms`)
     .join(" ");
 
-  console.warn(`[perf] slow route=${context.route} totalMs=${totalMs.toFixed(1)}${steps ? ` steps=${steps}` : ""}`);
+  logger.warn({ route: context.route, totalMs: totalMs.toFixed(1), steps }, "slow route");
 }
 
 export async function timeStep<T>(name: string, work: () => T | Promise<T>): Promise<T> {
@@ -57,7 +59,7 @@ export async function timeStep<T>(name: string, work: () => T | Promise<T>): Pro
       context.steps.push(step);
       logSlowStep(context.route, step);
     } else if (perfLogsEnabled && step.durationMs >= slowStepMs) {
-      console.warn(`[perf] slow step step=${step.name} durationMs=${step.durationMs}`);
+      logger.warn({ step: step.name, durationMs: step.durationMs }, "slow step (no context)");
     }
   }
 }
@@ -75,13 +77,15 @@ export function withApiTiming<Args extends unknown[]>(route: string, handler: Ro
       const totalMs = duration(context.startedAt);
       logRoute(context, totalMs);
 
-      const serverTiming = [
-        `total;dur=${totalMs.toFixed(1)}`,
-        ...context.steps.map((step) => `${sanitizeServerTimingName(step.name)};dur=${step.durationMs.toFixed(1)}`)
-      ].join(", ");
+      if (process.env.NODE_ENV !== "production") {
+        const serverTiming = [
+          `total;dur=${totalMs.toFixed(1)}`,
+          ...context.steps.map((step) => `${sanitizeServerTimingName(step.name)};dur=${step.durationMs.toFixed(1)}`)
+        ].join(", ");
 
-      response.headers.set("Server-Timing", serverTiming);
-      response.headers.set("X-Response-Time", `${totalMs.toFixed(1)}ms`);
+        response.headers.set("Server-Timing", serverTiming);
+        response.headers.set("X-Response-Time", `${totalMs.toFixed(1)}ms`);
+      }
 
       return response;
     });
@@ -100,7 +104,7 @@ export function startEventLoopMonitor() {
     const p99Ms = histogram.percentile(99) / 1_000_000;
 
     if (maxMs >= Number(process.env.PERF_EVENT_LOOP_SLOW_MS ?? 80)) {
-      console.warn(`[perf] event-loop-lag maxMs=${maxMs.toFixed(1)} p99Ms=${p99Ms.toFixed(1)}`);
+      logger.warn({ maxMs: maxMs.toFixed(1), p99Ms: p99Ms.toFixed(1) }, "event-loop-lag");
     }
 
     histogram.reset();

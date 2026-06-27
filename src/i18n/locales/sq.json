@@ -61,7 +61,13 @@
     "mobility": "Mobiliteti",
     "business": "Biznesi",
     "admin": "Admin",
-    "menu": "Hap menynë"
+    "menu": "Hap menynë",
+    "close": "Mbyll menynë",
+    "mobileMenu": "Navigacioni celular",
+    "darkModeOn": "Mënyda e errët është aktive",
+    "lightModeOn": "Mënyda e dritës është aktive",
+    "primaryActions": "Veprimet kryesore",
+    "home": "Ballina"
   },
   "offline": {
     "message": "Modaliteti offline është aktiv. Vendet e ruajtura dhe drafti i itinerarit mbeten lokalisht."
@@ -489,5 +495,18 @@
       "18-this-week": "+18 këtë javë",
       "cache-hit-rate-74": "cache hit rate 74%"
     }
+  },
+  "onboarding": {
+    "title": "Mirë se erdhet në Stay in Kosovo",
+    "label": "Tur i shkurtë",
+    "skip": "Anashkalo",
+    "next": "Përpara",
+    "finish": "Filloni eksplorimin",
+    "step1Title": "Zbuloni vendet e Kosovës",
+    "step1Text": "Kërkoni dhe filtrojeni kafetë, muzetë, rutat e ecjes dhe gurmet e fshehur në Kosovë sipas atmosferës, buxhetit dhe transportit.",
+    "step2Title": "Kontrolloni Pulsin live",
+    "step2Text": "Shihni kërkesën reale, nivelet e turmave dhe boshllëqet e ofertës në qytet që të dini çfarë vlen të bëhet më pas.",
+    "step3Title": "Planifikoni me AI Agentic Planning",
+    "step3Text": "Gjeneroni një plan ditë të mençur që rendit vendet, vlerëson lëvizshmërinë dhe ju mban brenda buxhetit."
   }
 }

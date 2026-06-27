@@ -228,6 +228,10 @@ export type PreferenceProfile = {
   hiddenGemAffinity: number;
 };
 
+export type InteractionMetadata = {
+  transportPreference?: TransportMethod;
+};
+
 export type InteractionInput = {
   type: InteractionType;
   placeId?: string;
@@ -235,7 +239,7 @@ export type InteractionInput = {
   city?: string;
   vibe?: string;
   weight?: number;
-  metadata?: Record<string, unknown>;
+  metadata?: InteractionMetadata;
 };
 
 export type PulseInput = {

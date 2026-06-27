@@ -11,12 +11,25 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+const APP_ORIGIN = typeof window !== "undefined" ? window.location.origin : "";
+
+function isValidRedirect(next: string | null): string {
+  if (!next || next === "/") return "/";
+  try {
+    const url = new URL(next, APP_ORIGIN);
+    if (url.origin !== APP_ORIGIN) return "/";
+    return url.pathname + url.search;
+  } catch {
+    return "/";
+  }
+}
+
 export default function LoginPage() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/";
-  const [email, setEmail] = useState("tourist@staykosovo.dev");
-  const [password, setPassword] = useState("Password123!");
+  const next = isValidRedirect(searchParams.get("next"));
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

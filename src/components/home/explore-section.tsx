@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import {
   BrainCircuit,
   Building2,
@@ -26,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import { PlaceCard } from "@/components/discovery/place-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { vibes } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
@@ -198,14 +200,10 @@ function ForYouTab() {
           ))}
         </div>
       ) : error || !items.length ? (
-        <div className="experience-card-home p-5">
-          <p className="font-semibold">
-            {t(error ? "aiRecommendations.errorTitle" : "aiRecommendations.emptyTitle")}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {t(error ? "aiRecommendations.errorText" : "aiRecommendations.emptyText")}
-          </p>
-        </div>
+        <EmptyState
+          title={t(error ? "aiRecommendations.errorTitle" : "aiRecommendations.emptyTitle")}
+          description={t(error ? "aiRecommendations.errorText" : "aiRecommendations.emptyText")}
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-3">
           {items.map((item) => (
@@ -241,12 +239,10 @@ function TrendingTab({ places }: { places: PlaceDTO[] }) {
 
   if (!trending.length) {
     return (
-      <div className="experience-card-home p-5">
-        <p className="font-semibold">{t("aiRecommendations.emptyTitle")}</p>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          {t("aiRecommendations.emptyText")}
-        </p>
-      </div>
+      <EmptyState
+        title={t("aiRecommendations.emptyTitle")}
+        description={t("aiRecommendations.emptyText")}
+      />
     );
   }
 
@@ -266,7 +262,13 @@ export function ExploreSection({ places }: { places: PlaceDTO[] }) {
   const [tab, setTab] = useState<Tab>("for-you");
 
   return (
-    <section className="section-band !py-16">
+    <motion.section
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="section-band !py-16"
+    >
       <div className="page-shell space-y-6">
         <div>
           <Badge variant="blue" className="mb-3">
@@ -310,8 +312,18 @@ export function ExploreSection({ places }: { places: PlaceDTO[] }) {
           </button>
         </div>
 
-        {tab === "for-you" ? <ForYouTab /> : <TrendingTab places={places} />}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={tab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            {tab === "for-you" ? <ForYouTab /> : <TrendingTab places={places} />}
+          </motion.div>
+        </AnimatePresence>
       </div>
-    </section>
+    </motion.section>
   );
 }

@@ -35,7 +35,13 @@ export function VibeSelector() {
   const setSelectedVibe = useAppStore((state) => state.setSelectedVibe);
 
   return (
-    <section className="section-band bg-background">
+    <motion.section
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="section-band bg-background"
+    >
       <div className="page-shell space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -85,6 +91,6 @@ export function VibeSelector() {
           })}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

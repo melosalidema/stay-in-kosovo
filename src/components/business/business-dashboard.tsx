@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getBusinessMetrics } from "@/services/analytics-service";
 import type { DashboardMetric } from "@/types";
 
 type DashboardPayload = {
@@ -23,6 +22,13 @@ type DashboardPayload = {
   };
 };
 
+const fallbackMetrics: DashboardMetric[] = [
+  { label: "Discovery views", value: "18.4K", delta: "+22% vs last month", tone: "green" },
+  { label: "Route requests", value: "812", delta: "+14% from mobility", tone: "blue" },
+  { label: "Saved by users", value: "1.4K", delta: "+9% from AI picks", tone: "amber" },
+  { label: "Check-ins", value: "436", delta: "+31% QR flow", tone: "rose" }
+];
+
 function textKey(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
@@ -35,7 +41,7 @@ export function BusinessDashboard() {
       status: "APPROVED",
       visibility: "Boosted in Chill, Local Food, and Hidden Gems"
     },
-    metrics: getBusinessMetrics(),
+    metrics: fallbackMetrics,
     boostSystem: {
       score: 74,
       contributors: ["Complete profile", "High review quality", "Recent events", "Fast route response"]

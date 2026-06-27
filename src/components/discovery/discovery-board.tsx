@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { CategoryLegend } from "@/components/discovery/category-legend";
+import { EmptyState } from "@/components/ui/empty-state";
 import { MapPanel } from "@/components/discovery/map-panel";
 import { PlaceCard } from "@/components/discovery/place-card";
 import type { MapSelectionSource } from "@/components/maps/google-places-map";
@@ -338,9 +339,11 @@ export function DiscoveryBoard() {
                 ))}
               </AnimatePresence>
             ) : (
-              <div className="experience-card-discovery p-8 text-center sm:col-span-2 lg:col-span-3">
-                <p className="font-bold">{t("discover.emptyTitle")}</p>
-                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{t("discover.emptyText")}</p>
+              <div className="sm:col-span-2 lg:col-span-3">
+                <EmptyState
+                  title={t("discover.emptyTitle")}
+                  description={t("discover.emptyText")}
+                />
               </div>
             )}
           </div>

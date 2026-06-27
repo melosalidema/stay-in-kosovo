@@ -4,6 +4,7 @@ import { events as fallbackEvents, places as fallbackPlaces } from "@/data/kosov
 import { isDatabaseReachable, markDatabaseUnavailable } from "@/lib/database-availability";
 import { geocodeKosovoLocation } from "@/lib/geocoding";
 import { hasNumericCoordinates, isCoordinateInsideKosovo } from "@/lib/geo";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { timeStep } from "@/lib/performance";
 import { safeJson } from "@/lib/utils";
@@ -247,7 +248,7 @@ export async function getHomepageMapPlaces() {
     ]);
   } catch (error) {
     markDatabaseUnavailable();
-    console.warn("Falling back to static homepage map places:", error);
+    logger.warn({ error }, "Falling back to static homepage map places");
     return buildFallbackHomepageLocationLayer();
   }
 }
