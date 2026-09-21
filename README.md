@@ -276,6 +276,35 @@ cp .env.example .env
 docker compose up --build
 ```
 
+### Netlify
+
+The repository has no `netlify.toml`; the defaults are fine. Netlify detects
+Next.js and runs `npm run build`, which already includes `prisma generate`.
+
+Set these under **Site configuration → Environment variables**:
+
+| Variable | Needed for | Without it |
+| --- | --- | --- |
+| `DATABASE_URL` | Places, reviews, saved items, auth | Falls back to the bundled Kosovo dataset; nothing is saved and sign-in is unavailable |
+| `NEXTAUTH_URL` | Auth callbacks | Set to the deployed origin, e.g. `https://stayinkosovo.netlify.app` |
+| `NEXTAUTH_SECRET` | Signing session JWTs | Sign-in fails; generate with `openssl rand -base64 32` |
+| `REDIS_URL` | Shared rate limiting | Optional — in-memory limits are per-instance |
+| `GOOGLE_CLIENT_ID` / `_SECRET` | Google sign-in | Optional — the button is hidden |
+| `OPENAI_API_KEY` | Assistant answers | Optional — keyword mode is used |
+| `CLOUDINARY_*` | Business photo uploads | Optional — uploads become local previews |
+
+Two things that bite during a build:
+
+- Run `npx prisma migrate deploy` once against the production database, or the
+  first query fails and the app silently serves the static dataset instead.
+- Routes are rendered per request (`export const dynamic = "force-dynamic"` in
+  `src/app/layout.tsx`). This is deliberate: the CSP issues a per-request nonce
+  and a prerendered page has no request to take one from, so its inline scripts
+  ship without a nonce, get blocked, and the page never hydrates.
+
+Health check: `GET /api/health` reports `databaseConfigured` so you can confirm
+the environment variables actually reached the build.
+
 ## Scaling Notes
 
 - Add provider-backed route polylines and travel modes on top of the Google Maps place markers.
