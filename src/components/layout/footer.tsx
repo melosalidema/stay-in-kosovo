@@ -1,70 +1,62 @@
 "use client";
 
-import { CalendarDays, Compass, Globe, Map, Route, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
+
 const quickLinks = [
-  { href: "/discover", labelKey: "nav.discover", icon: Compass },
-  { href: "/pulse", labelKey: "nav.pulse", icon: Sparkles },
-  { href: "/itinerary", labelKey: "nav.itinerary", icon: CalendarDays },
-  { href: "/mobility", labelKey: "nav.mobility", icon: Route }
+  { href: "/discover", labelKey: "nav.discover" },
+  { href: "/pulse", labelKey: "nav.pulse" },
+  { href: "/itinerary", labelKey: "nav.itinerary" },
+  { href: "/mobility", labelKey: "nav.mobility" }
 ];
 
 export function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="section-band border-t border-border bg-muted/40">
-      <div className="page-shell grid gap-8 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
+    <footer className="mt-8 border-t border-border bg-secondary/40">
+      <div className="page-shell grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr]">
         <div>
-          <div className="mb-3 flex items-center gap-2 text-sm font-bold">
-            <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
-              <Map className="h-4 w-4" />
-            </span>
-            {t("app.name")}
-          </div>
-          <p className="max-w-sm text-sm leading-6 text-muted-foreground">
-            {t("footer.description")}
-          </p>
-          <div className="mt-4 flex items-center gap-3 text-muted-foreground">
-            <Globe className="h-4 w-4" />
-            <span className="text-xs">Kosovo</span>
-          </div>
+          <p className="font-serif text-lg leading-none tracking-[-0.01em]">{t("app.name")}</p>
+          <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">{t("footer.description")}</p>
         </div>
-        <div className="space-y-3 text-sm">
-          <p className="font-semibold">{t("nav.discover")}</p>
-          <ul className="space-y-2">
+
+        <nav aria-label={t("footer.explore")} className="text-sm">
+          <p className="font-medium text-foreground">{t("footer.explore")}</p>
+          <ul className="mt-3 space-y-2.5">
             {quickLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  <link.icon className="h-3.5 w-3.5" />
                   {t(link.labelKey)}
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
-        <div className="space-y-3 text-sm">
-          <p className="flex items-center gap-2 font-semibold">
-            <Sparkles className="h-4 w-4 text-primary" />
-            {t("footer.aiTitle")}
-          </p>
-          <p className="leading-6 text-muted-foreground">{t("footer.aiText")}</p>
-        </div>
-        <div className="space-y-3 text-sm">
-          <p className="flex items-center gap-2 font-semibold">
-            <ShieldCheck className="h-4 w-4 text-primary" />
-            {t("footer.productionTitle")}
-          </p>
-          <p className="leading-6 text-muted-foreground">{t("footer.productionText")}</p>
+        </nav>
+
+        <div className="text-sm">
+          <p className="font-medium text-foreground">{t("footer.language")}</p>
+          <div className="mt-3">
+            <LanguageSwitcher />
+          </div>
         </div>
       </div>
-      <div className="page-shell mt-8 border-t border-border pt-4 text-center text-xs text-muted-foreground">
-        &copy; {new Date().getFullYear()} {t("app.name")}. All rights reserved.
+
+      <div className="page-shell border-t border-border py-6">
+        <p className="text-xs font-medium text-foreground">{t("footer.creditsTitle")}</p>
+        <p className="mt-1.5 max-w-3xl text-xs leading-5 text-muted-foreground">{t("footer.creditsText")}</p>
+      </div>
+
+      <div className="page-shell flex flex-col gap-2 border-t border-border py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <p>
+          &copy; {new Date().getFullYear()} {t("app.name")}. {t("footer.rights")}
+        </p>
+        <p>{t("footer.madeIn")}</p>
       </div>
     </footer>
   );

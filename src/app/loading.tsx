@@ -1,30 +1,20 @@
-"use client";
-
-import { Compass } from "lucide-react";
-import { motion } from "framer-motion";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
     <div className="section-band">
-      <div className="page-shell flex min-h-[70vh] flex-col items-center justify-center space-y-6">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="grid h-16 w-16 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-glow"
-        >
-          <Compass className="h-8 w-8" />
-        </motion.div>
-        <div className="space-y-3 text-center">
-          <div className="h-4 w-48 animate-pulse rounded-md bg-muted" />
-          <div className="h-3 w-32 animate-pulse rounded-md bg-muted/60" />
-        </div>
-        <div className="grid w-full max-w-md gap-3">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-24 animate-pulse rounded-lg bg-muted/40"
-              style={{ animationDelay: `${i * 150}ms` }}
-            />
+      <div className="page-shell">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="mt-4 h-10 w-2/3 max-w-lg" />
+        <Skeleton className="mt-4 h-4 w-full max-w-md" />
+
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((index) => (
+            <div key={index} className="space-y-3">
+              <Skeleton className="aspect-[4/3] rounded-xl" />
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-4 w-1/3" />
+            </div>
           ))}
         </div>
       </div>

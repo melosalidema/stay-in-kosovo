@@ -1,139 +1,22 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  BrainCircuit,
-  Building2,
-  ChevronDown,
-  ChevronUp,
-  Compass,
-  Flame,
-  Footprints,
-  Landmark,
-  MapPinned,
-  Mountain,
-  Music,
-  PawPrint,
-  RefreshCw,
-  Search,
-  Sparkles,
-  Trees,
-  Utensils,
-  Waves
-} from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { PlaceCard } from "@/components/discovery/place-card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Reveal } from "@/components/ui/reveal";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { Skeleton } from "@/components/ui/skeleton";
-import { vibes } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/app-store";
 import type { PlaceDTO, RecommendationResult } from "@/types";
 
-const vibeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  Chill: Waves,
-  Nightlife: Music,
-  Romantic: Sparkles,
-  Adventure: Mountain,
-  "Local Food": Utensils,
-  "Hidden Gems": Search,
-  "Family Friendly": Trees,
-  Culture: Landmark,
-  "Sacred & Spiritual": Landmark,
-  "Adventure & Trails": Footprints,
-  "Wildlife & Nature": PawPrint,
-  "Living History": Landmark,
-  "Ottoman Heritage": Building2,
-  "City Life": MapPinned
-};
-
-const VIBS_VISIBLE_DEFAULT = 6;
-
-function VibeStrip({
-  onSelect
-}: {
-  onSelect?: (vibe: string) => void;
-}) {
-  const labels = useLocalizedLabels();
-  const selectedVibe = useAppStore((state) => state.selectedVibe);
-  const setSelectedVibe = useAppStore((state) => state.setSelectedVibe);
-  const [expanded, setExpanded] = useState(false);
-
-  const visibleVibes = expanded ? vibes : vibes.slice(0, VIBS_VISIBLE_DEFAULT);
-  const hiddenCount = vibes.length - VIBS_VISIBLE_DEFAULT;
-
-  const handleSelect = (vibe: string) => {
-    setSelectedVibe(vibe);
-    onSelect?.(vibe);
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold uppercase text-primary">
-          <Compass className="mr-1 inline-block h-3.5 w-3.5" />
-          {labels.vibe(selectedVibe) || ""}
-        </p>
-        {hiddenCount > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setExpanded((v) => !v)}
-            className="text-xs"
-          >
-            {expanded ? (
-              <>
-                {`Show fewer`} <ChevronUp className="ml-1 h-3.5 w-3.5" />
-              </>
-            ) : (
-              <>
-                {`+${hiddenCount} more`} <ChevronDown className="ml-1 h-3.5 w-3.5" />
-              </>
-            )}
-          </Button>
-        )}
-      </div>
-      <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-        {visibleVibes.map((vibe) => {
-          const Icon = vibeIcons[vibe.name] ?? Sparkles;
-          const active = selectedVibe === vibe.name;
-
-          return (
-            <button
-              key={vibe.name}
-              type="button"
-              onClick={() => handleSelect(vibe.name)}
-              className={cn(
-                "group flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition",
-                active
-                  ? "border-primary/50 bg-primary text-primary-foreground shadow-sm"
-                  : "experience-card-home hover:border-primary/[0.24]"
-              )}
-            >
-              <span
-                className={cn(
-                  "grid h-8 w-8 shrink-0 place-items-center rounded-md",
-                  active ? "bg-white/[0.16]" : "bg-muted text-primary"
-                )}
-              >
-                <Icon className="h-4 w-4" />
-              </span>
-              <span className="truncate font-medium">{labels.vibe(vibe.name)}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function ForYouTab() {
-  const { t } = useTranslation();
+function useRecommendations(limit: number) {
   const selectedVibe = useAppStore((state) => state.selectedVibe);
   const location = useAppStore((state) => state.location);
   const [items, setItems] = useState<RecommendationResult[]>([]);
@@ -151,14 +34,12 @@ function ForYouTab() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         vibes: [selectedVibe],
-        city: "Prishtina",
         budget: 4,
         location,
         transportPreference: "WALKING",
-        dayPart: "EVENING",
         partySize: 2,
         avoidCrowds: false,
-        limit: 3
+        limit
       })
     })
       .then((res) => {
@@ -181,54 +62,21 @@ function ForYouTab() {
     return () => {
       cancelled = true;
     };
-  }, [selectedVibe, location, refresh]);
+  }, [selectedVibe, location, refresh, limit]);
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{t("aiRecommendations.description")}</p>
-        <Button variant="ghost" size="sm" onClick={() => setRefresh((v) => v + 1)} disabled={loading}>
-          <RefreshCw className={cn("mr-1 h-3.5 w-3.5", loading && "animate-spin")} />
-          {t("common.refresh")}
-        </Button>
-      </div>
-
-      {loading ? (
-        <div className="grid gap-4 md:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-80 rounded-lg" />
-          ))}
-        </div>
-      ) : error || !items.length ? (
-        <EmptyState
-          title={t(error ? "aiRecommendations.errorTitle" : "aiRecommendations.emptyTitle")}
-          description={t(error ? "aiRecommendations.errorText" : "aiRecommendations.emptyText")}
-        />
-      ) : (
-        <div className="grid gap-4 md:grid-cols-3">
-          {items.map((item) => (
-            <div key={item.place.id}>
-              <PlaceCard place={item.place} compact surface="home" />
-              <div className="experience-card-home mt-2 p-2.5 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold">{t("aiRecommendations.score")}</span>
-                  <span className="font-mono font-bold text-primary">{item.score}</span>
-                </div>
-                <p className="mt-1.5 leading-5 text-muted-foreground">
-                  {item.reasons.join(" · ")}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  return { items, loading, error, refresh: () => setRefresh((value) => value + 1) };
 }
 
-function TrendingTab({ places }: { places: PlaceDTO[] }) {
+type Tab = "for-you" | "popular";
+
+export function ExploreSection({ places }: { places: PlaceDTO[] }) {
   const { t } = useTranslation();
-  const trending = useMemo(
+  const labels = useLocalizedLabels();
+  const selectedVibe = useAppStore((state) => state.selectedVibe);
+  const [tab, setTab] = useState<Tab>("for-you");
+  const { items, loading, error, refresh } = useRecommendations(6);
+
+  const popular = useMemo(
     () =>
       [...places]
         .filter((place) => place.category.type !== "EVENT")
@@ -237,93 +85,100 @@ function TrendingTab({ places }: { places: PlaceDTO[] }) {
     [places]
   );
 
-  if (!trending.length) {
-    return (
-      <EmptyState
-        title={t("aiRecommendations.emptyTitle")}
-        description={t("aiRecommendations.emptyText")}
-      />
-    );
-  }
+  const tabs: Array<{ id: Tab; label: string }> = [
+    { id: "for-you", label: t("explore.recommended") },
+    { id: "popular", label: t("explore.popular") }
+  ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {trending.map((place) => (
-        <PlaceCard key={place.id} place={place} compact surface="home" />
-      ))}
-    </div>
-  );
-}
+    <section className="section-band section-plain bg-background">
+      <div className="page-shell">
+        <SectionHeading
+          eyebrow={t("explore.eyebrow")}
+          title={t("explore.title", { vibe: labels.vibe(selectedVibe).toLowerCase() })}
+          description={t("explore.description")}
+          action={
+            tab === "for-you" ? (
+              <Button variant="ghost" size="sm" onClick={refresh} disabled={loading}>
+                <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} aria-hidden="true" />
+                {t("common.refresh")}
+              </Button>
+            ) : null
+          }
+        />
 
-type Tab = "for-you" | "trending";
-
-export function ExploreSection({ places }: { places: PlaceDTO[] }) {
-  const { t } = useTranslation();
-  const [tab, setTab] = useState<Tab>("for-you");
-
-  return (
-    <motion.section
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="section-band !py-16"
-    >
-      <div className="page-shell space-y-6">
-        <div>
-          <Badge variant="blue" className="mb-3">
-            <Sparkles className="mr-1 h-3.5 w-3.5" />
-            {t("hero.eyebrow")}
-          </Badge>
-          <h2 className="text-3xl font-bold tracking-normal">{t("vibesSection.title")}</h2>
-          <p className="mt-2 max-w-2xl text-muted-foreground">
-            {t("vibesSection.description")}
-          </p>
-        </div>
-
-        <VibeStrip />
-
-        <div className="flex gap-1 rounded-lg bg-muted p-1">
-          <button
-            type="button"
-            onClick={() => setTab("for-you")}
-            className={cn(
-              "flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors",
-              tab === "for-you"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <BrainCircuit className="mr-1.5 inline-block h-3.5 w-3.5" />
-            {t("aiRecommendations.badge")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("trending")}
-            className={cn(
-              "flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors",
-              tab === "trending"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <Flame className="mr-1.5 inline-block h-3.5 w-3.5" />
-            {t("trending.badge")}
-          </button>
+        <div className="mt-7 flex gap-7 border-b border-border" role="tablist">
+          {tabs.map((item) => {
+            const active = tab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setTab(item.id)}
+                className={cn(
+                  "-mb-px border-b-2 pb-3 text-sm transition-colors duration-200",
+                  active
+                    ? "border-primary font-medium text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {item.label}
+              </button>
+            );
+          })}
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div
             key={tab}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-7"
           >
-            {tab === "for-you" ? <ForYouTab /> : <TrendingTab places={places} />}
+            {tab === "for-you" ? (
+              loading ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <div key={index} className="space-y-3">
+                      <Skeleton className="aspect-[4/3] rounded-xl" />
+                      <Skeleton className="h-4 w-2/3" />
+                      <Skeleton className="h-4 w-1/3" />
+                    </div>
+                  ))}
+                  <p className="sr-only">{t("explore.loading")}</p>
+                </div>
+              ) : error || !items.length ? (
+                <EmptyState
+                  title={t(error ? "explore.errorTitle" : "explore.emptyTitle")}
+                  description={t(error ? "explore.errorText" : "explore.emptyText")}
+                />
+              ) : (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {items.map((item, index) => (
+                    <Reveal key={item.place.id} delay={index * 70} className="h-full">
+                      <PlaceCard place={item.place} surface="home" />
+                    </Reveal>
+                  ))}
+                </div>
+              )
+            ) : popular.length ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {popular.map((place, index) => (
+                  <Reveal key={place.id} delay={index * 70} className="h-full">
+                    <PlaceCard place={place} surface="home" />
+                  </Reveal>
+                ))}
+              </div>
+            ) : (
+              <EmptyState title={t("explore.emptyTitle")} description={t("explore.emptyText")} />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
-    </motion.section>
+    </section>
   );
 }

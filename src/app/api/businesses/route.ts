@@ -21,7 +21,7 @@ export const GET = withApiTiming("GET /api/businesses", async function GET() {
     };
     boostSystem = {
       score: 74,
-      contributors: ["Complete profile", "High review quality", "Recent events", "Fast route response"]
+      contributors: ["Complete profile", "Thoughtful reviews", "Recent events", "Quick replies"]
     };
   } else {
     const business = await timeStep("business.findFirst", () =>
@@ -32,19 +32,19 @@ export const GET = withApiTiming("GET /api/businesses", async function GET() {
     );
 
     profile = {
-      name: business?.name ?? "Your Business",
+      name: business?.name ?? "Your business",
       status: business?.status ?? "PENDING",
       visibility: business?.verified
-        ? "Boosted in search results"
-        : "Complete onboarding to boost visibility",
+        ? "Showing in search results"
+        : "Finish your profile to appear in search",
       owner: session.user.email ?? ""
     };
     boostSystem = {
       score: business?.boostScore ?? 0,
       contributors: [
         ...(business?.verified ? ["Verified account"] : []),
-        ...(business?.boostScore && business.boostScore > 50 ? ["High engagement"] : []),
-        "Complete your profile for better ranking"
+        ...(business?.boostScore && business.boostScore > 50 ? ["Lots of interest"] : []),
+        "Complete your profile to show up more often"
       ]
     };
   }

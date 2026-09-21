@@ -201,7 +201,7 @@ export function generateItinerary(input: ItineraryInput): ItineraryDTO {
       durationMinutes,
       travelMinutes: mobility.durationMinutes,
       estimatedCost: Number((placeCost + mobility.estimatedCost).toFixed(2)),
-      note: `${place.vibeTags.slice(0, 2).join(" + ")} stop with ${place.crowdLevel?.toLowerCase() ?? "balanced"} energy.`,
+      note: `${place.vibeTags.slice(0, 2).join(" + ")} · usually ${(place.crowdLevel ?? "comfortable").toLowerCase()}`,
       place,
       mobility
     });
@@ -223,19 +223,20 @@ export function generateItinerary(input: ItineraryInput): ItineraryDTO {
   }
 
   const clippedCost = Math.min(totalCost, input.budget);
+  const dayLabel = durationDays > 1 ? `${durationDays}-day` : "One-day";
   const title =
     input.title ??
     (input.vibe === "Nightlife"
-      ? `Perfect Evening in ${input.city}`
+      ? `An evening in ${input.city}`
       : input.vibe === "Adventure" || input.vibe === "Adventure & Trails"
-        ? `${durationDays > 1 ? `${durationDays}-Day` : "One Day"} Nature Trip from ${input.city}`
-        : `${durationDays > 1 ? `${durationDays}-Day` : effectiveDurationHours >= FULL_DAY_HOURS ? "Full-Day" : input.vibe} Plan in ${input.city}`);
+        ? `${dayLabel} outdoors from ${input.city}`
+        : `${dayLabel} plan for ${input.city}`);
 
   return {
     title,
-    description: `A ${effectiveDurationHours}-hour ${durationDays > 1 ? `${durationDays}-day ` : ""}${input.vibe.toLowerCase()} plan balanced around ${formatCurrency(
-      input.budget
-    )}, ${input.transportPreference.toLowerCase()}, and ${input.interests.join(", ")}.`,
+    description: `${effectiveDurationHours} hours in ${input.city}, built around ${input.interests.join(", ")}. ${
+      input.transportPreference === "WALKING" ? "Mostly on foot" : `${input.transportPreference.toLowerCase()} between stops`
+    }, with roughly ${formatCurrency(input.budget)} to spend.`,
     city: input.city,
     vibe: input.vibe,
     budget: input.budget,
@@ -243,8 +244,7 @@ export function generateItinerary(input: ItineraryInput): ItineraryDTO {
     durationDays,
     plannedMinutes,
     totalCost: Number(clippedCost.toFixed(2)),
-    aiRationale:
-      `The itinerary ranks candidates by vibe fit, quality, hidden-gem signal, budget fit, mobility, and live ${pulse.city} pulse (${pulse.liveScore}/100). It then diversifies categories, fills ${requestedMinutes} requested minutes across ${durationDays} day${durationDays === 1 ? "" : "s"}, and assigns travel time between each stop.`,
+    aiRationale: `Chosen for how well they suit a ${input.vibe.toLowerCase()} day in ${input.city}, then ordered so you're not crossing the city twice.`,
     routeSummary: {
       distanceKm: Number(totalDistance.toFixed(2)),
       travelMinutes: totalTravel,

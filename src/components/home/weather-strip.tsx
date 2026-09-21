@@ -1,7 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { CloudSun, CloudRain, CloudSnow, Sun, Wind } from "lucide-react";
+import { CloudRain, CloudSnow, CloudSun, Sun, Wind } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -12,32 +11,13 @@ type Weather = {
   summary: string;
 };
 
-function WeatherIcon({ summary }: { summary: string }) {
+function weatherIcon(summary: string) {
   const s = summary.toLowerCase();
 
-  const icon = useMemo(() => {
-    if (s.includes("rain") || s.includes("drizzle") || s.includes("shower")) return CloudRain;
-    if (s.includes("snow") || s.includes("sleet")) return CloudSnow;
-    if (s.includes("cloud") || s.includes("overcast")) return CloudSun;
-    return Sun;
-  }, [s]);
-
-  return (
-    <motion.div
-      animate={{ rotate: [0, -8, 8, -4, 0] }}
-      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-    >
-      {icon === Sun ? (
-        <Sun className="h-4 w-4 text-primary" />
-      ) : icon === CloudRain ? (
-        <CloudRain className="h-4 w-4 text-primary" />
-      ) : icon === CloudSnow ? (
-        <CloudSnow className="h-4 w-4 text-primary" />
-      ) : (
-        <CloudSun className="h-4 w-4 text-primary" />
-      )}
-    </motion.div>
-  );
+  if (s.includes("rain") || s.includes("drizzle") || s.includes("shower")) return CloudRain;
+  if (s.includes("snow") || s.includes("sleet")) return CloudSnow;
+  if (s.includes("cloud") || s.includes("overcast")) return CloudSun;
+  return Sun;
 }
 
 export function WeatherStrip() {
@@ -51,29 +31,25 @@ export function WeatherStrip() {
       .catch(() => undefined);
   }, []);
 
+  const Icon = useMemo(() => (weather ? weatherIcon(weather.summary) : Sun), [weather]);
+
   if (!weather) return null;
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="border-y border-border bg-card/[0.72] px-4 py-3 backdrop-blur-xl"
-    >
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 text-sm">
-        <span className="flex items-center gap-2 font-semibold">
-          <WeatherIcon summary={weather.summary} />
-          {weather.city}: {weather.temperature}°C · {weather.summary}
+    <section className="border-y border-border bg-secondary/40">
+      <div className="page-shell flex flex-wrap items-center gap-x-6 gap-y-1 px-4 py-3 text-sm text-muted-foreground sm:px-6 lg:px-8">
+        <span className="inline-flex items-center gap-2">
+          <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+          <span className="text-foreground">
+            {weather.city} · {weather.temperature}°C
+          </span>
+          <span>{weather.summary}</span>
         </span>
-        <motion.span
-          className="flex items-center gap-2 text-muted-foreground"
-          animate={{ x: [0, 3, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Wind className="h-4 w-4" />
-          {t("weather.wind")} {weather.windKph} km/h · {t("weather.cached")}
-        </motion.span>
+        <span className="inline-flex items-center gap-2">
+          <Wind className="h-4 w-4" aria-hidden="true" />
+          {t("weather.wind")} {weather.windKph} km/h
+        </span>
       </div>
-    </motion.section>
+    </section>
   );
 }

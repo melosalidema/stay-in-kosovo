@@ -1,8 +1,5 @@
 import type { CategoryDTO, EventDTO, PlaceDTO, VibeName } from "@/types";
 
-const image = (id: string) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;
-
 export const vibes: Array<{
   name: VibeName;
   slug: string;
@@ -279,7 +276,7 @@ export const places: PlaceDTO[] = [
     atmosphereTags: ["rooftop", "social", "warm lights"],
     crowdLevel: "Lively",
     musicVibe: "Deep house",
-    images: [image("photo-1514933651103-005eec06c04b"), image("photo-1528605248644-14dd04022da1")],
+    images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Ansicht_Altstadt_von_Prizren.jpg/1280px-Ansicht_Altstadt_von_Prizren.jpg"],
     transportation: { walkingFriendly: true, taxiMinutes: 5, busAvailable: true, parking: "limited" },
     accessibility: { familyFriendly: false },
     popularityScore: 78,
@@ -1616,7 +1613,7 @@ export const places: PlaceDTO[] = [
     atmosphereTags: ["mosque", "city center", "heritage"],
     crowdLevel: "Balanced",
     musicVibe: "Quiet",
-    images: [image("photo-1523906834658-6e24ef2386f9")],
+    images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Gjilan_Sahat_Kulla.jpg/1280px-Gjilan_Sahat_Kulla.jpg"],
     transportation: { walkingFriendly: true, taxiMinutes: 4, busAvailable: true, parking: "paid" },
     accessibility: { familyFriendly: true },
     popularityScore: 74,
@@ -1991,7 +1988,7 @@ export const places: PlaceDTO[] = [
     atmosphereTags: ["lakeside", "fish", "summer"],
     crowdLevel: "Seasonal",
     musicVibe: "Soft pop",
-    images: [image("photo-1464822759023-fed622ff2c3b")],
+    images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Vermice_prizren-liqeni_i_zhurit_-_panoramio.jpg/1280px-Vermice_prizren-liqeni_i_zhurit_-_panoramio.jpg"],
     transportation: { walkingFriendly: false, taxiMinutes: 25, busAvailable: false, parking: "easy" },
     accessibility: { familyFriendly: true },
     popularityScore: 72,
@@ -2016,7 +2013,7 @@ export const places: PlaceDTO[] = [
     atmosphereTags: ["hotel", "town center", "regional base"],
     crowdLevel: "Balanced",
     musicVibe: "Lounge",
-    images: [image("photo-1517248135467-4c7edcad34c4")],
+    images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Biblioteka_e_qytetit_-_Besian%C3%AB.jpg/1280px-Biblioteka_e_qytetit_-_Besian%C3%AB.jpg"],
     transportation: { walkingFriendly: true, taxiMinutes: 5, busAvailable: true, parking: "hotel" },
     accessibility: { familyFriendly: true },
     popularityScore: 63,
@@ -2041,7 +2038,7 @@ export const places: PlaceDTO[] = [
     atmosphereTags: ["park", "local", "walk"],
     crowdLevel: "Calm",
     musicVibe: "Street",
-    images: [image("photo-1464822759023-fed622ff2c3b")],
+    images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Kacanik.2018.jpg/1280px-Kacanik.2018.jpg"],
     transportation: { walkingFriendly: true, taxiMinutes: 3, busAvailable: true, parking: "limited" },
     accessibility: { familyFriendly: true },
     popularityScore: 58,
@@ -2091,7 +2088,7 @@ export const places: PlaceDTO[] = [
     atmosphereTags: ["hotel", "town center", "road trip"],
     crowdLevel: "Calm",
     musicVibe: "Lounge",
-    images: [image("photo-1517248135467-4c7edcad34c4")],
+    images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Hotel_%22Arxhena%22_Brod%2C_Kosovo_%2815956150907%29.jpg/1280px-Hotel_%22Arxhena%22_Brod%2C_Kosovo_%2815956150907%29.jpg"],
     transportation: { walkingFriendly: true, taxiMinutes: 4, busAvailable: true, parking: "hotel" },
     accessibility: { familyFriendly: true },
     popularityScore: 59,
@@ -2161,7 +2158,7 @@ export const events: EventDTO[] = [
     heatScore: 86,
     vibeTags: ["Nightlife", "Chill", "Hidden Gems"],
     placeSlug: "soma-book-station",
-    images: [image("photo-1511192336575-5a79af67a629")]
+    images: ["https://images.weserv.nl/?url=https%3A%2F%2Fprishtinainsight.com%2Fwp-content%2Fuploads%2F2016%2F02%2Fpi.153.guide_.soma_.01.jpg&w=1200&output=jpg"]
   },
   {
     id: "event-prizren-sunset",
@@ -2174,7 +2171,7 @@ export const events: EventDTO[] = [
     heatScore: 79,
     vibeTags: ["Romantic", "Culture", "Adventure"],
     placeSlug: "prizren-fortress",
-    images: [image("photo-1500530855697-b586d89ba3ee")]
+    images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Prizren_Fortress_%282021%29.jpg/1280px-Prizren_Fortress_%282021%29.jpg"]
   },
   {
     id: "event-gjakova-craft-night",
@@ -2187,7 +2184,7 @@ export const events: EventDTO[] = [
     heatScore: 72,
     vibeTags: ["Culture", "Local Food", "Hidden Gems"],
     placeSlug: "gjakova-old-bazaar",
-    images: [image("photo-1523906834658-6e24ef2386f9")]
+    images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/The_Old_Bazaar%2C_Gjakova.jpg/1280px-The_Old_Bazaar%2C_Gjakova.jpg"]
   },
   {
     id: "event-rugova-sunrise",
@@ -2200,7 +2197,7 @@ export const events: EventDTO[] = [
     heatScore: 81,
     vibeTags: ["Adventure", "Hidden Gems", "Family Friendly"],
     placeSlug: "rugova-canyon",
-    images: [image("photo-1464822759023-fed622ff2c3b")]
+    images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Rugova_canyon_%28WPWTR17%29.jpg/1280px-Rugova_canyon_%28WPWTR17%29.jpg"]
   }
 ];
 

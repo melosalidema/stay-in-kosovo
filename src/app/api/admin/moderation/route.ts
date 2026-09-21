@@ -19,8 +19,8 @@ export const GET = withApiTiming("GET /api/admin/moderation", async function GET
       { id: "biz-queue-2", name: "Old Bazaar Coffee", city: "Gjakova", status: "PENDING" }
     ];
     reviews = [
-      { id: "rev-queue-1", place: "Hatch Prizren", risk: "Possible promotional wording" },
-      { id: "rev-queue-2", place: "Brezovica", risk: "Needs photo moderation" }
+      { id: "rev-queue-1", place: "Hatch Prizren", risk: "Reads like promotion" },
+      { id: "rev-queue-2", place: "Brezovica", risk: "Photos need a look" }
     ];
     locations = [
       { id: "loc-queue-1", title: "Mirusha Waterfalls Trailhead", confidence: 0.87 }
@@ -49,7 +49,7 @@ export const GET = withApiTiming("GET /api/admin/moderation", async function GET
     reviews = dbReviews.map((r) => ({
       id: r.id,
       place: r.place?.title ?? "Unknown",
-      risk: r.comment.length > 80 ? "Long comment — may need review" : "Awaiting moderation"
+      risk: r.comment.length > 80 ? "Long comment — worth a read" : "Waiting for review"
     }));
     locations = [];
   }

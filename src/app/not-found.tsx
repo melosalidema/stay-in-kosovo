@@ -11,11 +11,11 @@ export default function NotFound() {
   return (
     <section className="section-band">
       <div className="page-shell grid min-h-[60vh] place-items-center text-center">
-        <div className="max-w-md space-y-4">
-          <p className="text-sm font-semibold uppercase text-primary">404</p>
-          <h1 className="text-3xl font-bold">{t("notFound.title")}</h1>
-          <p className="text-muted-foreground">{t("notFound.text")}</p>
-          <Button asChild>
+        <div className="max-w-md">
+          <p className="eyebrow">404</p>
+          <h1 className="display-2 mt-3">{t("notFound.title")}</h1>
+          <p className="lede mt-3 text-[0.9375rem] sm:text-base">{t("notFound.text")}</p>
+          <Button asChild className="mt-7">
             <Link href="/discover">{t("notFound.action")}</Link>
           </Button>
         </div>

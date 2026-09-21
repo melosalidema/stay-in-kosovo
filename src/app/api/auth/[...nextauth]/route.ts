@@ -9,7 +9,10 @@ const handler = NextAuth(authOptions);
 const CREDENTIAL_LOGIN_LIMIT = Number(process.env.AUTH_LOGIN_LIMIT ?? 10);
 const CREDENTIAL_LOGIN_WINDOW_MS = Number(process.env.AUTH_LOGIN_WINDOW_MS ?? 60_000);
 
-async function rateLimitedHandler(req: Request) {
+async function rateLimitedHandler(
+  req: Request,
+  context: { params: Promise<{ nextauth: string[] }> }
+) {
   const url = new URL(req.url);
 
   if (
@@ -23,7 +26,7 @@ async function rateLimitedHandler(req: Request) {
     }
   }
 
-  return handler(req, undefined);
+  return handler(req, context);
 }
 
 export { rateLimitedHandler as GET, rateLimitedHandler as POST };

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 
 import "./globals.css";
 import { ChatAssistant } from "@/components/assistant/chat-assistant";
@@ -10,12 +10,34 @@ import { ScrollProgress } from "@/components/layout/scroll-progress";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { Providers } from "@/app/providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap"
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap"
+});
+
+/**
+ * The middleware issues a per-request CSP nonce and Next.js stamps it onto its
+ * own inline bootstrap scripts. A statically prerendered page is generated at
+ * build time, when there is no request and therefore no nonce — so its scripts
+ * ship without one, the CSP blocks them, and the page renders but never
+ * hydrates. Rendering every route per request is what makes the nonce possible.
+ *
+ * Applied here rather than per-page so a new page cannot silently reintroduce
+ * the bug. Verified by src/__tests__/csp-map-tiles.test.ts and the browser check.
+ */
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Stay in Kosovo - Smart Experience & Mobility App",
+  title: "Stay in Kosovo - Places, plans and local favourites",
   description:
-    "AI-powered Kosovo discovery app for places, events, mobility, itineraries, business onboarding, and local experiences.",
+    "Discover Kosovo through local favourites, mood-led recommendations, day plans and simple transport between the places worth your time.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -27,7 +49,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f766e",
+  themeColor: "#FAF9F6",
   width: "device-width",
   initialScale: 1
 };
@@ -38,12 +60,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
+      <body className="font-sans">
         <Providers>
           <ScrollProgress />
           <FloatingNavbar />
-          <main className="min-h-screen pt-20 pb-20 sm:pb-0">{children}</main>
+          <main className="min-h-screen pt-20 pb-24 sm:pb-0">{children}</main>
           <Footer />
           <ChatAssistant />
           <ScrollToTop />

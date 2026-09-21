@@ -31,9 +31,17 @@ function sanitizeServerTimingName(name: string) {
   return name.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 48);
 }
 
+function safeLog(work: () => void) {
+  try {
+    work();
+  } catch {
+    // Logging must never break a request or a background timer.
+  }
+}
+
 function logSlowStep(route: string, step: TimingStep) {
   if (!perfLogsEnabled || step.durationMs < slowStepMs) return;
-  logger.warn({ route, step: step.name, durationMs: step.durationMs }, "slow step");
+  safeLog(() => logger.warn({ route, step: step.name, durationMs: step.durationMs }, "slow step"));
 }
 
 function logRoute(context: TimingContext, totalMs: number) {
@@ -43,7 +51,7 @@ function logRoute(context: TimingContext, totalMs: number) {
     .map((step) => `${step.name}:${step.durationMs.toFixed(1)}ms`)
     .join(" ");
 
-  logger.warn({ route: context.route, totalMs: totalMs.toFixed(1), steps }, "slow route");
+  safeLog(() => logger.warn({ route: context.route, totalMs: totalMs.toFixed(1), steps }, "slow route"));
 }
 
 export async function timeStep<T>(name: string, work: () => T | Promise<T>): Promise<T> {
@@ -59,7 +67,7 @@ export async function timeStep<T>(name: string, work: () => T | Promise<T>): Pro
       context.steps.push(step);
       logSlowStep(context.route, step);
     } else if (perfLogsEnabled && step.durationMs >= slowStepMs) {
-      logger.warn({ step: step.name, durationMs: step.durationMs }, "slow step (no context)");
+      safeLog(() => logger.warn({ step: step.name, durationMs: step.durationMs }, "slow step (no context)"));
     }
   }
 }
@@ -93,7 +101,7 @@ export function withApiTiming<Args extends unknown[]>(route: string, handler: Ro
 }
 
 export function startEventLoopMonitor() {
-  if (eventLoopMonitorStarted || !perfLogsEnabled) return;
+  if (eventLoopMonitorStarted || process.env.PERF_LOGS !== "1") return;
   eventLoopMonitorStarted = true;
 
   const histogram = monitorEventLoopDelay({ resolution: 20 });
@@ -104,7 +112,7 @@ export function startEventLoopMonitor() {
     const p99Ms = histogram.percentile(99) / 1_000_000;
 
     if (maxMs >= Number(process.env.PERF_EVENT_LOOP_SLOW_MS ?? 80)) {
-      logger.warn({ maxMs: maxMs.toFixed(1), p99Ms: p99Ms.toFixed(1) }, "event-loop-lag");
+      safeLog(() => logger.warn({ maxMs: maxMs.toFixed(1), p99Ms: p99Ms.toFixed(1) }, "event-loop-lag"));
     }
 
     histogram.reset();

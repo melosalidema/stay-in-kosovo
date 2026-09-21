@@ -19,11 +19,13 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
 
   if (!place) notFound();
 
+  const priceHint = "€".repeat(Math.max(1, Math.min(4, place.priceLevel)));
+
   return (
     <section className="section-band">
-      <div className="page-shell grid gap-6 lg:grid-cols-[minmax(0,1fr)_440px]">
-        <article className="overflow-hidden rounded-lg border border-border bg-card shadow-glass">
-          <div className="relative aspect-[16/8] min-h-72">
+      <div className="page-shell grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12">
+        <article>
+          <div className="media-frame aspect-[16/10]">
             {place.images.length > 1 ? (
               <PlaceImageCarousel place={place} />
             ) : (
@@ -32,69 +34,98 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                   place={place}
                   fill
                   imageWidth={1600}
-                  sizes="(min-width: 1024px) 760px, 100vw"
+                  sizes="(min-width: 1024px) 720px, 100vw"
                   className="object-cover"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               </>
             )}
-            <div className="absolute bottom-5 left-5 right-5 text-white">
-              <div className="mb-3 flex flex-wrap gap-2">
-                <Badge variant="glass">{place.category.name}</Badge>
-                {place.business?.verified && <Badge variant="green">Verified business</Badge>}
-              </div>
-              <h1 className="text-3xl font-black tracking-normal sm:text-5xl">{place.title}</h1>
-              <p className="mt-2 flex items-center gap-2 text-sm text-white/78">
-                <MapPin className="h-4 w-4" />
-                {place.address}, {place.city}
-              </p>
-            </div>
           </div>
 
-          <div className="space-y-6 p-5">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-1 text-sm font-semibold text-amber-700 dark:text-amber-300">
-                <Star className="h-4 w-4 fill-current" />
-                {place.rating} · {place.reviewCount} reviews
-              </span>
-              {place.vibeTags.map((vibe) => (
-                <Badge key={vibe} variant="outline">
-                  {vibe}
-                </Badge>
-              ))}
+          <div className="mt-7">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="default">{place.category.name}</Badge>
+              {place.business?.verified && <Badge variant="green">Verified by us</Badge>}
+              {place.openNow && <Badge variant="outline">Open now</Badge>}
             </div>
 
-            <p className="max-w-3xl text-base leading-7 text-muted-foreground">{place.description}</p>
+            <h1 className="display-2 mt-4">{place.title}</h1>
 
-            <div className="flex flex-wrap gap-3">
-              <Button asChild variant="default">
+            <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
+              {place.address}, {place.city}
+            </p>
+
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500" aria-hidden="true" />
+                <span className="text-foreground">{place.rating}</span>
+                <span>· {place.reviewCount} reviews</span>
+              </span>
+              <span>{priceHint}</span>
+              <span>About {place.avgStayMinutes} min</span>
+              {place.transportation.walkingFriendly && <span>Walkable</span>}
+            </div>
+
+            <p className="lede mt-7 max-w-2xl">{place.description}</p>
+
+            {place.vibeTags.length > 0 && (
+              <div className="mt-7 border-t border-border pt-5">
+                <p className="text-sm font-medium">Good for</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {place.vibeTags.map((vibe) => (
+                    <Badge key={vibe} variant="outline">
+                      {vibe}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {place.atmosphereTags.length > 0 && (
+              <div className="mt-6">
+                <p className="text-sm font-medium">What people mention</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {place.atmosphereTags.map((tag) => (
+                    <Badge key={tag} variant="secondary">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild>
                 <a href={googleMapsDirectionsUrl(place.coordinates)} target="_blank" rel="noreferrer">
-                  <Route className="h-4 w-4" />
+                  <Route className="h-4 w-4" aria-hidden="true" />
                   Get directions
                 </a>
               </Button>
               <Button asChild variant="outline">
                 <a href={googleMapsSearchUrl(place.coordinates)} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-4 w-4" />
-                  View in Google Maps
+                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                  Open in Google Maps
                 </a>
               </Button>
             </div>
           </div>
         </article>
 
-        <GooglePlacesMap
-          places={[place]}
-          title="Exact business location"
-          subtitle={`${place.coordinates.lat}, ${place.coordinates.lng}`}
-          className="min-h-[520px] lg:sticky lg:top-24"
-          variant="card"
-          defaultZoom={14}
-          focusZoom={15}
-          fitPadding={72}
-          defaultSelectedPlaceId={place.id}
-        />
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <GooglePlacesMap
+            places={[place]}
+            title={place.title}
+            subtitle={`${place.address}, ${place.city}`}
+            className="min-h-[380px] lg:min-h-[460px]"
+            variant="card"
+            defaultZoom={14}
+            focusZoom={15}
+            fitPadding={72}
+            defaultSelectedPlaceId={place.id}
+          />
+        </div>
       </div>
     </section>
   );

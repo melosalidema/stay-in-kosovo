@@ -1,10 +1,23 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Building2, Footprints, Landmark, MapPinned, Music, Mountain, PawPrint, Search, Sparkles, Trees, Utensils, Waves } from "lucide-react";
+import {
+  Building2,
+  Footprints,
+  Landmark,
+  MapPinned,
+  Mountain,
+  Music,
+  PawPrint,
+  Search,
+  Sparkles,
+  Trees,
+  Utensils,
+  Waves
+} from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 
+import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { vibes } from "@/data/kosovo-data";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
@@ -34,63 +47,61 @@ export function VibeSelector() {
   const selectedVibe = useAppStore((state) => state.selectedVibe);
   const setSelectedVibe = useAppStore((state) => state.setSelectedVibe);
 
+  const activeDescription = labels.vibeDescription(selectedVibe);
+
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="section-band bg-background"
-    >
-      <div className="page-shell space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase text-primary">{t("vibesSection.eyebrow")}</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-normal">{t("vibesSection.title")}</h2>
-          </div>
-          <Button asChild variant="outline">
-            <Link href="/discover">{t("vibesSection.openFilters")}</Link>
-          </Button>
-        </div>
+    <section className="section-band section-plain">
+      <div className="page-shell">
+        <SectionHeading
+          eyebrow={t("vibesSection.eyebrow")}
+          title={t("vibesSection.title")}
+          description={t("vibesSection.description")}
+          action={
+            <Button asChild variant="outline" size="sm">
+              <Link href="/discover">{t("vibesSection.openFilters")}</Link>
+            </Button>
+          }
+        />
 
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-          {vibes.map((vibe, index) => {
-            const Icon = icons[vibe.name] ?? Sparkles;
-            const active = selectedVibe === vibe.name;
+        <div className="glass-panel mt-7 rounded-2xl p-3 sm:p-5">
+          <div
+            role="group"
+            aria-label={t("vibesSection.title")}
+            className="no-scrollbar edge-fade -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
+          >
+            {vibes.map((vibe) => {
+              const Icon = icons[vibe.name] ?? Sparkles;
+              const active = selectedVibe === vibe.name;
 
-            return (
-              <motion.button
-                key={vibe.name}
-                type="button"
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.04 }}
-                onClick={() => setSelectedVibe(vibe.name)}
-                className={cn(
-                  "group min-h-36 text-left transition",
-                  active
-                    ? "rounded-lg border border-primary/[0.7] bg-primary p-4 text-primary-foreground shadow-card-hover"
-                    : "experience-card-home p-4 hover:-translate-y-0.5 hover:border-primary/[0.3]"
-                )}
-              >
-                <span
+              return (
+                <button
+                  key={vibe.name}
+                  type="button"
+                  onClick={() => setSelectedVibe(vibe.name)}
+                  aria-pressed={active}
                   className={cn(
-                    "mb-4 grid h-10 w-10 place-items-center rounded-md",
-                    active ? "bg-white/[0.18]" : "bg-muted text-primary"
+                    "inline-flex shrink-0 items-center gap-2 rounded-lg px-3.5 py-2.5 text-sm transition-[background-color,border-color,color,box-shadow] duration-200 ease-calm",
+                    active
+                      ? "border border-primary bg-primary text-primary-foreground shadow-soft"
+                      : "glass-chip border text-muted-foreground hover:border-primary/40 hover:text-foreground"
                   )}
                 >
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span className="block text-sm font-bold">{labels.vibe(vibe.name)}</span>
-                <span className={cn("mt-2 block text-xs leading-5", active ? "text-white/[0.78]" : "text-muted-foreground")}>
-                  {labels.vibeDescription(vibe.name)}
-                </span>
-              </motion.button>
-            );
-          })}
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                  <span className="font-medium">{labels.vibe(vibe.name)}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {activeDescription && (
+            <p className="mt-4 max-w-2xl border-t border-[rgb(var(--glass-border))] pt-4 text-sm leading-6 text-muted-foreground">
+              <span className="font-medium text-foreground">{labels.vibe(selectedVibe)}</span>
+              {" — "}
+              {activeDescription}
+            </p>
+          )}
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

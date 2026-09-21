@@ -25,22 +25,22 @@ export function MapPanel({
   const { requestLocation, loading } = useGeolocation();
 
   return (
-    <section className={cn("experience-card-discovery isolate overflow-hidden bg-card/[0.92]", className)}>
-      <div className="flex items-center justify-between border-b border-border p-4">
+    <section className={cn("overflow-hidden rounded-xl border border-border bg-card", className)}>
+      <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-3">
         <div>
-          <h2 className="text-sm font-bold">{t("mapPanel.title")}</h2>
-          <p className="text-xs text-muted-foreground">{t("mapPanel.subtitle")}</p>
+          <h2 className="font-serif text-lg leading-tight">{t("mapPanel.title")}</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">{t("mapPanel.subtitle")}</p>
         </div>
         <Button variant="outline" size="icon" onClick={requestLocation} aria-label={t("mapPanel.useCurrentLocation")}>
-          <LocateFixed className={loading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+          <LocateFixed className={loading ? "h-4 w-4 animate-pulse" : "h-4 w-4"} aria-hidden="true" />
         </Button>
       </div>
 
       <GooglePlacesMap
         places={places}
-        title={t("mapPanel.eventHeatmap")}
-        subtitle={t("mapPanel.demand")}
-        className="h-[360px] min-h-0 rounded-none border-0 shadow-none sm:h-[460px] lg:h-[calc(100vh-8rem)] lg:min-h-[420px] lg:max-h-[620px]"
+        title={t("mapPanel.title")}
+        subtitle={t("mapPanel.subtitle")}
+        className="h-[320px] min-h-0 rounded-none border-0 shadow-none sm:h-[420px] lg:h-[560px]"
         variant="card"
         theme="auto"
         defaultZoom={11}

@@ -4,48 +4,67 @@
 
 @layer base {
   :root {
-    --background: 204 30% 98%;
-    --foreground: 220 38% 13%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 38% 13%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 38% 13%;
-    --primary: 176 50% 30%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 204 28% 93%;
-    --secondary-foreground: 220 38% 16%;
-    --muted: 204 24% 94%;
-    --muted-foreground: 214 15% 43%;
-    --accent: 18 54% 94%;
-    --accent-foreground: 18 54% 31%;
-    --destructive: 0 84% 60%;
+    /* Warm, natural palette drawn from Kosovo's landscapes, stone towns and cafes. */
+    --background: 45 33% 97%;
+    --foreground: 0 0% 15%;
+    --card: 40 43% 99%;
+    --card-foreground: 0 0% 15%;
+    --popover: 40 43% 99%;
+    --popover-foreground: 0 0% 15%;
+    --primary: 103 14% 40%;
+    --primary-foreground: 45 40% 98%;
+    --secondary: 45 22% 93%;
+    --secondary-foreground: 0 0% 18%;
+    --muted: 45 20% 94%;
+    --muted-foreground: 60 2% 42%;
+    --accent: 24 42% 94%;
+    --accent-foreground: 20 42% 30%;
+    --destructive: 0 58% 45%;
     --destructive-foreground: 0 0% 100%;
-    --border: 207 24% 88%;
-    --input: 207 24% 88%;
-    --ring: 176 50% 30%;
-    --radius: 0.5rem;
+    --border: 45 16% 88%;
+    --input: 45 16% 87%;
+    --ring: 103 14% 40%;
+    --radius: 0.75rem;
+
+    /* Liquid glass ---------------------------------------------------
+       The page sits on a light warm canvas, so a glass surface needs a
+       higher white alpha than the usual rgba(255,255,255,0.15) recipe
+       (which is tuned for dark/photo backdrops) — at 0.15 on ivory the
+       panel would be invisible. These values keep the same structure:
+       translucent fill + blur + light border + inner highlight. */
+    --glass-bg: 255 255 255 / 0.55;
+    --glass-bg-strong: 255 255 255 / 0.72;
+    --glass-border: 255 255 255 / 0.72;
+    --glass-highlight: 255 255 255 / 0.9;
+    --glass-shadow: 0 1px 2px rgb(38 38 38 / 0.04), 0 10px 32px rgb(38 38 38 / 0.07);
   }
 
   .dark {
-    --background: 220 36% 7%;
-    --foreground: 204 30% 97%;
-    --card: 220 30% 11%;
-    --card-foreground: 204 30% 97%;
-    --popover: 220 30% 11%;
-    --popover-foreground: 204 30% 97%;
-    --primary: 174 52% 57%;
-    --primary-foreground: 220 36% 7%;
-    --secondary: 218 22% 18%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 218 22% 17%;
-    --muted-foreground: 210 18% 70%;
-    --accent: 18 32% 20%;
-    --accent-foreground: 24 64% 78%;
-    --destructive: 0 62% 40%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 218 20% 22%;
-    --input: 218 20% 22%;
-    --ring: 174 52% 57%;
+    --background: 40 12% 10%;
+    --foreground: 45 20% 94%;
+    --card: 40 10% 13%;
+    --card-foreground: 45 20% 94%;
+    --popover: 40 10% 13%;
+    --popover-foreground: 45 20% 94%;
+    --primary: 103 22% 62%;
+    --primary-foreground: 40 12% 10%;
+    --secondary: 40 8% 18%;
+    --secondary-foreground: 45 20% 94%;
+    --muted: 40 8% 17%;
+    --muted-foreground: 45 8% 66%;
+    --accent: 24 20% 20%;
+    --accent-foreground: 24 45% 78%;
+    --destructive: 0 50% 45%;
+    --destructive-foreground: 45 20% 94%;
+    --border: 40 8% 23%;
+    --input: 40 8% 23%;
+    --ring: 103 22% 62%;
+
+    --glass-bg: 34 30 26 / 0.5;
+    --glass-bg-strong: 34 30 26 / 0.68;
+    --glass-border: 255 255 255 / 0.12;
+    --glass-highlight: 255 255 255 / 0.08;
+    --glass-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 32px rgb(0 0 0 / 0.35);
   }
 
   * {
@@ -53,42 +72,192 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply text-foreground antialiased;
     letter-spacing: 0;
+    text-rendering: optimizeLegibility;
+    /* Ambient colour fields. Glass needs something behind it to refract —
+       on a flat ivory page a translucent panel reads as a plain panel. */
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(58rem 40rem at 8% -10%, hsl(103 24% 85% / 0.6), transparent 62%),
+      radial-gradient(44rem 34rem at 96% 2%, hsl(24 50% 88% / 0.55), transparent 64%),
+      radial-gradient(52rem 40rem at 46% 110%, hsl(45 44% 87% / 0.5), transparent 62%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(58rem 40rem at 8% -10%, hsl(103 20% 22% / 0.7), transparent 62%),
+      radial-gradient(44rem 34rem at 96% 2%, hsl(24 30% 20% / 0.6), transparent 64%),
+      radial-gradient(52rem 40rem at 46% 110%, hsl(45 20% 18% / 0.6), transparent 62%);
   }
 
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.16);
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 }
 
 @layer components {
-  .glass-panel {
-    @apply border border-white/20 bg-white/70 shadow-glass backdrop-blur-2xl dark:bg-slate-950/[0.58];
-  }
+  /* ---- Layout -------------------------------------------------------- */
 
   .section-band {
-    @apply w-full px-4 py-12 sm:px-6 lg:px-8;
+    @apply w-full px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20;
+  }
+
+  .section-band-tight {
+    @apply w-full px-4 py-10 sm:px-6 lg:px-8;
   }
 
   .page-shell {
+    @apply mx-auto w-full max-w-6xl;
+  }
+
+  .page-shell-wide {
     @apply mx-auto w-full max-w-7xl;
   }
 
-  .experience-card {
-    @apply rounded-lg border border-border bg-card text-card-foreground shadow-card transition-[border-color,box-shadow,transform,background-color] duration-200 ease-out;
+  /* ---- Editorial typography ------------------------------------------ */
+
+  .eyebrow {
+    @apply text-[0.8125rem] font-semibold tracking-[0.01em] text-primary;
   }
 
-  .experience-card-home {
-    @apply rounded-lg border border-border bg-card text-card-foreground shadow-card transition-[border-color,box-shadow,transform,background-color] duration-200 ease-out hover:shadow-card-hover;
+  .display-1 {
+    @apply font-serif text-4xl font-normal leading-[1.05] tracking-[-0.015em] sm:text-5xl lg:text-6xl;
   }
 
-  .experience-card-discovery {
-    @apply rounded-lg border border-border bg-card text-card-foreground shadow-editorial transition-[border-color,box-shadow,transform,background-color] duration-200 ease-out hover:shadow-card;
+  .display-2 {
+    @apply font-serif text-3xl font-normal leading-[1.1] tracking-[-0.01em] sm:text-4xl;
   }
 
+  .display-3 {
+    @apply font-serif text-2xl font-normal leading-tight tracking-[-0.01em] sm:text-3xl;
+  }
+
+  .lede {
+    @apply text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8;
+  }
+
+  .editorial-rule {
+    @apply h-px w-full border-0 bg-border;
+  }
+
+  /* ---- Surfaces ------------------------------------------------------ */
+
+  /* A quiet, grounded card. Used where grouping genuinely helps. */
+  .surface {
+    @apply rounded-xl border border-border bg-card;
+  }
+
+  .surface-quiet {
+    @apply rounded-xl border border-border/70 bg-card/60;
+  }
+
+  .surface-raised {
+    @apply rounded-xl border border-border bg-card shadow-soft transition-[box-shadow,border-color,transform] duration-300 ease-out;
+  }
+
+  .surface-raised:hover {
+    @apply border-border shadow-lift;
+  }
+
+  /* ---- Liquid glass --------------------------------------------------
+     A translucent surface that refracts the ambient background:
+     blur + saturate for the refraction, a light border for the edge of
+     the glass, and an inset highlight for the top-left specular sheen. */
+
+  .glass-panel {
+    position: relative;
+    background-color: rgb(var(--glass-bg));
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgb(var(--glass-border));
+    box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(var(--glass-highlight));
+  }
+
+  /* Slightly more opaque, for panels that carry forms and need contrast. */
+  .glass-panel-strong {
+    background-color: rgb(var(--glass-bg-strong));
+  }
+
+  /* Small controls: chips, buttons, the navbar trigger. */
+  .glass-chip {
+    background-color: rgb(var(--glass-bg));
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+    backdrop-filter: blur(10px) saturate(150%);
+    border: 1px solid rgb(var(--glass-border));
+    box-shadow: inset 0 1px 0 rgb(var(--glass-highlight));
+  }
+
+  /* Falls back to a solid surface where backdrop-filter is unsupported,
+     so text never ends up on a see-through panel. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass-panel,
+    .glass-panel-strong,
+    .glass-chip {
+      background-color: hsl(var(--card));
+    }
+  }
+
+  /* ---- Scroll reveal -------------------------------------------------
+     Cards rise and settle as they enter the viewport. The transform uses
+     a back-out curve so the arrival has a touch of elasticity. */
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px) scale(0.965);
+    transition:
+      opacity 0.5s ease-out,
+      transform 0.62s cubic-bezier(0.34, 1.4, 0.64, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Open editorial section without card framing. */
+  .section-plain {
+    @apply border-t border-border/70;
+  }
+
+  /* Kept for backwards compatibility with existing markup. */
+  .glass-panel {
+    @apply rounded-xl border border-border bg-card/85 backdrop-blur-md;
+  }
+
+  .experience-card,
+  .experience-card-home,
+  .experience-card-discovery,
   .experience-card-pulse {
-    @apply rounded-lg border border-border bg-card text-card-foreground shadow-card-hover transition-[border-color,box-shadow,transform,background-color] duration-200 ease-out;
+    @apply rounded-xl border border-border bg-card text-card-foreground transition-[border-color,box-shadow,transform] duration-300 ease-out;
+  }
+
+  .experience-card-home,
+  .experience-card-discovery {
+    @apply hover:border-primary/25;
   }
 
   .experience-media {
@@ -96,61 +265,100 @@
   }
 
   .experience-image {
-    @apply object-cover transition-transform duration-500 ease-out;
+    @apply object-cover transition-transform duration-700 ease-out;
   }
 
   .experience-card:hover .experience-image,
   .experience-card-home:hover .experience-image,
-  .experience-card-pulse:hover .experience-image {
-    @apply scale-[1.025];
+  .experience-card-discovery:hover .experience-image,
+  .experience-card-pulse:hover .experience-image,
+  .editorial-card:hover .experience-image {
+    @apply scale-[1.03];
   }
 
-  .editorial-card:hover .experience-image {
-    @apply scale-[1.015];
-  }
+  /* ---- Small data chips ---------------------------------------------- */
 
   .soft-stat {
-    @apply rounded-md border border-border/[0.8] bg-muted/[0.55] p-2 text-xs text-muted-foreground;
+    @apply inline-flex items-center gap-1.5 text-xs text-muted-foreground;
+  }
+
+  /* ---- Media --------------------------------------------------------- */
+
+  .media-frame {
+    @apply relative overflow-hidden rounded-xl bg-muted;
+  }
+
+  /* ---- Scroll affordances -------------------------------------------- */
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .edge-fade {
+    mask-image: linear-gradient(to right, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
   }
 }
 
 .map-grid {
   background-image:
-    linear-gradient(rgba(15, 23, 42, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 23, 42, 0.1) 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
-.dark .map-grid {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-
-.card-shimmer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-  transform: translateX(-100%);
-  pointer-events: none;
-}
-
-.card-shimmer:hover::after {
-  animation: shimmer 1.2s ease-in-out;
-}
-
-@keyframes heart-bounce {
-  0%, 100% { transform: scale(1); }
-  30% { transform: scale(1.35); }
-  60% { transform: scale(0.9); }
+@keyframes heart-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.28);
+  }
+  70% {
+    transform: scale(0.94);
+  }
 }
 
 .heart-bounce {
-  animation: heart-bounce 0.4s ease-out;
+  animation: heart-pop 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* Never hold content back for the sake of an animation. */
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

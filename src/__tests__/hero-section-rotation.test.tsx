@@ -6,23 +6,21 @@ import { HeroSection } from "@/components/home/hero-section";
 import { places } from "@/data/kosovo-data";
 
 vi.mock("next/image", () => ({
-  default: (props: ImgHTMLAttributes<HTMLImageElement> & { fill?: boolean; priority?: boolean }) => {
-    const imageProps = { ...props };
+  default: (props: ImgHTMLAttributes<HTMLImageElement> & Record<string, unknown>) => {
+    const imageProps: Record<string, unknown> = { ...props };
     delete imageProps.fill;
     delete imageProps.priority;
     delete imageProps.sizes;
     delete imageProps.alt;
     delete imageProps.src;
+    delete imageProps.loader;
+    delete imageProps.unoptimized;
 
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img alt={props.alt ?? ""} data-testid="hero-background-image" src={String(props.src ?? "")} {...imageProps} />
+      <img alt={String(props.alt ?? "")} data-testid="hero-image" src={String(props.src ?? "")} {...imageProps} />
     );
   }
-}));
-
-vi.mock("@/components/home/kosovo-pulse-map", () => ({
-  KosovoPulseMap: () => <div data-testid="kosovo-pulse-map" />
 }));
 
 vi.mock("@/hooks/use-geolocation", () => ({
@@ -40,28 +38,30 @@ vi.mock("react-i18next", () => ({
 }));
 
 describe("HeroSection", () => {
-  it("renders the hero background image and first place", () => {
+  it("renders the hero imagery and editorial copy", () => {
     render(<HeroSection featuredPlaces={places.slice(0, 2)} />);
 
-    expect(screen.getByTestId("hero-background-image")).toBeInTheDocument();
+    expect(screen.getAllByTestId("hero-image").length).toBeGreaterThan(0);
     expect(screen.getByText("hero.eyebrow")).toBeInTheDocument();
     expect(screen.getByText("hero.title")).toBeInTheDocument();
     expect(screen.getByText("hero.description")).toBeInTheDocument();
     expect(screen.getByText("hero.exploreNow")).toBeInTheDocument();
-    expect(screen.getByText(places[0].title)).toBeInTheDocument();
+    expect(screen.getByText("hero.planDay")).toBeInTheDocument();
   });
 
-  it("renders hero stats based on featured places", () => {
+  it("leads with the featured Government of Kosovo photograph", () => {
     render(<HeroSection featuredPlaces={places.slice(0, 2)} />);
 
-    expect(screen.getByText("hero.stats.signals")).toBeInTheDocument();
-    expect(screen.getByText("hero.stats.vibes")).toBeInTheDocument();
-    expect(screen.getByText("hero.stats.layers")).toBeInTheDocument();
+    expect(screen.getByText("Government of Kosovo")).toBeInTheDocument();
+    expect(screen.getByText("/ Pristina")).toBeInTheDocument();
   });
 
-  it("shows pulse map", () => {
-    render(<HeroSection featuredPlaces={places.slice(0, 2)} />);
+  it("still renders a secondary frame when there are no places to feature", () => {
+    render(<HeroSection featuredPlaces={[]} />);
 
-    expect(screen.getByTestId("kosovo-pulse-map")).toBeInTheDocument();
+    // The lead is the fixed featured photograph; the offset frame falls back
+    // to the generic Kosovo image rather than disappearing.
+    expect(screen.getAllByTestId("hero-image").length).toBe(2);
+    expect(screen.getByText("Government of Kosovo")).toBeInTheDocument();
   });
 });

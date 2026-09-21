@@ -43,7 +43,7 @@ function keywordAnswer(message: string, context?: Partial<RecommendationInput>) 
   const picks = recommendations.map((item) => item.place.title).join(", ");
 
   return {
-    answer: `For ${city}, I would start with ${picks}. The strongest signal is ${vibe.toLowerCase()}, then I would check mobility so the plan stays realistic.`,
+    answer: `In ${city} I'd start with ${picks}. ${vibe} suits this part of the day — and it's worth checking how you'll get between them so the plan stays realistic.`,
     recommendations
   };
 }
@@ -97,7 +97,7 @@ Respond in 2-3 sentences with specific recommendations. Be conversational and me
     const answer = response.choices[0]?.message?.content;
 
     return {
-      answer: answer ?? "I could not generate a recommendation. Please try again.",
+      answer: answer ?? "I couldn't put an answer together. Try asking in a different way.",
       recommendations
     };
   } catch (error) {

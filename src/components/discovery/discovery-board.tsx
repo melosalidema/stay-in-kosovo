@@ -1,7 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { Filter, RefreshCw, Search, SlidersHorizontal, X } from "lucide-react";
+import { RefreshCw, Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -10,12 +9,13 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { MapPanel } from "@/components/discovery/map-panel";
 import { PlaceCard } from "@/components/discovery/place-card";
 import type { MapSelectionSource } from "@/components/maps/google-places-map";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Reveal } from "@/components/ui/reveal";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { categories, places as fallbackPlaces, vibes } from "@/data/kosovo-data";
+import { places as fallbackPlaces, vibes } from "@/data/kosovo-data";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useLocalizedLabels } from "@/i18n/use-localized-labels";
 import { ALL_KOSOVO_CITY, getPlaceCityOptions, validatePlaceCityAssignments } from "@/lib/place-options";
@@ -145,11 +145,8 @@ export function DiscoveryBoard() {
   }, [mapPlaces]);
 
   const setPlaceCardRef = (placeId: string, element: HTMLElement | null) => {
-    if (element) {
-      placeCardRefs.current.set(placeId, element);
-    } else {
-      placeCardRefs.current.delete(placeId);
-    }
+    if (element) placeCardRefs.current.set(placeId, element);
+    else placeCardRefs.current.delete(placeId);
   };
 
   const selectPlace = (place: PlaceDTO, source: MapSelectionSource | "card") => {
@@ -164,135 +161,134 @@ export function DiscoveryBoard() {
 
   return (
     <section className="section-band">
-      <div className="page-shell space-y-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <Badge variant="green" className="mb-3">
-              <Filter className="mr-1 h-3.5 w-3.5" />
-              {t("discover.badge")}
-            </Badge>
-            <h1 className="text-3xl font-bold tracking-normal sm:text-4xl">{t("discover.title")}</h1>
-            <p className="mt-3 text-muted-foreground">
-              {t("discover.description")}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-card/[0.82] px-3 py-2 text-sm shadow-editorial">
-            <SlidersHorizontal className="h-4 w-4 text-primary" />
-            {relaxedFallback
-              ? t("discover.relaxedMatching", { count: places.length })
-              : t("discover.matching", { count: places.length })}
-          </div>
-        </div>
+      <div className="page-shell">
+        <SectionHeading
+          eyebrow={t("discover.badge")}
+          title={t("discover.title")}
+          description={t("discover.description")}
+        />
 
-        <div className="experience-card-discovery grid gap-3 bg-card/[0.82] p-3 backdrop-blur-xl md:grid-cols-2 lg:grid-cols-6">
-          <label className="relative lg:col-span-2">
-            <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              className="pl-9"
-              placeholder={t("discover.searchPlaceholder")}
-              value={filters.q}
-              onChange={(event) => setFilters({ q: event.target.value })}
-            />
-          </label>
-          <Select value={filters.city || ALL_KOSOVO_CITY} onValueChange={(city) => setFilters({ city: city === ALL_KOSOVO_CITY ? "" : city })}>
-            <SelectTrigger>
-              <SelectValue placeholder={t("common.city")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL_KOSOVO_CITY}>{t("common.allKosovo")}</SelectItem>
-              {cityOptions.map((city) => (
-                <SelectItem key={city} value={city}>
-                  {city}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={filters.category || "all"} onValueChange={(category) => setFilters({ category: category === "all" ? "" : category })}>
-            <SelectTrigger>
-              <SelectValue placeholder={t("common.category")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("common.allCategories")}</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category.slug} value={category.slug}>
-                  {labels.category(category.slug)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={filters.vibe || "all"} onValueChange={(vibe) => setFilters({ vibe: vibe === "all" ? "" : vibe })}>
-            <SelectTrigger>
-              <SelectValue placeholder={t("common.vibe")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("common.allVibes")}</SelectItem>
-              {vibes.map((vibe) => (
-                <SelectItem key={vibe.name} value={vibe.name}>
-                  {labels.vibe(vibe.name)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={filters.budget ? String(filters.budget) : "all"} onValueChange={(budget) => setFilters({ budget: budget === "all" ? 0 : Number(budget) })}>
-            <SelectTrigger>
-              <SelectValue placeholder={t("common.budget")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("common.anyBudget")}</SelectItem>
-              {[1, 2, 3, 4, 5].map((level) => (
-                <SelectItem key={level} value={String(level)}>
-                  {t("common.budget")} {level}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <div className="flex flex-wrap gap-2 lg:col-span-6">
-            <Button
+        <div className="mt-7 space-y-4 border-y border-border py-5">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <label className="relative sm:col-span-2 lg:col-span-2">
+              <span className="sr-only">{t("discover.searchPlaceholder")}</span>
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <Input
+                className="pl-10"
+                placeholder={t("discover.searchPlaceholder")}
+                value={filters.q}
+                onChange={(event) => setFilters({ q: event.target.value })}
+              />
+            </label>
+
+            <Select value={filters.city || ALL_KOSOVO_CITY} onValueChange={(city) => setFilters({ city: city === ALL_KOSOVO_CITY ? "" : city })}>
+              <SelectTrigger aria-label={t("common.city")}>
+                <SelectValue placeholder={t("common.city")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_KOSOVO_CITY}>{t("common.allKosovo")}</SelectItem>
+                {cityOptions.map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filters.vibe || "all"} onValueChange={(vibe) => setFilters({ vibe: vibe === "all" ? "" : vibe })}>
+              <SelectTrigger aria-label={t("common.vibe")}>
+                <SelectValue placeholder={t("common.vibe")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("common.allVibes")}</SelectItem>
+                {vibes.map((vibe) => (
+                  <SelectItem key={vibe.name} value={vibe.name}>
+                    {labels.vibe(vibe.name)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filters.budget ? String(filters.budget) : "all"} onValueChange={(budget) => setFilters({ budget: budget === "all" ? 0 : Number(budget) })}>
+              <SelectTrigger aria-label={t("common.budget")}>
+                <SelectValue placeholder={t("common.budget")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("common.anyBudget")}</SelectItem>
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <SelectItem key={level} value={String(level)}>
+                    {t("common.budget")} {level}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
               type="button"
-              variant={filters.openNow ? "default" : "outline"}
-              size="sm"
+              aria-pressed={filters.openNow}
               onClick={() => setFilters({ openNow: !filters.openNow })}
+              className={
+                "rounded-lg border px-3 py-1.5 text-sm transition-colors duration-200 " +
+                (filters.openNow
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground")
+              }
             >
               {t("common.openNow")}
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
-              variant={filters.transport === "WALKING" ? "default" : "outline"}
-              size="sm"
+              aria-pressed={filters.transport === "WALKING"}
               onClick={() => setFilters({ transport: filters.transport === "WALKING" ? "" : "WALKING" })}
+              className={
+                "rounded-lg border px-3 py-1.5 text-sm transition-colors duration-200 " +
+                (filters.transport === "WALKING"
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground")
+              }
             >
               {t("common.walkable")}
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
-              variant={filters.transport === "BUS" ? "default" : "outline"}
-              size="sm"
+              aria-pressed={filters.transport === "BUS"}
               onClick={() => setFilters({ transport: filters.transport === "BUS" ? "" : "BUS" })}
+              className={
+                "rounded-lg border px-3 py-1.5 text-sm transition-colors duration-200 " +
+                (filters.transport === "BUS"
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground")
+              }
             >
               {t("common.busNearby")}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={resetFilters}
-              disabled={!hasActiveFilters}
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
+            </button>
+
+            <span className="ml-auto text-sm text-muted-foreground">
+              {relaxedFallback
+                ? t("discover.relaxedMatching", { count: places.length })
+                : t("discover.matching", { count: places.length })}
+            </span>
+
+            <Button variant="ghost" size="sm" onClick={resetFilters} disabled={!hasActiveFilters}>
+              <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
               {t("discover.resetFilters")}
             </Button>
           </div>
+
           {activeFilters.length > 0 && (
-            <div className="flex flex-wrap gap-2 border-t border-border pt-3 lg:col-span-6">
+            <div className="flex flex-wrap gap-2">
               {activeFilters.map((filter) => (
                 <button
                   key={filter.key}
                   type="button"
                   onClick={filter.clear}
-                  className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1 text-xs font-semibold text-primary transition hover:bg-primary/[0.14]"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                 >
                   {filter.label}
-                  <X className="h-3 w-3" />
+                  <X className="h-3 w-3" aria-hidden="true" />
+                  <span className="sr-only">{t("discover.resetFilters")}</span>
                 </button>
               ))}
             </div>
@@ -300,50 +296,44 @@ export function DiscoveryBoard() {
         </div>
 
         {(relaxedFallback || loadError) && (
-          <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.08] px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
+          <p className="mt-5 rounded-lg border border-amber-600/20 bg-amber-500/[0.07] px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
             {loadError ? t("discover.loadFallback") : t("discover.relaxedNotice")}
-          </div>
+          </p>
         )}
 
-        <div className="space-y-6">
+        <div className="mt-8 space-y-7">
           <MapPanel
             places={mapPlaces}
             selectedPlaceId={selectedPlaceId}
             onSelectedPlaceChange={(place, source) => selectPlace(place, source)}
           />
-          <CategoryLegend
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-          />
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+          <CategoryLegend selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {loading ? (
-              Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-[360px] rounded-lg bg-muted/[0.7]" />)
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="space-y-3">
+                  <Skeleton className="aspect-[4/3] rounded-xl" />
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-4 w-1/3" />
+                </div>
+              ))
             ) : filteredPlaces.length ? (
-              <AnimatePresence mode="popLayout">
-                {filteredPlaces.map((place) => (
-                  <motion.div
-                    key={place.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.92 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.92 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
-                    ref={(element) => setPlaceCardRef(place.id, element)}
-                  >
+              filteredPlaces.map((place, index) => (
+                <Reveal key={place.id} delay={(index % 3) * 70} className="h-full">
+                  <div ref={(element) => setPlaceCardRef(place.id, element)} className="h-full">
                     <PlaceCard
                       place={place}
                       selected={selectedPlaceId === place.id}
                       onSelect={(selectedPlace) => selectPlace(selectedPlace, "card")}
                     />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+                  </div>
+                </Reveal>
+              ))
             ) : (
               <div className="sm:col-span-2 lg:col-span-3">
-                <EmptyState
-                  title={t("discover.emptyTitle")}
-                  description={t("discover.emptyText")}
-                />
+                <EmptyState title={t("discover.emptyTitle")} description={t("discover.emptyText")} />
               </div>
             )}
           </div>

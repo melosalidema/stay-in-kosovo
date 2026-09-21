@@ -16,7 +16,7 @@ describe("pulse engine", () => {
     expect(pulse.liveScore).toBeGreaterThan(0);
     expect(pulse.zones.length).toBeGreaterThan(0);
     expect(pulse.topVibes.length).toBeGreaterThan(0);
-    expect(pulse.methodology.join(" ")).toContain("business boost");
+    expect(pulse.methodology.join(" ")).toContain("Paid visibility");
   });
 
   it("supports an All Kosovo national pulse overview", () => {

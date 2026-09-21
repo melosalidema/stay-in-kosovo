@@ -3,11 +3,10 @@
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Chrome, LogIn } from "lucide-react";
+import { Chrome } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -55,45 +54,63 @@ export default function LoginPage() {
   return (
     <section className="section-band">
       <div className="page-shell grid min-h-[70vh] place-items-center">
-        <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-glass">
-          <Badge variant="blue" className="mb-4">
-            <LogIn className="mr-1 h-3.5 w-3.5" />
-            {t("auth.protectedRoutes")}
-          </Badge>
-          <h1 className="text-3xl font-bold tracking-normal">{t("auth.loginTitle")}</h1>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {t("auth.loginHelp")}
-          </p>
+        <div className="w-full max-w-sm">
+          <p className="eyebrow">{t("auth.protectedRoutes")}</p>
+          <h1 className="display-3 mt-3">{t("auth.loginTitle")}</h1>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("auth.loginHelp")}</p>
 
-          <div className="mt-6 space-y-4">
+          <form
+            className="mt-8 space-y-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void login();
+            }}
+          >
             <label className="grid gap-2 text-sm font-medium">
               {t("common.email")}
-              <Input value={email} onChange={(event) => setEmail(event.target.value)} />
+              <Input
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
             </label>
+
             <label className="grid gap-2 text-sm font-medium">
               {t("common.password")}
-              <Input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+              <Input
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
             </label>
-            <Button className="w-full" size="lg" onClick={login} disabled={loading}>
-              <LogIn className={loading ? "h-4 w-4 animate-pulse" : "h-4 w-4"} />
-              {t("common.login")}
+
+            <Button className="w-full" size="lg" type="submit" disabled={loading}>
+              {loading ? t("common.loading") : t("common.signIn")}
             </Button>
-            <Button className="w-full" variant="outline" onClick={() => signIn("google", { callbackUrl: next })}>
-              <Chrome className="h-4 w-4" />
+
+            <Button
+              className="w-full"
+              type="button"
+              variant="outline"
+              onClick={() => signIn("google", { callbackUrl: next })}
+            >
+              <Chrome className="h-4 w-4" aria-hidden="true" />
               {t("auth.google")}
             </Button>
-            {error && <p className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
-          </div>
 
-          <div className="mt-6 rounded-md bg-muted p-3 text-xs text-muted-foreground">
-            {t("auth.seeded")}
-          </div>
-          <p className="mt-4 text-sm text-muted-foreground">
+            {error && <p className="text-sm text-destructive">{error}</p>}
+          </form>
+
+          <p className="mt-6 text-sm text-muted-foreground">
             {t("auth.newAccount")}{" "}
-            <Link href="/auth/register" className="font-semibold text-primary">
-              {t("common.register")}
+            <Link href="/auth/register" className="font-medium text-primary underline-offset-4 hover:underline">
+              {t("auth.createAccount")}
             </Link>
           </p>
+
+          <p className="mt-8 border-t border-border pt-4 text-xs leading-5 text-muted-foreground">{t("auth.seeded")}</p>
         </div>
       </div>
     </section>

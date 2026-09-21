@@ -9,9 +9,6 @@ function generateStrongPassword(): string {
   return crypto.randomBytes(24).toString("base64url");
 }
 
-const image = (id: string) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;
-
 async function main() {
   const adminPassword = generateStrongPassword();
   const ownerPassword = generateStrongPassword();
@@ -121,7 +118,7 @@ async function main() {
       status: "APPROVED",
       verified: true,
       boostScore: 74,
-      photos: [image("photo-1517248135467-4c7edcad34c4")],
+      photos: ["https://images.weserv.nl/?url=https%3A%2F%2Fprishtinainsight.com%2Fwp-content%2Fuploads%2F2016%2F02%2Fpi.153.guide_.soma_.01.jpg&w=1200&output=jpg"],
       schedule: {
         mon: "08:00-23:00",
         fri: "08:00-01:00",
@@ -152,7 +149,7 @@ async function main() {
       status: "APPROVED",
       verified: true,
       boostScore: 66,
-      photos: [image("photo-1552566626-52f8b828add9")],
+      photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Ansicht_Altstadt_von_Prizren.jpg/1280px-Ansicht_Altstadt_von_Prizren.jpg"],
       schedule: {
         tue: "10:00-00:00",
         sat: "10:00-02:00"
@@ -182,7 +179,7 @@ async function main() {
       status: "APPROVED",
       verified: true,
       boostScore: 58,
-      photos: [image("photo-1495474472287-4d71bcdd2085")],
+      photos: ["https://images.weserv.nl/?url=https%3A%2F%2Fbigsee.eu%2Fwp-content%2Fuploads%2F2018%2F11%2FKOSOVO_ditenat9.jpg&w=1200&output=jpg"],
       schedule: {
         mon: "08:00-23:00",
         fri: "08:00-00:00",
@@ -220,7 +217,7 @@ async function main() {
       musicVibe: "Nature",
       popularityScore: 91,
       hiddenGemScore: 48,
-      images: [image("photo-1500534314209-a25ddb2bd429"), image("photo-1441974231531-c6227db76b6e")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Germia_Park_during_Spring_Season_in_Prishtina%2C_Kosovo.jpg/1280px-Germia_Park_during_Spring_Season_in_Prishtina%2C_Kosovo.jpg"]
     },
     {
       slug: "soma-book-station",
@@ -242,7 +239,7 @@ async function main() {
       musicVibe: "Indie jazz",
       popularityScore: 88,
       hiddenGemScore: 62,
-      images: [image("photo-1517248135467-4c7edcad34c4"), image("photo-1504674900247-0877df9cc836")]
+      images: ["https://images.weserv.nl/?url=https%3A%2F%2Fprishtinainsight.com%2Fwp-content%2Fuploads%2F2016%2F02%2Fpi.153.guide_.soma_.01.jpg&w=1200&output=jpg"]
     },
     {
       slug: "liburnia-restaurant",
@@ -263,7 +260,7 @@ async function main() {
       musicVibe: "Acoustic",
       popularityScore: 84,
       hiddenGemScore: 52,
-      images: [image("photo-1555396273-367ea4eb4db5"), image("photo-1414235077428-338989a2e8c0")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Restaurant_Liburnia_Prishtina.jpg/1280px-Restaurant_Liburnia_Prishtina.jpg"]
     },
     {
       slug: "newborn-monument",
@@ -284,7 +281,7 @@ async function main() {
       musicVibe: "Street",
       popularityScore: 93,
       hiddenGemScore: 34,
-      images: [image("photo-1500530855697-b586d89ba3ee")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Newborn_Monument_Prishtina%2C_Autumn_2018.jpg/1280px-Newborn_Monument_Prishtina%2C_Autumn_2018.jpg"]
     },
     {
       slug: "prizren-fortress",
@@ -305,7 +302,7 @@ async function main() {
       musicVibe: "Ambient",
       popularityScore: 96,
       hiddenGemScore: 45,
-      images: [image("photo-1501785888041-af3ef285b470"), image("photo-1470770841072-f978cf4d019e")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Prizren_Fortress_%282021%29.jpg/1280px-Prizren_Fortress_%282021%29.jpg"]
     },
     {
       slug: "hatch-prizren-rooftop",
@@ -327,7 +324,7 @@ async function main() {
       musicVibe: "Deep house",
       popularityScore: 78,
       hiddenGemScore: 64,
-      images: [image("photo-1514933651103-005eec06c04b"), image("photo-1528605248644-14dd04022da1")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Ansicht_Altstadt_von_Prizren.jpg/1280px-Ansicht_Altstadt_von_Prizren.jpg"]
     },
     {
       slug: "rugova-canyon",
@@ -348,7 +345,7 @@ async function main() {
       musicVibe: "Nature",
       popularityScore: 90,
       hiddenGemScore: 74,
-      images: [image("photo-1464822759023-fed622ff2c3b"), image("photo-1447752875215-b2761acb3c5d")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Rugova_canyon_%28WPWTR17%29.jpg/1280px-Rugova_canyon_%28WPWTR17%29.jpg"]
     },
     {
       slug: "brezovica-resort",
@@ -369,7 +366,7 @@ async function main() {
       musicVibe: "Lodge",
       popularityScore: 82,
       hiddenGemScore: 68,
-      images: [image("photo-1483728642387-6c3bdd6c93e5"), image("photo-1498855926480-d98e83099315")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Brezovica_Ski_Resort_-_Sharri_Mountains.jpg/1280px-Brezovica_Ski_Resort_-_Sharri_Mountains.jpg"]
     },
     {
       slug: "mirusha-waterfalls",
@@ -390,7 +387,7 @@ async function main() {
       musicVibe: "Nature",
       popularityScore: 87,
       hiddenGemScore: 82,
-      images: [image("photo-1500534314209-a25ddb2bd429"), image("photo-1501785888041-af3ef285b470")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/KosovoMirusha.jpg/1280px-KosovoMirusha.jpg"]
     },
     {
       slug: "gjakova-old-bazaar",
@@ -411,7 +408,7 @@ async function main() {
       musicVibe: "Acoustic",
       popularityScore: 79,
       hiddenGemScore: 76,
-      images: [image("photo-1523906834658-6e24ef2386f9"), image("photo-1517248135467-4c7edcad34c4")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/The_Old_Bazaar%2C_Gjakova.jpg/1280px-The_Old_Bazaar%2C_Gjakova.jpg"]
     },
     {
       slug: "dita-e-nat",
@@ -433,7 +430,7 @@ async function main() {
       musicVibe: "Indie",
       popularityScore: 83,
       hiddenGemScore: 69,
-      images: [image("photo-1495474472287-4d71bcdd2085"), image("photo-1509042239860-f550ce710b93")]
+      images: ["https://images.weserv.nl/?url=https%3A%2F%2Fbigsee.eu%2Fwp-content%2Fuploads%2F2018%2F11%2FKOSOVO_ditenat9.jpg&w=1200&output=jpg"]
     },
     {
       slug: "peja-old-bazaar",
@@ -454,7 +451,7 @@ async function main() {
       musicVibe: "Street",
       popularityScore: 74,
       hiddenGemScore: 63,
-      images: [image("photo-1523906834658-6e24ef2386f9"), image("photo-1555396273-367ea4eb4db5")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Old_bazaar_of_Peja.jpg/1280px-Old_bazaar_of_Peja.jpg"]
     },
     {
       slug: "sunny-hill-festival-grounds",
@@ -475,7 +472,7 @@ async function main() {
       musicVibe: "Pop and electronic",
       popularityScore: 94,
       hiddenGemScore: 31,
-      images: [image("photo-1492684223066-81342ee5ff30"), image("photo-1501386761578-eac5c94b800a")]
+      images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/B%C3%BChne_und_VIP-Trib%C3%BCne_Sunny_Hill_Festival_.jpg/1280px-B%C3%BChne_und_VIP-Trib%C3%BCne_Sunny_Hill_Festival_.jpg"]
     },
     {
       slug: "pogragja-fortress",
@@ -749,7 +746,12 @@ async function main() {
         rating: place.rating,
         reviewCount: place.reviewCount,
         popularityScore: place.popularityScore,
-        hiddenGemScore: place.hiddenGemScore
+        hiddenGemScore: place.hiddenGemScore,
+        images: place.images,
+        description: place.description,
+        atmosphereTags: place.atmosphereTags,
+        crowdLevel: place.crowdLevel,
+        musicVibe: place.musicVibe
       },
       create: {
         title: place.title,
@@ -807,7 +809,7 @@ async function main() {
         price: new Prisma.Decimal(8),
         vibeTags: ["Nightlife", "Chill", "Hidden Gems"],
         heatScore: 86,
-        images: [image("photo-1511192336575-5a79af67a629")]
+        images: ["https://images.weserv.nl/?url=https%3A%2F%2Fprishtinainsight.com%2Fwp-content%2Fuploads%2F2016%2F02%2Fpi.153.guide_.soma_.01.jpg&w=1200&output=jpg"]
       }
     }),
     prisma.event.upsert({
@@ -825,7 +827,7 @@ async function main() {
         price: new Prisma.Decimal(12),
         vibeTags: ["Romantic", "Culture", "Adventure"],
         heatScore: 79,
-        images: [image("photo-1500530855697-b586d89ba3ee")]
+        images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Prizren_Fortress_%282021%29.jpg/1280px-Prizren_Fortress_%282021%29.jpg"]
       }
     }),
     prisma.event.upsert({
@@ -843,7 +845,7 @@ async function main() {
         price: new Prisma.Decimal(6),
         vibeTags: ["Culture", "Local Food", "Hidden Gems"],
         heatScore: 72,
-        images: [image("photo-1523906834658-6e24ef2386f9")]
+        images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/The_Old_Bazaar%2C_Gjakova.jpg/1280px-The_Old_Bazaar%2C_Gjakova.jpg"]
       }
     }),
     prisma.event.upsert({
@@ -861,7 +863,7 @@ async function main() {
         price: new Prisma.Decimal(18),
         vibeTags: ["Adventure", "Hidden Gems", "Family Friendly"],
         heatScore: 81,
-        images: [image("photo-1464822759023-fed622ff2c3b")]
+        images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Rugova_canyon_%28WPWTR17%29.jpg/1280px-Rugova_canyon_%28WPWTR17%29.jpg"]
       }
     })
   ]);

@@ -1,35 +1,29 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
+import { buildCsp } from "@/lib/csp";
+
 function generateNonce(): string {
   const array = new Uint8Array(16);
   crypto.getRandomValues(array);
   return Array.from(array).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-function buildCsp(nonce: string): string {
-  return [
-    `default-src 'self'`,
-    `script-src 'self' 'nonce-${nonce}'`,
-    `style-src 'self' 'unsafe-inline'`,
-    `img-src 'self' data: blob: https://images.unsplash.com https://source.unsplash.com https://res.cloudinary.com https://upload.wikimedia.org https://static.wixstatic.com https://images.weserv.nl https://media.4-paws.org https://dynamic-media-cdn.tripadvisor.com`,
-    `font-src 'self'`,
-    `connect-src 'self' https://api.open-meteo.com https://res.cloudinary.com https://api.cloudinary.com`,
-    `frame-src 'none'`,
-    `object-src 'none'`,
-    `base-uri 'self'`,
-    `form-action 'self'`
-  ].join("; ");
-}
-
 export default withAuth(
   function middleware(request) {
     const nonce = generateNonce();
+    const csp = buildCsp(nonce);
+
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-nonce", nonce);
+    // Next.js reads the nonce out of the *request* Content-Security-Policy
+    // header and stamps it onto its own script tags. Setting it only on the
+    // response leaves every inline bootstrap script without a nonce, and the
+    // CSP then blocks them — the page renders but never hydrates.
+    requestHeaders.set("Content-Security-Policy", csp);
 
     const response = NextResponse.next({ request: { headers: requestHeaders } });
-    response.headers.set("Content-Security-Policy", buildCsp(nonce));
+    response.headers.set("Content-Security-Policy", csp);
     response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
     response.headers.set("X-Content-Type-Options", "nosniff");
     response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");

@@ -23,10 +23,10 @@ type DashboardPayload = {
 };
 
 const fallbackMetrics: DashboardMetric[] = [
-  { label: "Discovery views", value: "18.4K", delta: "+22% vs last month", tone: "green" },
-  { label: "Route requests", value: "812", delta: "+14% from mobility", tone: "blue" },
-  { label: "Saved by users", value: "1.4K", delta: "+9% from AI picks", tone: "amber" },
-  { label: "Check-ins", value: "436", delta: "+31% QR flow", tone: "rose" }
+  { label: "Times seen", value: "18.4K", delta: "+22% on last month", tone: "green" },
+  { label: "Directions asked", value: "812", delta: "+14% from directions", tone: "blue" },
+  { label: "Saved by people", value: "1.4K", delta: "+9% from recommendations", tone: "amber" },
+  { label: "Check-ins", value: "436", delta: "+31% from QR check-ins", tone: "rose" }
 ];
 
 function textKey(value: string) {
@@ -44,7 +44,7 @@ export function BusinessDashboard() {
     metrics: fallbackMetrics,
     boostSystem: {
       score: 74,
-      contributors: ["Complete profile", "High review quality", "Recent events", "Fast route response"]
+      contributors: ["Complete profile", "Thoughtful reviews", "Recent events", "Quick replies"]
     }
   });
 

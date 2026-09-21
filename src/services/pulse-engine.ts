@@ -48,9 +48,9 @@ function pressureFor(place: PlaceDTO, intensity: number): PulseZone["mobilityPre
 }
 
 function zoneSummary(place: PlaceDTO, intensity: number) {
-  if (intensity >= 90) return `${place.title} is a high-signal stop right now with strong social and route demand.`;
-  if (place.hiddenGemScore >= 68) return `${place.title} is trending as a hidden-gem option with lower mainstream density.`;
-  return `${place.title} is a stable match with reliable quality and manageable mobility.`;
+  if (intensity >= 90) return `${place.title} is where the crowd is heading right now.`;
+  if (place.hiddenGemScore >= 68) return `${place.title} is still under the radar, and worth a look.`;
+  return `${place.title} is a steady favourite and easy to reach.`;
 }
 
 function buildZones(input: PulseInput, candidates: PlaceDTO[]): PulseZone[] {
@@ -125,8 +125,8 @@ function buildSupplyGaps(candidates: PlaceDTO[]) {
         supply,
         opportunity:
           delta > 30
-            ? `Recruit or boost more ${item.vibe.toLowerCase()} inventory in this city.`
-            : `Current ${item.vibe.toLowerCase()} supply is healthy but should be monitored.`
+            ? `There's more appetite for ${item.vibe.toLowerCase()} here than there are places to go.`
+            : `There's a healthy amount of ${item.vibe.toLowerCase()} here already.`
       };
     })
     .filter((item) => item.demand > 54)
@@ -139,21 +139,21 @@ function buildInsights(zones: PulseZone[], liveScore: number, transport: readonl
 
   return [
     {
-      label: "City pulse",
+      label: "How busy it is",
       value: `${Math.round(liveScore)}/100`,
-      detail: "Weighted by demand, quality, hidden gems, events, and mobility reliability.",
+      detail: "Based on how popular places are, how well they're reviewed, what's on nearby and how easy they are to reach.",
       tone: liveScore > 72 ? "green" : liveScore > 52 ? "blue" : "amber"
     },
     {
-      label: "High-demand zones",
+      label: "Places filling up",
       value: String(highDemand),
-      detail: "Places that should get more route, staffing, or moderation attention.",
+      detail: "These are the spots seeing the most activity right now.",
       tone: highDemand > 3 ? "rose" : highDemand > 1 ? "amber" : "green"
     },
     {
-      label: "Transport reliability",
+      label: "Getting around",
       value: `${Math.round(averageReliability)}%`,
-      detail: "Simulated public and taxi point reliability for route recommendations.",
+      detail: "How reliably buses and taxis are running across the city.",
       tone: averageReliability > 78 ? "green" : averageReliability > 64 ? "blue" : "amber"
     }
   ];
@@ -203,10 +203,10 @@ export function generateExperiencePulse(input: PulseInput = {}): ExperiencePulse
     insights: buildInsights(zones, liveScore, cityTransport),
     supplyGaps: buildSupplyGaps(candidates),
     suggestedActions: [
-      `Prioritize ${zones[0]?.title ?? city} in the recommendation carousel for the next demand cycle.`,
-      `Show ${cityTransport.length ? "transit-aware" : "taxi-first"} mobility messaging for ${city}.`,
-      "Send business owners supply-gap prompts for underrepresented high-demand vibes.",
-      "Use review atmosphere tags to validate whether boosted places still match the selected vibe."
+      `Give ${zones[0]?.title ?? city} a bit more prominence in today's picks.`,
+      `Lead with ${cityTransport.length ? "transit-friendly" : "taxi-first"} travel advice for ${city}.`,
+      "Let business owners know which moods are in demand but under-served.",
+      "Keep an eye on whether the busiest places still match what people came for."
     ],
     transportHealth: {
       averageReliability: Math.round(averageTransportReliability(cityTransport)),
@@ -214,9 +214,9 @@ export function generateExperiencePulse(input: PulseInput = {}): ExperiencePulse
       weakestPoint: sortedTransport.at(-1)?.name
     },
     methodology: [
-      "Blend place popularity, hidden-gem score, review quality, event heat, transport reliability, selected vibe, and day-part fit.",
-      "Expose deterministic scores for auditability; OpenAI can later turn the score breakdown into natural language.",
-      "Keep business boost separated from organic quality so paid visibility cannot dominate poor user experience."
+      "We combine how popular a place is, how well it's reviewed, what's on nearby, and how easy it is to reach.",
+      "Places that locals love but visitors tend to miss get extra weight, so the list isn't only the obvious names.",
+      "Paid visibility is capped, so it can never outrank somewhere people genuinely enjoy."
     ]
   };
 

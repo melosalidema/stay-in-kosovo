@@ -18,10 +18,10 @@ type AdminData = {
 };
 
 const fallbackMetrics: DashboardMetric[] = [
-  { label: "Pending businesses", value: "12", delta: "4 need document review", tone: "amber" },
-  { label: "Flagged reviews", value: "8", delta: "2 high priority", tone: "rose" },
-  { label: "Approved places", value: "284", delta: "+18 this week", tone: "green" },
-  { label: "API health", value: "99.8%", delta: "cache hit rate 74%", tone: "blue" }
+  { label: "Waiting for approval", value: "12", delta: "4 need a closer look", tone: "amber" },
+  { label: "Reported reviews", value: "8", delta: "2 to handle first", tone: "rose" },
+  { label: "Places live", value: "284", delta: "+18 this week", tone: "green" },
+  { label: "Service status", value: "99.8%", delta: "responding normally", tone: "blue" }
 ];
 
 function textKey(value: string) {
@@ -38,8 +38,8 @@ export function AdminConsole() {
         { id: "biz-queue-2", name: "Old Bazaar Coffee", city: "Gjakova", status: "PENDING" }
       ],
       reviews: [
-        { id: "rev-queue-1", place: "Hatch Prizren", risk: "Possible promotional wording" },
-        { id: "rev-queue-2", place: "Brezovica", risk: "Needs photo moderation" }
+        { id: "rev-queue-1", place: "Hatch Prizren", risk: "Reads like promotion" },
+        { id: "rev-queue-2", place: "Brezovica", risk: "Photos need a look" }
       ],
       locations: [{ id: "loc-queue-1", title: "Mirusha Waterfalls Trailhead", confidence: 0.87 }]
     }

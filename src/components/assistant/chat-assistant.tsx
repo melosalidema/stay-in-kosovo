@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, Send, X } from "lucide-react";
+import { MessageCircle, Send, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -69,10 +69,7 @@ export function ChatAssistant() {
       const payload = await response.json();
       setMessages((items) => [...items, { role: "assistant", text: payload.data.answer }]);
     } catch {
-      setMessages((items) => [
-        ...items,
-        { role: "assistant", text: t("assistant.error") }
-      ]);
+      setMessages((items) => [...items, { role: "assistant", text: t("assistant.error") }]);
     } finally {
       setLoading(false);
     }
@@ -80,21 +77,16 @@ export function ChatAssistant() {
 
   return (
     <>
-      <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.92 }}
+      <Button
+        className="fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full shadow-lift sm:bottom-5"
+        size="icon"
+        onClick={() => setOpen(true)}
+        aria-label={t("assistant.open")}
+        aria-expanded={open}
+        aria-controls="chat-assistant-panel"
       >
-        <Button
-          className="fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full shadow-glow sm:bottom-4"
-          size="icon"
-          onClick={() => setOpen(true)}
-          aria-label={t("assistant.open")}
-          aria-expanded={open}
-          aria-controls="chat-assistant-panel"
-        >
-          <Bot className="h-5 w-5" aria-hidden="true" />
-        </Button>
-      </motion.div>
+        <MessageCircle className="h-5 w-5" aria-hidden="true" />
+      </Button>
 
       <AnimatePresence>
         {open && (
@@ -104,62 +96,66 @@ export function ChatAssistant() {
             role="dialog"
             aria-modal="true"
             aria-label={t("assistant.title")}
-            initial={{ opacity: 0, y: 16, scale: 0.93 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.93 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed bottom-36 right-4 z-50 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-lg border border-border bg-card shadow-glass sm:bottom-20"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 14 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed bottom-36 right-4 z-50 flex w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-overlay sm:bottom-20"
           >
-          <header className="flex items-center justify-between border-b border-border p-3">
-            <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
-                <Bot className="h-4 w-4" aria-hidden="true" />
-              </span>
+            <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
               <div>
-                <p className="text-sm font-bold">{t("assistant.title")}</p>
-                <p className="text-xs text-muted-foreground">{t("assistant.subtitle")}</p>
+                <p className="font-serif text-base leading-tight">{t("assistant.title")}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{t("assistant.subtitle")}</p>
               </div>
+              <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label={t("assistant.close")}>
+                <X className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </header>
+
+            <div
+              ref={messagesRef}
+              className="max-h-80 space-y-3 overflow-y-auto px-4 py-4"
+              aria-live="polite"
+              aria-atomic="false"
+            >
+              {messages.map((item, index) => (
+                <div
+                  key={`${item.role}-${index}`}
+                  className={
+                    item.role === "user"
+                      ? "ml-auto max-w-[86%] rounded-2xl rounded-br-md bg-primary px-3.5 py-2.5 text-sm text-primary-foreground"
+                      : "max-w-[88%] rounded-2xl rounded-bl-md bg-secondary px-3.5 py-2.5 text-sm leading-6"
+                  }
+                >
+                  {item.text}
+                </div>
+              ))}
+              {loading && (
+                <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-secondary px-3.5 py-2.5 text-sm text-muted-foreground">
+                  {t("common.thinking")}
+                </div>
+              )}
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label={t("assistant.close")}>
-              <X className="h-4 w-4" aria-hidden="true" />
-            </Button>
-          </header>
 
-          <div ref={messagesRef} className="max-h-80 space-y-3 overflow-y-auto p-3" aria-live="polite" aria-atomic="false">
-            {messages.map((item, index) => (
-              <div
-                key={`${item.role}-${index}`}
-                className={
-                  item.role === "user"
-                    ? "ml-auto max-w-[86%] rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground"
-                    : "max-w-[88%] rounded-md bg-muted px-3 py-2 text-sm"
-                }
-              >
-                {item.text}
-              </div>
-            ))}
-            {loading && <div className="max-w-[80%] rounded-md bg-muted px-3 py-2 text-sm">{t("common.thinking")}</div>}
-          </div>
-
-          <div className="flex gap-2 border-t border-border p-3">
-            <Input
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  submit();
-                }
-              }}
-              placeholder={t("assistant.placeholder")}
-              aria-label={t("assistant.placeholder")}
-            />
-            <Button size="icon" onClick={submit} aria-label={t("assistant.send")} disabled={loading}>
-              <Send className="h-4 w-4" aria-hidden="true" />
-            </Button>
-          </div>
-        </motion.section>
-      )}
+            <div className="flex gap-2 border-t border-border px-4 py-3">
+              <Input
+                value={message}
+                onChange={(event) => setMessage(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    submit();
+                  }
+                }}
+                placeholder={t("assistant.placeholder")}
+                aria-label={t("assistant.placeholder")}
+              />
+              <Button size="icon" onClick={submit} aria-label={t("assistant.send")} disabled={loading}>
+                <Send className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </div>
+          </motion.section>
+        )}
       </AnimatePresence>
     </>
   );

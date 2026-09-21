@@ -21,25 +21,28 @@ export function MobileActionBar() {
   return (
     <nav
       aria-label={t("nav.primaryActions")}
-      className="fixed inset-x-3 bottom-3 z-30 mx-auto flex max-w-xs items-center justify-around rounded-full border border-border bg-card/92 p-1 shadow-glass backdrop-blur-xl sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg sm:hidden"
     >
-      {bottomLinks.map((link) => {
-        const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(`${link.href}/`));
-        return (
-          <Link
-            key={link.href}
-            href={link.href}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "flex flex-1 flex-col items-center gap-0.5 rounded-full px-2 py-1.5 text-[10px] font-medium transition-colors",
-              active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <link.icon className="h-4 w-4" aria-hidden="true" />
-            <span>{t(link.labelKey)}</span>
-          </Link>
-        );
-      })}
+      <ul className="flex items-stretch">
+        {bottomLinks.map((link) => {
+          const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(`${link.href}/`));
+          return (
+            <li key={link.href} className="flex-1">
+              <Link
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "flex min-h-[3.25rem] flex-col items-center justify-center gap-1 px-1 py-2 text-[0.6875rem] font-medium transition-colors",
+                  active ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                <link.icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                <span className="truncate">{t(link.labelKey)}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }

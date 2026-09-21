@@ -77,12 +77,12 @@ function buildReasons(input: RecommendationInput, place: PlaceDTO, score: Recomm
   const reasons = [];
   const vibeMatch = place.vibeTags.find((tag) => input.vibes.map(normalizeText).includes(normalizeText(tag)));
 
-  if (vibeMatch) reasons.push(`Strong ${vibeMatch} signal`);
-  if (score.novelty > 0.68) reasons.push("Hidden-gem potential");
-  if (score.mobility > 0.85) reasons.push("Easy mobility fit");
-  if (score.context > 0.82) reasons.push("Good time-of-day and group fit");
-  if (score.personalization > 0.72) reasons.push("Matches learned preference profile");
-  if (place.rating >= 4.7) reasons.push("High review quality");
+  if (vibeMatch) reasons.push(`Good for ${vibeMatch}`);
+  if (score.novelty > 0.68) reasons.push("Few visitors know it");
+  if (score.mobility > 0.85) reasons.push("Easy to get to");
+  if (score.context > 0.82) reasons.push("Good at this time of day");
+  if (score.personalization > 0.72) reasons.push("Similar to places you've liked");
+  if (place.rating >= 4.7) reasons.push("Consistently well reviewed");
   if (place.business?.verified) reasons.push("Verified local business");
 
   return reasons.slice(0, 4);

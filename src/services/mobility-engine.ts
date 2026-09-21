@@ -240,20 +240,20 @@ function availabilityFor(method: TransportMethod, distance: number): MobilityOpt
 
 function labelFor(method: TransportMethod) {
   return {
-    WALKING: "Walkable route",
-    TAXI: "Taxi suggestion",
-    BUS: "Bus simulation",
-    BIKE: "Bike-friendly path",
-    CAR: "Drive route"
+    WALKING: "Walking",
+    TAXI: "Taxi",
+    BUS: "Bus",
+    BIKE: "Bike",
+    CAR: "Car"
   }[method];
 }
 
 function reasonFor(method: TransportMethod, duration: number, cost: number) {
-  if (method === "WALKING") return `Best for short urban hops, about ${duration} min and no cost.`;
-  if (method === "BUS") return `Low-cost public route, simulated fare about EUR ${cost.toFixed(1)}.`;
-  if (method === "TAXI") return `Fastest flexible option when nightlife or weather makes walking less ideal.`;
-  if (method === "BIKE") return `Good middle ground for parks and riverside movement.`;
-  return `Useful when the route crosses cities or mountain areas.`;
+  if (method === "WALKING") return "Short enough to walk, and it costs nothing.";
+  if (method === "BUS") return `The cheapest option — around EUR ${cost.toFixed(1)}.`;
+  if (method === "TAXI") return "Quick and flexible, which helps after dark or in bad weather.";
+  if (method === "BIKE") return "A good middle ground along parks and the riverside.";
+  return "Makes sense when the route crosses cities or mountains.";
 }
 
 export function calculateMobilityOptions(request: MobilityRequest): MobilityOption[] {

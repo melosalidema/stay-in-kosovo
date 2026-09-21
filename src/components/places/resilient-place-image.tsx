@@ -36,7 +36,7 @@ export function ResilientPlaceImage({
     return (
       <div
         className={cn(
-          "grid place-items-center bg-gradient-to-br from-teal-900 via-slate-950 to-rose-950 text-xs font-semibold uppercase tracking-wide text-white/70",
+          "grid place-items-center bg-secondary text-xs font-medium text-muted-foreground",
           isFill && "absolute inset-0",
           fallbackClassName
         )}
