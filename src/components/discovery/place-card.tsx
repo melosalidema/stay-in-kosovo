@@ -14,18 +14,14 @@ import type { PlaceDTO } from "@/types";
 
 const trackedViewPlaces = new Set<string>();
 
-type PlaceCardSurface = "discovery" | "home";
-
 export function PlaceCard({
   place,
   compact = false,
-  surface = "discovery",
   selected = false,
   onSelect
 }: {
   place: PlaceDTO;
   compact?: boolean;
-  surface?: PlaceCardSurface;
   selected?: boolean;
   onSelect?: (place: PlaceDTO) => void;
 }) {
@@ -109,7 +105,7 @@ export function PlaceCard({
           fill
           imageWidth={compact ? 640 : 1200}
           sizes={compact ? "(min-width: 1024px) 320px, 100vw" : "(min-width: 1024px) 380px, 100vw"}
-          className="experience-image"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
         />
 
         {primaryVibe && (
@@ -163,7 +159,7 @@ export function PlaceCard({
         </div>
 
         {!compact && (
-          <div className="mt-4 flex items-center gap-3 border-t border-border/70 pt-3 text-sm">
+          <div className="mt-4 border-t border-border/70 pt-3 text-sm">
             <Link
               href={`/discover/${place.slug}`}
               className="font-medium text-primary underline-offset-4 hover:underline"
@@ -171,9 +167,6 @@ export function PlaceCard({
             >
               {t("placeCard.seeDetails")}
             </Link>
-            {surface === "discovery" && place.category.type !== "EVENT" && (
-              <span className="ml-auto text-xs text-muted-foreground">{labels.vibe(primaryVibe)}</span>
-            )}
           </div>
         )}
       </div>

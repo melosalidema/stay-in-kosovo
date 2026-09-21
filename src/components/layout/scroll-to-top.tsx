@@ -25,7 +25,9 @@ export function ScrollToTop() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 10 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed bottom-4 left-4 z-40"
+            /* Clears the mobile action bar (bottom-0, full width) and sits
+               opposite the chat button, which is bottom-20 on the right. */
+            className="fixed bottom-20 left-4 z-40 sm:bottom-4"
         >
           <Button
             size="icon"

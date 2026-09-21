@@ -1,4 +1,3 @@
-import { ApplicationFlow } from "@/components/home/application-flow";
 import { ExploreSection } from "@/components/home/explore-section";
 import { HeroSection } from "@/components/home/hero-section";
 import { OnboardingTour } from "@/components/home/onboarding-tour";
@@ -19,7 +18,6 @@ export default async function HomePage() {
       <WeatherStrip />
       <VibeSelector />
       <ExploreSection places={homepagePlaces} />
-      <ApplicationFlow />
       <PulseCommandCenter />
     </>
   );

@@ -160,7 +160,7 @@ export function ExploreSection({ places }: { places: PlaceDTO[] }) {
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {items.map((item, index) => (
                     <Reveal key={item.place.id} delay={index * 70} className="h-full">
-                      <PlaceCard place={item.place} surface="home" />
+                      <PlaceCard place={item.place} />
                     </Reveal>
                   ))}
                 </div>
@@ -169,7 +169,7 @@ export function ExploreSection({ places }: { places: PlaceDTO[] }) {
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {popular.map((place, index) => (
                   <Reveal key={place.id} delay={index * 70} className="h-full">
-                    <PlaceCard place={place} surface="home" />
+                    <PlaceCard place={place} />
                   </Reveal>
                 ))}
               </div>

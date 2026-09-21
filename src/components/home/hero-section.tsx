@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, MapPin, Moon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -62,8 +62,9 @@ export function HeroSection({ featuredPlaces, featuredEvents = [] }: HeroSection
             </button>
             <Link
               href="/pulse"
-              className="text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+              className="inline-flex items-center gap-1.5 text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
             >
+              <Moon className="h-3.5 w-3.5" aria-hidden="true" />
               {t("hero.tonightLink")}
             </Link>
           </div>

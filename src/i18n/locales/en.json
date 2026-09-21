@@ -138,26 +138,6 @@
     "errorTitle": "We couldn't load places just now",
     "errorText": "Something went wrong on our side. Try again in a moment."
   },
-  "flow": {
-    "eyebrow": "How it works",
-    "title": "Three steps to a good day.",
-    "description": "No accounts needed to look around. Sign in when you want to save things.",
-    "getStarted": "Start exploring",
-    "steps": {
-      "mood": {
-        "title": "Pick a mood",
-        "text": "Slow and peaceful, something delicious, a night out, or an adventure — choose how you want the day to feel."
-      },
-      "explore": {
-        "title": "See what fits",
-        "text": "We show places that match, with the honest details: how far, roughly what it costs, and whether it's open."
-      },
-      "keep": {
-        "title": "Keep the good ones",
-        "text": "Save places as you go, then turn them into a simple plan you can follow on the day."
-      }
-    }
-  },
   "discover": {
     "badge": "Discover",
     "title": "Find the right place in Kosovo.",

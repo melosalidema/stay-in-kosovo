@@ -138,26 +138,6 @@
     "errorTitle": "Nuk mundëm t'i ngarkojmë vendet tani",
     "errorText": "Diçka shkoi keq nga ana jonë. Provo përsëri pas një momenti."
   },
-  "flow": {
-    "eyebrow": "Si funksionon",
-    "title": "Tre hapa deri te një ditë e mirë.",
-    "description": "Nuk të duhet llogari për të shikuar. Hyr kur të duash të ruash gjëra.",
-    "getStarted": "Nis zbulimin",
-    "steps": {
-      "mood": {
-        "title": "Zgjidh një atmosferë",
-        "text": "E qetë dhe pa nxitim, diçka e shijshme, një natë jashtë, apo aventurë — zgjidh si ta ndjesh ditën."
-      },
-      "explore": {
-        "title": "Shiko çfarë përshtatet",
-        "text": "Të tregojmë vende që përputhen, me detaje të sinqerta: sa larg, sa kushton dhe a është hapur."
-      },
-      "keep": {
-        "title": "Ruaj më të mirat",
-        "text": "Ruaj vendet ndërsa zbulon, pastaj ktheji në një plan të thjeshtë për ditën."
-      }
-    }
-  },
   "discover": {
     "badge": "Zbulo",
     "title": "Gjej vendin e duhur në Kosovë.",

@@ -125,10 +125,6 @@
     @apply w-full px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20;
   }
 
-  .section-band-tight {
-    @apply w-full px-4 py-10 sm:px-6 lg:px-8;
-  }
-
   .page-shell {
     @apply mx-auto w-full max-w-6xl;
   }
@@ -157,10 +153,6 @@
 
   .lede {
     @apply text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8;
-  }
-
-  .editorial-rule {
-    @apply h-px w-full border-0 bg-border;
   }
 
   /* ---- Surfaces ------------------------------------------------------ */
@@ -243,45 +235,6 @@
     @apply border-t border-border/70;
   }
 
-  /* Kept for backwards compatibility with existing markup. */
-  .glass-panel {
-    @apply rounded-xl border border-border bg-card/85 backdrop-blur-md;
-  }
-
-  .experience-card,
-  .experience-card-home,
-  .experience-card-discovery,
-  .experience-card-pulse {
-    @apply rounded-xl border border-border bg-card text-card-foreground transition-[border-color,box-shadow,transform] duration-300 ease-out;
-  }
-
-  .experience-card-home,
-  .experience-card-discovery {
-    @apply hover:border-primary/25;
-  }
-
-  .experience-media {
-    @apply relative overflow-hidden bg-muted;
-  }
-
-  .experience-image {
-    @apply object-cover transition-transform duration-700 ease-out;
-  }
-
-  .experience-card:hover .experience-image,
-  .experience-card-home:hover .experience-image,
-  .experience-card-discovery:hover .experience-image,
-  .experience-card-pulse:hover .experience-image,
-  .editorial-card:hover .experience-image {
-    @apply scale-[1.03];
-  }
-
-  /* ---- Small data chips ---------------------------------------------- */
-
-  .soft-stat {
-    @apply inline-flex items-center gap-1.5 text-xs text-muted-foreground;
-  }
-
   /* ---- Media --------------------------------------------------------- */
 
   .media-frame {
@@ -304,13 +257,6 @@
   }
 }
 
-.map-grid {
-  background-image:
-    linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
 @keyframes heart-pop {
   0%,
   100% {
@@ -326,21 +272,6 @@
 
 .heart-bounce {
   animation: heart-pop 0.38s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.rise-in {
-  animation: rise-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
