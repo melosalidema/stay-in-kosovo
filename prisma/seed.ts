@@ -1,12 +1,14 @@
-import crypto from "node:crypto";
+
 
 import { Prisma, PrismaClient, Role, TransportType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+const DEMO_PASSWORD = "Password123!";
+
 function generateStrongPassword(): string {
-  return crypto.randomBytes(24).toString("base64url");
+  return DEMO_PASSWORD;
 }
 
 async function main() {
@@ -20,7 +22,9 @@ async function main() {
   const [tourist, owner, adminUser] = await Promise.all([
     prisma.user.upsert({
       where: { email: "tourist@staykosovo.dev" },
-      update: {},
+      update: {
+        hashedPassword: password,
+      },
       create: {
         name: "Arta Visitor",
         email: "tourist@staykosovo.dev",
@@ -36,7 +40,9 @@ async function main() {
     }),
     prisma.user.upsert({
       where: { email: "owner@staykosovo.dev" },
-      update: {},
+      update: {
+        hashedPassword: ownerHashed,
+      },
       create: {
         name: "Driton Business",
         email: "owner@staykosovo.dev",
@@ -47,7 +53,9 @@ async function main() {
     }),
     prisma.user.upsert({
       where: { email: "admin@staykosovo.dev" },
-      update: {},
+      update: {
+        hashedPassword: adminHashed,
+      },
       create: {
         name: "Stay Kosovo Admin",
         email: "admin@staykosovo.dev",
