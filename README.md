@@ -302,6 +302,12 @@ Two things that bite during a build:
   and a prerendered page has no request to take one from, so its inline scripts
   ship without a nonce, get blocked, and the page never hydrates.
 
+Missing variables will **not** fail the build. `src/lib/env.ts` treats every
+entry as optional and reports the gaps once in the function logs, naming each
+variable and what it disables, so a deploy succeeds and degrades instead of
+stopping at the build step. Check `GET /api/health` or the logs after the first
+request to confirm what the running site actually picked up.
+
 Health check: `GET /api/health` reports `databaseConfigured` so you can confirm
 the environment variables actually reached the build.
 
