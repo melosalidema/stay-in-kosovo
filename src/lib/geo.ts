@@ -298,14 +298,22 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
+/** Type guard: a coordinate is only usable once both numbers are real and finite. */
 export function hasNumericCoordinates(coordinates: Partial<Coordinates> | null | undefined): coordinates is Coordinates {
   return isFiniteNumber(coordinates?.lat) && isFiniteNumber(coordinates?.lng);
 }
 
+/** Cheap rectangular pre-filter. Runs before the polygon test to skip most rejects. */
 function isWithinKosovoBounds({ lat, lng }: Coordinates) {
   return lat >= KOSOVO_BOUNDS.south && lat <= KOSOVO_BOUNDS.north && lng >= KOSOVO_BOUNDS.west && lng <= KOSOVO_BOUNDS.east;
 }
 
+/**
+ * Ray casting: count how many polygon edges a ray east of the point crosses.
+ * An odd count means the point is inside. Coordinates are [lng, lat] here, so
+ * they are destructured in that order — mixing the two silently inverts the
+ * result for anything outside the diagonal.
+ */
 function pointInPolygon({ lat, lng }: Coordinates, polygon: readonly BoundaryPoint[]) {
   let inside = false;
 
@@ -320,6 +328,11 @@ function pointInPolygon({ lat, lng }: Coordinates, polygon: readonly BoundaryPoi
   return inside;
 }
 
+/**
+ * Two-stage check: bounding box first, then the real border. The box alone
+ * would accept a chunk of Albania, Serbia and North Macedonia, which is why
+ * the polygon is kept.
+ */
 export function isCoordinateInsideKosovo(coordinates: Partial<Coordinates> | null | undefined): coordinates is Coordinates {
   if (!hasNumericCoordinates(coordinates)) return false;
   if (!isWithinKosovoBounds(coordinates)) return false;
@@ -327,6 +340,11 @@ export function isCoordinateInsideKosovo(coordinates: Partial<Coordinates> | nul
   return pointInPolygon(coordinates, KOSOVO_BOUNDARY);
 }
 
+/**
+ * Splits a place list into plottable places and the reasons the rest were
+ * dropped. Callers surface the rejected ones to the console rather than
+ * failing, so one bad row cannot blank out the whole map.
+ */
 export function validatePlacesForKosovoMap(places: PlaceDTO[]) {
   const validPlaces: PlaceDTO[] = [];
   const invalidRecords: InvalidCoordinateRecord[] = [];
@@ -369,6 +387,10 @@ export function validatePlacesForKosovoMap(places: PlaceDTO[]) {
   return { validPlaces, invalidRecords };
 }
 
+/**
+ * Deep links into Google Maps. `api=1` is the documented universal cross-platform
+ * format and works on both desktop and mobile without an API key.
+ */
 export function googleMapsSearchUrl(coordinates: Coordinates) {
   return `https://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}`;
 }
@@ -389,6 +411,11 @@ function coordinatesParam(coordinates: Coordinates) {
   return `${coordinates.lat},${coordinates.lng}`;
 }
 
+/**
+ * Multi-stop route deep link, used by the itinerary planner to hand a whole day
+ * to Google Maps in one tap. Waypoints are pipe-separated and capped by Google
+ * at nine; longer itineraries are truncated upstream.
+ */
 export function googleMapsRouteUrl({
   origin,
   destination,
